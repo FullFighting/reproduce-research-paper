@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.reproduce-runtime/
+tests/.reproduce-runtime/
+reproduction-output/
+*.log
+.env
+.DS_Store
+Thumbs.db

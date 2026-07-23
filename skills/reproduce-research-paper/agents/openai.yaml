@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reproduce Research Paper"
+  short_description: "Audit paper claims with executable evidence"
+  default_prompt: "Use $reproduce-research-paper to audit this paper and its experiment repository."

@@ -1,0 +1,16 @@
+{
+  "name": "reproduce-research-paper",
+  "version": "0.1.0",
+  "description": "Evidence-first computational research reproduction for Codex",
+  "author": {
+    "name": "Reproduce Research Paper Contributors"
+  },
+  "license": "MIT",
+  "keywords": [
+    "codex-skill",
+    "research-reproducibility",
+    "computational-research",
+    "scientific-code"
+  ],
+  "skills": "./skills/"
+}

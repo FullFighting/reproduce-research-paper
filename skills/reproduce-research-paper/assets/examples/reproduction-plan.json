@@ -1,0 +1,25 @@
+{
+  "repository": "toy-repository",
+  "paper": {
+    "title": "Toy reproducibility example",
+    "reference": "Example paper, Table 1"
+  },
+  "commands": [
+    {
+      "id": "smoke-experiment",
+      "argv": ["python", "run_experiment.py"],
+      "cwd": ".",
+      "timeout_seconds": 60
+    }
+  ],
+  "claims": [
+    {
+      "id": "table-1-accuracy",
+      "paper_location": "Table 1, test split",
+      "metric": "test_accuracy",
+      "expected": 0.9,
+      "tolerance": {"absolute": 0.02},
+      "protocol": "Evaluate the fixed test split once; do not tune on it."
+    }
+  ]
+}
