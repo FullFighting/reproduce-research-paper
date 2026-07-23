@@ -139,4 +139,4 @@ python -m pip install -r benchmarks/harness/requirements.lock.txt
 python benchmarks/run_benchmarks.py --clean
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), the [V1 changelog](CHANGELOG.md), and the evidence-backed [Codex open source application guide](docs/codex-open-source-application.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and the [V1 changelog](CHANGELOG.md).

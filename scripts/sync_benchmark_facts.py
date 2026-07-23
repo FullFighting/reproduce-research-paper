@@ -54,16 +54,6 @@ def generated_blocks(summary: dict) -> dict[Path, str]:
                 END,
             ]
         ),
-        ROOT / "docs" / "codex-open-source-application.md": "\n".join(
-            [
-                START,
-                f"- Published cases: {cases} public, paper-linked, claim-level executable checks.",
-                f"- Claim results: {reproduced}/{cases} reproduced within predeclared tolerance.",
-                f"- Evidence integrity: {verified}/{cases} bundles pass re-hashing and report recomputation.",
-                f"- Deterministic runtime: {tokens} API tokens and ${cost} estimated external API cost.",
-                END,
-            ]
-        ),
     }
 
 
