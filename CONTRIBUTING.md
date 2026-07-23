@@ -12,6 +12,8 @@ python scripts/sync_benchmark_facts.py --check
 python scripts/validate_codex_evaluation.py
 ```
 
+For schema, release, or execution-boundary changes, also generate a clean `git archive` and run `scripts/verify_release_archive.py`. Container changes must pass `scripts/run_container_e2e.py`.
+
 For behavior changes:
 
 1. describe the affected source-to-report path;

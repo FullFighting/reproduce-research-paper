@@ -1,11 +1,14 @@
 import json
+import hashlib
 import os
 import shutil
 import subprocess
 import sys
+import types
 import unittest
 import uuid
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -14,6 +17,7 @@ SCRIPTS = SKILL / "scripts"
 EXAMPLES = SKILL / "assets" / "examples"
 RUNTIME = ROOT / "tests" / ".reproduce-runtime"
 REPRODUCED = "CLAIM_REPRODUCED_WITHIN_TOLERANCE"
+UNITLESS_V2 = {"symbol": "1", "scale": 1, "semantic_type": "unitless"}
 
 
 PAPER_CONTEXT = {
@@ -164,6 +168,34 @@ class ReproduceResearchPaperTests(unittest.TestCase):
         )
         self.assertIn("execution.network must be explicitly declared", result.stdout)
 
+    def test_validator_rejects_wrong_json_types_without_crashing(self):
+        self.write_program("print('{\"score\": 0.9}')\n")
+        mutations = (
+            lambda plan: plan.update(schema_version=[]),
+            lambda plan: plan["execution"].update(network=[]),
+            lambda plan: plan["execution"].update(workspace_mode=[]),
+            lambda plan: plan["claims"][0].update(
+                expected={"type": [], "value": 0.9}
+            ),
+            lambda plan: plan["claims"][0]["observation"].update(source=[]),
+            lambda plan: plan["claims"][0]["comparison"].update(method=[]),
+            lambda plan: plan["claims"][0].update(command_ids=[{}]),
+        )
+        for index, mutate in enumerate(mutations):
+            with self.subTest(mutation=index):
+                plan_value, plan = self.make_plan()
+                mutate(plan_value)
+                plan.write_text(json.dumps(plan_value), encoding="utf-8")
+                result = self.run_script(
+                    "validate_reproduction_plan.py",
+                    "--plan",
+                    plan,
+                    expect=1,
+                )
+                payload = json.loads(result.stdout)
+                self.assertFalse(payload["valid"])
+                self.assertTrue(payload["errors"])
+
     @unittest.skipUnless(hasattr(os, "symlink"), "symbolic links unavailable")
     def test_external_symlink_is_rejected(self):
         self.write_program("print('{\"score\": 0.9}')\n")
@@ -268,6 +300,47 @@ class ReproduceResearchPaperTests(unittest.TestCase):
         self.assertEqual(comparison["claims"][0]["status"], "INCONCLUSIVE")
         self.run_script("build_report.py", "--bundle", bundle)
 
+    def test_git_worktree_mode_rejects_dirty_source(self):
+        self.write_program("print('{\"score\": 0.905}')\n")
+        for command in (
+            ["git", "init"],
+            ["git", "add", "experiment.py"],
+            [
+                "git",
+                "-c",
+                "user.name=Reproduction Test",
+                "-c",
+                "user.email=test@example.invalid",
+                "commit",
+                "-m",
+                "fixture",
+            ],
+        ):
+            result = subprocess.run(
+                command,
+                cwd=self.repository,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        plan_value, plan = self.make_plan()
+        plan_value["execution"]["workspace_mode"] = "git_worktree"
+        plan.write_text(json.dumps(plan_value), encoding="utf-8")
+        self.write_program("print('{\"score\": 0.1}')\n")
+        result = self.run_script(
+            "run_reproduction.py",
+            "--plan",
+            plan,
+            "--output",
+            self.case_root / "dirty-bundle",
+            "--execute",
+            expect=2,
+        )
+        self.assertIn("requires a clean source worktree", result.stderr)
+
     def test_csv_result_file_is_preserved_and_extracted(self):
         self.write_program(
             "import os\n"
@@ -299,6 +372,40 @@ class ReproduceResearchPaperTests(unittest.TestCase):
         self.assertEqual(item["normalized_value"], 0.905)
         self.assertTrue((bundle / item["source_artifact"]).is_file())
         self.run_script("build_report.py", "--bundle", bundle)
+
+    def test_parquet_extractor_parses_numeric_values(self):
+        class FakeColumn:
+            def to_pylist(self):
+                return ["1.5", 2.5]
+
+        class FakeTable:
+            def __getitem__(self, name):
+                self.requested_name = name
+                return FakeColumn()
+
+        parquet = types.ModuleType("pyarrow.parquet")
+        parquet.read_table = lambda *_args, **_kwargs: FakeTable()
+        pyarrow = types.ModuleType("pyarrow")
+        pyarrow.__path__ = []
+        pyarrow.parquet = parquet
+
+        sys.path.insert(0, str(SCRIPTS))
+        try:
+            from extract_observations import _parquet_extract
+
+            with mock.patch.dict(
+                sys.modules,
+                {"pyarrow": pyarrow, "pyarrow.parquet": parquet},
+            ):
+                self.assertEqual(
+                    _parquet_extract(
+                        self.repository / "fixture.parquet",
+                        {"column": "score", "aggregate": "values"},
+                    ),
+                    [1.5, 2.5],
+                )
+        finally:
+            sys.path.pop(0)
 
     def test_all_tolerances_must_pass_when_combination_is_all(self):
         self.write_program("print('{\"score\": 0.91}')\n")
@@ -338,15 +445,256 @@ class ReproduceResearchPaperTests(unittest.TestCase):
         self.assertEqual(result["claims"][0]["status"], REPRODUCED)
         self.assertEqual(result["claims"][0]["details"]["run_count"], 5)
 
-    def test_literal_secrets_are_rejected_and_secret_refs_are_masked(self):
-        self.write_program("print('{\"score\": 0.905}')\n")
+    def test_schema_v2_accepts_typed_expected_values_and_custom_units(self):
+        observation = {
+            "source": "stdout",
+            "command_id": "experiment",
+            "extractor": "jsonpath",
+            "expression": "$.value",
+            "unit": UNITLESS_V2,
+        }
+        cases = [
+            ({"type": "scalar", "value": 0.91}, "numeric_tolerance", {"absolute": 0.01}),
+            ({"type": "array", "value": ["cat", "dog"]}, "exact_match", {}),
+            (
+                {
+                    "type": "table",
+                    "value": {
+                        "columns": ["model", "score"],
+                        "row_labels": ["row-1"],
+                        "rows": [["A", 0.91]],
+                    },
+                },
+                "exact_match",
+                {},
+            ),
+            ({"type": "ranking", "value": ["A", "B", "C"]}, "exact_order", {}),
+            ({"type": "categorical", "value": "positive"}, "exact_match", {}),
+            ({"type": "string", "value": "model-v2"}, "exact_match", {}),
+            ({"type": "artifact_hash", "value": "a" * 64}, "artifact_hash", {}),
+            (
+                {"type": "distribution", "value": [0.1, 0.2, 0.3]},
+                "distribution_distance",
+                {"maximum_distance": 0.1},
+            ),
+        ]
+        for index, (expected, method, extra) in enumerate(cases):
+            with self.subTest(expected_type=expected["type"]):
+                plan_value, plan = self.make_plan(observation)
+                plan_value["schema_version"] = 2
+                plan_value["claims"][0]["expected"] = expected
+                plan_value["claims"][0]["unit"] = UNITLESS_V2
+                plan_value["claims"][0]["comparison"] = {
+                    "method": method,
+                    "combination": "all",
+                    "minimum_runs": 1,
+                    "aggregate": "none",
+                    "direction": "two_sided",
+                    **extra,
+                }
+                plan.write_text(json.dumps(plan_value), encoding="utf-8")
+                result = self.run_script(
+                    "validate_reproduction_plan.py", "--plan", plan
+                )
+                self.assertTrue(json.loads(result.stdout)["valid"], index)
+
+        custom_unit = {
+            "symbol": "BLEU",
+            "scale": 1,
+            "semantic_type": "quality_metric",
+        }
+        milli_unit = {
+            "symbol": "mBLEU",
+            "scale": 0.001,
+            "semantic_type": "quality_metric",
+        }
+        self.write_program("print('{\"value\": 42000}')\n")
+        observation["unit"] = milli_unit
+        plan_value, plan = self.make_plan(observation)
+        plan_value["schema_version"] = 2
+        plan_value["claims"][0]["expected"] = {"type": "scalar", "value": 42.0}
+        plan_value["claims"][0]["unit"] = custom_unit
+        plan.write_text(json.dumps(plan_value), encoding="utf-8")
+        bundle = self.execute_bundle(plan)
+        result = json.loads((bundle / "comparison.json").read_text(encoding="utf-8"))
+        self.assertEqual(result["claims"][0]["status"], REPRODUCED)
+
+    def test_schema_v2_compares_structured_and_distribution_results(self):
+        digest = "b" * 64
+        self.write_program(
+            "import json\n"
+            f"print(json.dumps({{'category': 'positive', 'ranking': ['A', 'B', 'C'], "
+            f"'table': {{'columns': ['model', 'score'], 'row_labels': ['r1'], "
+            f"'rows': [['A', 0.91]]}}, 'hash': '{digest}', "
+            "'distribution': [0.1, 0.2, 0.3]}))\n"
+        )
+        specs = [
+            ("category", {"type": "categorical", "value": "positive"}, "exact_match", {}),
+            ("ranking", {"type": "ranking", "value": ["A", "B", "C"]}, "exact_order", {}),
+            (
+                "table",
+                {
+                    "type": "table",
+                    "value": {
+                        "columns": ["model", "score"],
+                        "row_labels": ["r1"],
+                        "rows": [["A", 0.91]],
+                    },
+                },
+                "exact_match",
+                {},
+            ),
+            ("hash", {"type": "artifact_hash", "value": digest}, "artifact_hash", {}),
+            (
+                "distribution",
+                {"type": "distribution", "value": [0.1, 0.2, 0.3]},
+                "distribution_distance",
+                {"maximum_distance": 0.0},
+            ),
+        ]
+        claims = []
+        for field, expected, method, extra in specs:
+            claims.append(
+                claim(
+                    {
+                        "source": "stdout",
+                        "command_id": "experiment",
+                        "extractor": "jsonpath",
+                        "expression": f"$.{field}",
+                        "unit": UNITLESS_V2,
+                    },
+                    id=f"claim-{field}",
+                    expected=expected,
+                    unit=UNITLESS_V2,
+                    comparison={
+                        "method": method,
+                        "combination": "all",
+                        "minimum_runs": 1,
+                        "aggregate": "none",
+                        "direction": "two_sided",
+                        **extra,
+                    },
+                )
+            )
+        plan_value, plan = self.make_plan(claims[0]["observation"], claims=claims)
+        plan_value["schema_version"] = 2
+        plan.write_text(json.dumps(plan_value), encoding="utf-8")
+        bundle = self.execute_bundle(plan)
+        comparison = json.loads((bundle / "comparison.json").read_text(encoding="utf-8"))
+        self.assertTrue(all(item["status"] == REPRODUCED for item in comparison["claims"]))
+        self.run_script("build_report.py", "--bundle", bundle)
+
+    def test_schema_v2_normalizes_numeric_table_rows(self):
+        source_unit = {
+            "symbol": "mF1",
+            "scale": 0.001,
+            "semantic_type": "quality_metric",
+        }
+        target_unit = {
+            "symbol": "F1",
+            "scale": 1,
+            "semantic_type": "quality_metric",
+        }
+        self.write_program(
+            "import json\n"
+            "print(json.dumps({'table': {'columns': ['fold-1', 'fold-2'], "
+            "'row_labels': ['model-a'], 'rows': [[910, 920]]}}))\n"
+        )
+        observation = {
+            "source": "stdout",
+            "command_id": "experiment",
+            "extractor": "jsonpath",
+            "expression": "$.table",
+            "unit": source_unit,
+        }
+        plan_value, plan = self.make_plan(observation)
+        plan_value["schema_version"] = 2
+        plan_value["claims"][0]["expected"] = {
+            "type": "table",
+            "value": {
+                "columns": ["fold-1", "fold-2"],
+                "row_labels": ["model-a"],
+                "rows": [[0.91, 0.92]],
+            },
+        }
+        plan_value["claims"][0]["unit"] = target_unit
+        plan_value["claims"][0]["comparison"]["aggregate"] = "none"
+        plan.write_text(json.dumps(plan_value), encoding="utf-8")
+        bundle = self.execute_bundle(plan)
+        comparison = json.loads((bundle / "comparison.json").read_text(encoding="utf-8"))
+        self.assertEqual(comparison["claims"][0]["status"], REPRODUCED)
+
+    def test_artifact_hash_is_extracted_from_the_run_file(self):
+        payload = b"model artifact bytes\n"
+        digest = hashlib.sha256(payload).hexdigest()
+        self.write_program(
+            "import os\n"
+            "from pathlib import Path\n"
+            "root = Path(os.environ['REPRO_OUTPUT_DIR'])\n"
+            "(root / 'artifacts').mkdir(parents=True, exist_ok=True)\n"
+            "(root / 'artifacts' / 'model.bin').write_bytes(b'model artifact bytes\\n')\n"
+        )
+        hash_unit = {
+            "symbol": "sha256",
+            "scale": 1,
+            "semantic_type": "artifact_identity",
+        }
+        observation = {
+            "source": "file",
+            "command_id": "experiment",
+            "root": "outputs",
+            "path": "artifacts/model.bin",
+            "extractor": "sha256",
+            "unit": hash_unit,
+        }
+        plan_value, plan = self.make_plan(observation)
+        plan_value["schema_version"] = 2
+        plan_value["execution"]["write_paths"] = ["artifacts"]
+        plan_value["claims"][0]["expected"] = {
+            "type": "artifact_hash",
+            "value": digest,
+        }
+        plan_value["claims"][0]["unit"] = hash_unit
+        plan_value["claims"][0]["comparison"] = {
+            "method": "artifact_hash",
+            "combination": "all",
+            "minimum_runs": 1,
+            "aggregate": "none",
+            "direction": "two_sided",
+        }
+        plan.write_text(json.dumps(plan_value), encoding="utf-8")
+        bundle = self.execute_bundle(plan)
+        comparison = json.loads((bundle / "comparison.json").read_text(encoding="utf-8"))
+        self.assertEqual(comparison["claims"][0]["status"], REPRODUCED)
+        observation_payload = json.loads(
+            (bundle / "observations.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(observation_payload["observations"][0]["normalized_value"], digest)
+
+    def test_argv_secrets_are_denied_by_default_and_environment_secrets_are_redacted(self):
+        sys.path.insert(0, str(SCRIPTS))
+        try:
+            from run_reproduction import _resolve_command
+
+            with self.assertRaisesRegex(ValueError, "disabled by default"):
+                _resolve_command(
+                    {"argv": ["python", {"secret_ref": "API_KEY"}]}
+                )
+        finally:
+            sys.path.pop(0)
+
+        self.write_program(
+            "import json, os\n"
+            "print(os.environ.get('TEST_API_KEY', 'missing'))\n"
+            "print(json.dumps({'score': 0.905}))\n"
+        )
         plan_value, plan = self.make_plan()
         plan_value["commands"][0]["argv"].extend(["--api-key", "literal-secret"])
         plan.write_text(json.dumps(plan_value), encoding="utf-8")
         result = self.run_script(
             "validate_reproduction_plan.py", "--plan", plan, expect=1
         )
-        self.assertIn("use secret_ref", result.stdout)
+        self.assertIn("use secret_bindings", result.stdout)
         self.assertNotIn("literal-secret", result.stdout)
 
         plan_value["commands"][0]["argv"] = [
@@ -354,6 +702,16 @@ class ReproduceResearchPaperTests(unittest.TestCase):
             "experiment.py",
             "--api-key",
             {"secret_ref": "TEST_REPRO_SECRET"},
+        ]
+        plan.write_text(json.dumps(plan_value), encoding="utf-8")
+        result = self.run_script(
+            "validate_reproduction_plan.py", "--plan", plan, expect=1
+        )
+        self.assertIn("disabled by default", result.stdout)
+
+        plan_value["commands"][0]["argv"] = [sys.executable, "experiment.py"]
+        plan_value["commands"][0]["secret_bindings"] = [
+            {"name": "TEST_API_KEY", "secret_ref": "TEST_REPRO_SECRET"}
         ]
         plan.write_text(json.dumps(plan_value), encoding="utf-8")
         environment = dict(os.environ)
@@ -369,10 +727,43 @@ class ReproduceResearchPaperTests(unittest.TestCase):
             env=environment,
         )
         serialized = (bundle / "run-record.json").read_text(encoding="utf-8")
-        self.assertIn("[SECRET_REF:TEST_REPRO_SECRET]", serialized)
         self.assertNotIn("super-private-value", serialized)
+        self.assertFalse(json.loads(serialized)["argv_secret_compatibility_mode"])
         for log in (bundle / "logs").iterdir():
             self.assertNotIn("super-private-value", log.read_text(encoding="utf-8"))
+
+        plan_value["commands"][0].pop("secret_bindings")
+        plan_value["commands"][0]["argv"] = [
+            sys.executable,
+            "experiment.py",
+            "--api-key",
+            {"secret_ref": "TEST_REPRO_SECRET"},
+        ]
+        plan_value["execution"]["allow_argv_secrets"] = True
+        compatibility_plan = self.case_root / "compatibility-plan.json"
+        compatibility_plan.write_text(json.dumps(plan_value), encoding="utf-8")
+        compatibility_bundle = self.case_root / "compatibility-bundle"
+        self.run_script(
+            "run_reproduction.py",
+            "--plan",
+            compatibility_plan,
+            "--output",
+            compatibility_bundle,
+            "--execute",
+            env=environment,
+        )
+        compatibility_record = json.loads(
+            (compatibility_bundle / "run-record.json").read_text(encoding="utf-8")
+        )
+        self.assertTrue(compatibility_record["argv_secret_compatibility_mode"])
+        self.assertIn(
+            "HIGH_RISK_COMPATIBILITY",
+            " ".join(compatibility_record["deviations"]),
+        )
+        self.assertIn(
+            "[SECRET_REF:TEST_REPRO_SECRET]",
+            (compatibility_bundle / "run-record.json").read_text(encoding="utf-8"),
+        )
 
     def test_network_disabled_is_not_falsely_claimed_on_host_mode(self):
         self.write_program("print('{\"score\": 0.905}')\n")
@@ -384,6 +775,43 @@ class ReproduceResearchPaperTests(unittest.TestCase):
         self.assertIn("requires container mode", record["commands"][0]["error"])
         comparison = json.loads((bundle / "comparison.json").read_text(encoding="utf-8"))
         self.assertEqual(comparison["claims"][0]["status"], "BLOCKED")
+
+    def test_container_limits_apply_to_container_not_docker_wrapper(self):
+        sys.path.insert(0, str(SCRIPTS))
+        try:
+            import run_reproduction
+
+            capabilities = execution(network="disabled")
+            outputs = self.case_root / "outputs"
+            outputs.mkdir()
+            with mock.patch.object(
+                run_reproduction,
+                "_local_argv",
+                return_value=(0, False, "ok", "", {}),
+            ) as wrapper:
+                _, _, _, _, enforcement = run_reproduction._container_argv(
+                    ["python", "experiment.py"],
+                    {"cwd": "."},
+                    capabilities,
+                    self.repository,
+                    outputs,
+                    "python@sha256:" + "a" * 64,
+                    60,
+                    {},
+                )
+            docker_argv = wrapper.call_args.args[0]
+            self.assertIn("--network", docker_argv)
+            self.assertEqual(docker_argv[docker_argv.index("--network") + 1], "none")
+            self.assertIn("cpu=60:61", docker_argv)
+            self.assertIn(
+                f"fsize={8 * 1024 * 1024}:{8 * 1024 * 1024}",
+                docker_argv,
+            )
+            self.assertFalse(wrapper.call_args.kwargs["apply_posix_limits"])
+            self.assertEqual(enforcement["memory"], "Docker --memory")
+            self.assertIn("Docker --ulimit cpu", enforcement["cpu"])
+        finally:
+            sys.path.pop(0)
 
     def test_inventory_hashes_every_file_and_changes_with_core_code(self):
         self.write_program("print(1)\n")

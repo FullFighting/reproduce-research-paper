@@ -7,7 +7,7 @@
 - Add 50 or more negative, security, provenance, extractor, license, and resource-budget fixtures.
 - Review at least five externally submitted reproduction plans.
 - Publish two releases with complete changelogs.
-- Add a Linux container end-to-end fixture and a signed-provenance design document.
+- Extend the Linux container end-to-end fixture beyond the bundled deterministic case.
 
 ## Evaluation maturity
 
@@ -18,7 +18,7 @@
 
 ## Longer term
 
-- DSSE/Sigstore and in-toto/SLSA-style signed provenance; RO-Crate interoperability.
+- Extend release build attestations to scientific-run DSSE/Sigstore and in-toto/SLSA-style provenance; add RO-Crate interoperability.
 - Separately permissioned professional peer-review support.
 - Academic-integrity screening with false-positive analysis and human adjudication.
 - Dataset-quality and leakage audits.

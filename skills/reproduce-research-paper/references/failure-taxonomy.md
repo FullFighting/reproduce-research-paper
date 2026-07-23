@@ -10,7 +10,7 @@ Assign one primary category, retain raw redacted evidence, and state whether the
 | `repository_drift` | source/tree changed between inventory and run | `INCONCLUSIVE` | restore a clean isolated source and rerun |
 | `undeclared_write` | workspace/output change outside `write_paths` | `INCONCLUSIVE` | declare a narrow path or fix the command |
 | `capability_violation` | network/resource/output policy not enforced or exceeded | `INCONCLUSIVE` | use container mode or revise authorized budget |
-| `secret_exposure` | literal key, bearer header, credentialed URL, or leaked log | `BLOCKED` | rotate if necessary; replace with `secret_ref` and regression-test redaction |
+| `secret_exposure` | literal key, argv credential, bearer header, credentialed URL, or leaked log | `BLOCKED` | rotate if necessary; use environment `secret_bindings` and regression-test redaction |
 | `execution_error` | nonzero exit, timeout, assertion, or exception | `BLOCKED` | preserve logs and diagnose without rewriting history |
 | `observation_unbound` | no run/source hash, missing command, or manual metric | `BLOCKED` or `MANUAL_REVIEW_REQUIRED` | add a machine extractor |
 | `extractor_error` | JSONPath/regex/CSV/NumPy/Parquet selection fails | `BLOCKED` | fix the declared expression and create a new plan |

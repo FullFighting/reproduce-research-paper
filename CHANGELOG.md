@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.0 - 2026-07-23
+
+- Adds schema v2 typed expected values: scalar, array, labeled table, ranking, categorical, string, artifact hash, and distribution.
+- Replaces the closed unit enum with validated `{symbol, scale, semantic_type}` descriptors while retaining schema-v1 verification.
+- Adds exact, set, artifact-hash, labeled-table, string-ranking, and empirical distribution comparisons.
+- Adds a source-bound file `sha256` extractor.
+- Rejects argv secret references by default at validation and runtime; environment `secret_bindings` remain the safe default and an explicit high-risk compatibility mode is recorded.
+- Refactors `SKILL.md` into a concise six-step workflow and moves schema, comparison, unit, and execution detail into conditional references.
+- Adds direct offline-demo, tamper, dirty-source, undeclared-write, secret-redaction, release-archive, and Docker `--network none` CI checks.
+- Pins GitHub Actions to full commit SHAs, adds Dependabot and CodeQL, and generates release checksums, an SPDX SBOM, unsigned provenance, and a GitHub build attestation.
+
 ## 1.1.0 - 2026-07-23
 
 - Makes `benchmarks/benchmark-summary.json` the single source for published benchmark counts and costs; CI rejects stale reports, README facts, and application facts.

@@ -6,6 +6,7 @@ Report a vulnerability through GitHub Security Advisories rather than a public i
 
 - no shell command strings;
 - no literal plan credentials;
+- no argv secret references unless an explicit recorded high-risk compatibility mode is enabled;
 - no positive claim without a run-bound machine observation;
 - no manual image/table promoted to a reproduced claim;
 - no execution in the original source tree;
@@ -13,11 +14,11 @@ Report a vulnerability through GitHub Security Advisories rather than a public i
 - no report that trusts a stored verdict without recomputation;
 - no claim that unsigned SHA-256 provenance proves authorship.
 
-## Known V1 limits
+## Known V1.2 limits
 
 - Copy/worktree mode cannot enforce host network isolation. `network=disabled` therefore requires container mode.
 - Windows host mode records memory/CPU budgets but only enforces wall timeout and process-tree cleanup; use container mode for stronger controls.
-- Secret values passed as argv may be visible to the operating-system process list. Prefer `secret_bindings`.
+- Environment `secret_bindings` are the default. High-risk argv compatibility may expose values to process listings even though records and logs are masked.
 - Regex redaction is defense in depth, not a substitute for never emitting secrets.
 - Unsigned provenance detects unsynchronized changes, not a malicious rewrite of both evidence and manifest.
 - NumPy and Parquet extractors require optional third-party packages.

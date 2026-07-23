@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "repository": "toy-repository",
   "paper": {
     "title": "Toy reproducibility example",
@@ -25,6 +25,7 @@
     "max_output_files": 20,
     "max_single_file_mb": 8,
     "max_gpus": 0,
+    "allow_argv_secrets": false,
     "retain_workspace": false,
     "exclude_paths": {}
   },
@@ -41,8 +42,15 @@
       "id": "table-1-accuracy",
       "paper_location": "Table 1, test split",
       "metric": "test_accuracy",
-      "expected": 0.9,
-      "unit": "ratio",
+      "expected": {
+        "type": "scalar",
+        "value": 0.9
+      },
+      "unit": {
+        "symbol": "accuracy",
+        "scale": 1,
+        "semantic_type": "quality_metric"
+      },
       "protocol": "Evaluate the fixed test split once; do not tune on it.",
       "command_ids": ["smoke-experiment"],
       "observation": {
@@ -50,7 +58,11 @@
         "command_id": "smoke-experiment",
         "extractor": "jsonpath",
         "expression": "$.test_accuracy",
-        "unit": "ratio"
+        "unit": {
+          "symbol": "accuracy",
+          "scale": 1,
+          "semantic_type": "quality_metric"
+        }
       },
       "comparison": {
         "method": "numeric_tolerance",

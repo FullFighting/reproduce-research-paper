@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from evidence_common import is_within, sha256_file, utc_now
+from value_contract import expected_spec, finite_number, normalize_unit, numeric_tree
 
 
 EXTRACTOR_VERSIONS = {
@@ -21,22 +22,9 @@ EXTRACTOR_VERSIONS = {
     "csv": "python-csv-1",
     "npy": "numpy-npy-1",
     "parquet": "pyarrow-parquet-1",
+    "sha256": "rrp-sha256-1",
     "manual": "manual-1",
 }
-UNIT_SCALE = {
-    "unitless": ("unitless", 1.0),
-    "ratio": ("ratio", 1.0),
-    "percent": ("ratio", 0.01),
-    "percentage_point": ("percentage_point", 1.0),
-    "seconds": ("seconds", 1.0),
-    "milliseconds": ("seconds", 0.001),
-    "bytes": ("bytes", 1.0),
-    "kilobytes": ("bytes", 1024.0),
-    "megabytes": ("bytes", 1024.0 * 1024.0),
-    "gigabytes": ("bytes", 1024.0 * 1024.0 * 1024.0),
-}
-
-
 def _json_document(text: str) -> Any:
     try:
         return json.loads(text)
@@ -113,14 +101,16 @@ def _regex_extract(text: str, expression: Any) -> Any:
     return values if all_matches else values[0]
 
 
-def _parse_scalar(value: Any) -> Any:
+def _parse_value(value: Any, *, coerce_numeric: bool) -> Any:
     if isinstance(value, bool):
-        raise ValueError("boolean is not a numeric observation")
+        return value
     if isinstance(value, (int, float)):
-        if not math.isfinite(float(value)):
+        if not finite_number(value):
             raise ValueError("non-finite numeric observation")
         return float(value)
     if isinstance(value, str):
+        if not coerce_numeric:
+            return value
         stripped = value.strip().replace(",", "")
         try:
             parsed = float(stripped)
@@ -130,7 +120,12 @@ def _parse_scalar(value: Any) -> Any:
             raise ValueError("non-finite numeric observation")
         return parsed
     if isinstance(value, list):
-        return [_parse_scalar(item) for item in value]
+        return [_parse_value(item, coerce_numeric=coerce_numeric) for item in value]
+    if isinstance(value, dict):
+        return {
+            key: _parse_value(item, coerce_numeric=coerce_numeric)
+            for key, item in value.items()
+        }
     raise ValueError(f"unsupported extracted value type: {type(value).__name__}")
 
 
@@ -148,7 +143,11 @@ def _csv_extract(path: Path, expression: Any) -> Any:
             if all(str(row.get(key, "")) == str(expected) for key, expected in where.items())
         ]
     column = expression["column"]
-    values = [_parse_scalar(row[column]) for row in rows if column in row and row[column] != ""]
+    values = [
+        _parse_value(row[column], coerce_numeric=True)
+        for row in rows
+        if column in row and row[column] != ""
+    ]
     if not values:
         raise ValueError("CSV selection produced no values")
     aggregate = expression.get("aggregate", "values")
@@ -198,7 +197,10 @@ def _parquet_extract(path: Path, expression: Any) -> Any:
     except ImportError as exc:
         raise ValueError("Parquet extractor requires the optional pyarrow package") from exc
     table = parquet.read_table(path, columns=[expression["column"]])
-    values = [_parse_scalar(value) for value in table[expression["column"]].to_pylist()]
+    values = [
+        _parse_value(value, coerce_numeric=True)
+        for value in table[expression["column"]].to_pylist()
+    ]
     operation = expression.get("aggregate", "values")
     if operation == "values":
         return values
@@ -212,18 +214,6 @@ def _parquet_extract(path: Path, expression: Any) -> Any:
     if operation == "max":
         return max(numeric)
     raise ValueError(f"unsupported Parquet aggregate: {operation}")
-
-
-def normalize_unit(value: Any, source_unit: str, target_unit: str) -> Any:
-    source_base, source_scale = UNIT_SCALE[source_unit]
-    target_base, target_scale = UNIT_SCALE[target_unit]
-    if source_base != target_base:
-        raise ValueError(f"incompatible units: {source_unit} and {target_unit}")
-    if isinstance(value, list):
-        return [normalize_unit(item, source_unit, target_unit) for item in value]
-    if not isinstance(value, (int, float)) or isinstance(value, bool):
-        raise ValueError("unit normalization requires numeric values")
-    return float(value) * source_scale / target_scale
 
 
 def _source_path(
@@ -260,6 +250,16 @@ def extract_observations(
     run_sha = sha256_file(run_record_path)
     for claim in plan.get("claims", []):
         spec = claim["observation"]
+        expected = expected_spec(claim["expected"])
+        expected_value = expected["value"]
+        numeric_expected = (
+            expected["type"] in {"scalar", "distribution"}
+            or numeric_tree(
+                expected_value.get("rows")
+                if expected["type"] == "table" and isinstance(expected_value, dict)
+                else expected_value
+            )
+        )
         base = {
             "claim_id": claim["id"],
             "metric": claim["metric"],
@@ -322,9 +322,11 @@ def extract_observations(
                 raw = _npy_extract(source_path, spec["expression"])
             elif spec["extractor"] == "parquet":
                 raw = _parquet_extract(source_path, spec["expression"])
+            elif spec["extractor"] == "sha256":
+                raw = source_hash
             else:
                 raise ValueError(f"unsupported extractor: {spec['extractor']}")
-            parsed = _parse_scalar(raw)
+            parsed = _parse_value(raw, coerce_numeric=numeric_expected)
             normalized = normalize_unit(
                 parsed, spec.get("unit", "unitless"), claim.get("unit", "unitless")
             )

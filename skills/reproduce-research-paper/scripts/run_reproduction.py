@@ -119,7 +119,11 @@ def _merge_capabilities(plan: dict, command: dict) -> dict:
     return merged
 
 
-def _resolve_command(command: dict) -> tuple[list[str], list[Any], dict[str, str], list[str]]:
+def _resolve_command(
+    command: dict,
+    *,
+    allow_argv_secrets: bool = False,
+) -> tuple[list[str], list[Any], dict[str, str], list[str]]:
     actual: list[str] = []
     recorded: list[Any] = []
     secrets: list[str] = []
@@ -128,6 +132,10 @@ def _resolve_command(command: dict) -> tuple[list[str], list[Any], dict[str, str
             actual.append(argument)
             recorded.append(argument)
         else:
+            if not allow_argv_secrets:
+                raise ValueError(
+                    "argv secret_ref is disabled by default; use secret_bindings"
+                )
             name = argument["secret_ref"]
             value = os.environ.get(name)
             if value is None:
@@ -182,13 +190,31 @@ def _local_argv(
     capabilities: dict,
     environment: dict[str, str],
     timeout: int,
+    *,
+    apply_posix_limits: bool = True,
 ) -> tuple[int | None, bool, str, str, dict]:
     creationflags = subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0
-    preexec_fn = _posix_limits(capabilities) if os.name != "nt" else None
+    preexec_fn = (
+        _posix_limits(capabilities)
+        if os.name != "nt" and apply_posix_limits
+        else None
+    )
     enforcement = {
         "network": "explicitly unrestricted by reviewed plan",
-        "memory": "POSIX rlimit" if os.name != "nt" else "recorded only on Windows host",
-        "cpu": "POSIX rlimit plus wall timeout" if os.name != "nt" else "wall timeout on Windows host",
+        "memory": (
+            "POSIX rlimit"
+            if os.name != "nt" and apply_posix_limits
+            else "not applied to wrapper process"
+            if os.name != "nt"
+            else "recorded only on Windows host"
+        ),
+        "cpu": (
+            "POSIX rlimit plus wall timeout"
+            if os.name != "nt" and apply_posix_limits
+            else "wall timeout only for wrapper process"
+            if os.name != "nt"
+            else "wall timeout on Windows host"
+        ),
         "process_cleanup": "process group/tree termination",
     }
     process = subprocess.Popen(
@@ -233,6 +259,16 @@ def _container_argv(
         "256",
         "--memory",
         f"{capabilities['max_memory_mb']}m",
+        "--ulimit",
+        (
+            f"cpu={capabilities['max_cpu_seconds']}:"
+            f"{int(capabilities['max_cpu_seconds']) + 1}"
+        ),
+        "--ulimit",
+        (
+            f"fsize={int(capabilities['max_single_file_mb']) * 1024 * 1024}:"
+            f"{int(capabilities['max_single_file_mb']) * 1024 * 1024}"
+        ),
         "--tmpfs",
         "/tmp:rw,noexec,nosuid,size=256m",
         "--mount",
@@ -256,12 +292,15 @@ def _container_argv(
         {**capabilities, "max_memory_mb": max(capabilities["max_memory_mb"], 1024)},
         environment,
         timeout,
+        apply_posix_limits=False,
     )
     result[4].update(
         {
             "network": "Docker --network none" if capabilities["network"] == "disabled" else "explicitly unrestricted",
             "source_write": "Docker read-only bind mount",
             "memory": "Docker --memory",
+            "cpu": "Docker --ulimit cpu plus wall timeout",
+            "file_size": "Docker --ulimit fsize plus post-run verification",
             "gpu": "Docker --gpus" if capabilities.get("max_gpus") else "no GPU devices requested",
         }
     )
@@ -401,6 +440,11 @@ def execute(plan: dict, plan_path: Path, bundle: Path) -> tuple[dict, bool]:
     records = []
     policy_violations: list[str] = []
     deviations: list[str] = []
+    allow_argv_secrets = bool(plan["execution"].get("allow_argv_secrets", False))
+    if allow_argv_secrets:
+        deviations.append(
+            "HIGH_RISK_COMPATIBILITY: argv secret_ref values may be visible in process listings"
+        )
     all_write_paths = list(plan["execution"].get("write_paths", []))
     for command in plan["commands"]:
         capabilities = _merge_capabilities(plan, command)
@@ -420,7 +464,10 @@ def execute(plan: dict, plan_path: Path, bundle: Path) -> tuple[dict, bool]:
             ],
         }
         try:
-            actual, recorded, child_environment, secrets = _resolve_command(command)
+            actual, recorded, child_environment, secrets = _resolve_command(
+                command,
+                allow_argv_secrets=allow_argv_secrets,
+            )
             record["argv"] = recorded
             child_environment["REPRO_OUTPUT_DIR"] = str(outputs)
             if capabilities["network"] == "disabled" and plan["execution"]["workspace_mode"] != "container":
@@ -559,6 +606,7 @@ def execute(plan: dict, plan_path: Path, bundle: Path) -> tuple[dict, bool]:
             "unauthorized_workspace_changes": unauthorized_workspace,
         },
         "network_policy": plan["execution"]["network"],
+        "argv_secret_compatibility_mode": allow_argv_secrets,
         "commands": records,
         "policy_violations": policy_violations,
         "deviations": deviations,

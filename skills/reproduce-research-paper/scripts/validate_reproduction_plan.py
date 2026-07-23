@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import re
 from pathlib import Path
 from typing import Any
@@ -17,6 +16,14 @@ from evidence_common import (
     is_within,
     object_sha256,
     safe_relative_path,
+)
+from value_contract import (
+    EXPECTED_TYPES,
+    LEGACY_UNITS,
+    expected_spec,
+    finite_number,
+    numeric_tree,
+    unit_spec,
 )
 
 
@@ -38,7 +45,7 @@ SOURCES = {"stdout", "stderr", "file", "manual"}
 EXTRACTORS = {
     "stdout": {"jsonpath", "regex"},
     "stderr": {"jsonpath", "regex"},
-    "file": {"jsonpath", "regex", "csv", "npy", "parquet"},
+    "file": {"jsonpath", "regex", "csv", "npy", "parquet", "sha256"},
     "manual": {"manual"},
 }
 METHODS = {
@@ -47,29 +54,15 @@ METHODS = {
     "non_inferiority",
     "spearman_correlation",
     "exact_order",
-}
-UNITS = {
-    "unitless", "ratio", "percent", "percentage_point", "seconds", "milliseconds",
-    "bytes", "kilobytes", "megabytes", "gigabytes",
+    "exact_match",
+    "set_equality",
+    "artifact_hash",
+    "distribution_distance",
 }
 
 
 def plan_fingerprint(plan: dict) -> str:
     return object_sha256(plan)
-
-
-def _finite_number(value: Any) -> bool:
-    return (
-        isinstance(value, (int, float))
-        and not isinstance(value, bool)
-        and math.isfinite(float(value))
-    )
-
-
-def _numeric_tree(value: Any) -> bool:
-    if _finite_number(value):
-        return True
-    return isinstance(value, list) and bool(value) and all(_numeric_tree(item) for item in value)
 
 
 def _validate_relative(value: Any, label: str, errors: list[str]) -> None:
@@ -87,7 +80,11 @@ def _find_secret_material(value: Any, prefix: str = "") -> list[str]:
     if isinstance(value, dict):
         for key, child in value.items():
             location = f"{prefix}.{key}" if prefix else str(key)
-            if SECRET_NAME_PATTERN.search(str(key)) and key not in {"secret_ref", "secret_bindings"}:
+            if SECRET_NAME_PATTERN.search(str(key)) and key not in {
+                "secret_ref",
+                "secret_bindings",
+                "allow_argv_secrets",
+            }:
                 findings.append(f"{location} (secret-like key)")
             findings.extend(_find_secret_material(child, location))
     elif isinstance(value, list):
@@ -108,6 +105,137 @@ def _validate_secret_ref(value: Any, label: str, errors: list[str]) -> None:
         errors.append(f"{label} must be exactly {{\"secret_ref\": \"UPPER_CASE_NAME\"}}")
 
 
+def _json_scalar(value: Any) -> bool:
+    return value is None or isinstance(value, (str, bool)) or finite_number(value)
+
+
+def _json_value(value: Any) -> bool:
+    if _json_scalar(value):
+        return True
+    if isinstance(value, list):
+        return all(_json_value(item) for item in value)
+    if isinstance(value, dict):
+        return all(
+            isinstance(key, str) and _json_value(item) for key, item in value.items()
+        )
+    return False
+
+
+def _validate_expected(
+    expected: Any,
+    label: str,
+    errors: list[str],
+    *,
+    schema_version: int,
+) -> tuple[str, Any]:
+    if schema_version == 1 and not isinstance(expected, dict):
+        if not numeric_tree(expected):
+            errors.append(f"{label} must be a finite number or numeric array in schema v1")
+        spec = expected_spec(expected)
+        return spec["type"], spec["value"]
+    if not isinstance(expected, dict) or set(expected) != {"type", "value"}:
+        errors.append(f"{label} must contain exactly type and value in schema v2")
+        return "invalid", None
+    expected_type = expected.get("type")
+    value = expected.get("value")
+    if not isinstance(expected_type, str) or expected_type not in EXPECTED_TYPES:
+        errors.append(f"{label}.type must be one of {sorted(EXPECTED_TYPES)}")
+        return "invalid", value
+    if expected_type == "scalar" and not finite_number(value):
+        errors.append(f"{label}.value must be a finite number for scalar")
+    elif expected_type == "array":
+        if not isinstance(value, list) or not value or not _json_value(value):
+            errors.append(f"{label}.value must be a non-empty JSON array")
+    elif expected_type == "table":
+        if not isinstance(value, dict) or not {"columns", "rows"} <= set(value):
+            errors.append(f"{label}.value must contain columns and rows")
+        else:
+            columns, rows = value.get("columns"), value.get("rows")
+            if (
+                not isinstance(columns, list)
+                or not columns
+                or not all(isinstance(item, str) and item for item in columns)
+                or len(columns) != len(set(columns))
+            ):
+                errors.append(f"{label}.value.columns must be unique non-empty strings")
+            if (
+                not isinstance(rows, list)
+                or not rows
+                or not all(
+                    isinstance(row, list)
+                    and len(row) == len(columns or [])
+                    and all(_json_scalar(cell) for cell in row)
+                    for row in rows
+                )
+            ):
+                errors.append(f"{label}.value.rows must be a non-empty rectangular scalar table")
+            row_labels = value.get("row_labels")
+            if row_labels is not None and (
+                not isinstance(row_labels, list)
+                or len(row_labels) != len(rows or [])
+                or not all(isinstance(item, str) and item for item in row_labels)
+                or len(row_labels) != len(set(row_labels))
+            ):
+                errors.append(f"{label}.value.row_labels must be unique strings matching rows")
+            extra = set(value) - {"columns", "rows", "row_labels"}
+            if extra:
+                errors.append(f"{label}.value has unsupported table fields: {sorted(extra)}")
+    elif expected_type == "ranking":
+        if (
+            not isinstance(value, list)
+            or not value
+            or not all(isinstance(item, str) or finite_number(item) for item in value)
+            or len({json.dumps(item, sort_keys=True) for item in value}) != len(value)
+        ):
+            errors.append(f"{label}.value must be a non-empty ranking of unique strings or numbers")
+    elif expected_type == "categorical" and not (
+        isinstance(value, (str, bool))
+        or (isinstance(value, int) and not isinstance(value, bool))
+        or finite_number(value)
+    ):
+        errors.append(f"{label}.value must be a JSON category scalar")
+    elif expected_type == "string" and not isinstance(value, str):
+        errors.append(f"{label}.value must be a string")
+    elif expected_type == "artifact_hash" and not (
+        isinstance(value, str) and re.fullmatch(r"[0-9a-fA-F]{64}", value)
+    ):
+        errors.append(f"{label}.value must be a 64-character SHA-256 hex digest")
+    elif expected_type == "distribution" and not (
+        isinstance(value, list) and len(value) >= 2 and all(finite_number(item) for item in value)
+    ):
+        errors.append(f"{label}.value must contain at least two finite numeric samples")
+    return expected_type, value
+
+
+def _validate_unit(
+    unit: Any,
+    label: str,
+    errors: list[str],
+    *,
+    schema_version: int,
+) -> dict[str, Any] | None:
+    if schema_version == 1 and isinstance(unit, str):
+        if unit not in LEGACY_UNITS:
+            errors.append(f"{label} must be one of {sorted(LEGACY_UNITS)}")
+            return None
+        return unit_spec(unit)
+    if not isinstance(unit, dict) or set(unit) != {"symbol", "scale", "semantic_type"}:
+        errors.append(f"{label} must contain exactly symbol, scale, and semantic_type")
+        return None
+    if not isinstance(unit.get("symbol"), str) or not 1 <= len(unit["symbol"]) <= 64:
+        errors.append(f"{label}.symbol must be a string from 1 to 64 characters")
+    if not finite_number(unit.get("scale")) or float(unit["scale"]) <= 0:
+        errors.append(f"{label}.scale must be a positive finite number")
+    if not isinstance(unit.get("semantic_type"), str) or not re.fullmatch(
+        r"[A-Za-z][A-Za-z0-9_.-]{0,63}", unit["semantic_type"]
+    ):
+        errors.append(f"{label}.semantic_type must be a stable identifier")
+    try:
+        return unit_spec(unit)
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
 def _validate_capabilities(
     capabilities: Any,
     label: str,
@@ -120,7 +248,8 @@ def _validate_capabilities(
         return
     if require_network and "network" not in capabilities:
         errors.append(f"{label}.network must be explicitly declared")
-    if capabilities.get("network", "disabled") not in {"disabled", "unrestricted"}:
+    network = capabilities.get("network", "disabled")
+    if not isinstance(network, str) or network not in {"disabled", "unrestricted"}:
         errors.append(f"{label}.network must be disabled or unrestricted")
     write_paths = capabilities.get("write_paths", [])
     if not isinstance(write_paths, list):
@@ -143,21 +272,28 @@ def _validate_capabilities(
         errors.append(f"{label}.max_gpus must be an integer from 0 to 64")
 
 
-def _validate_observation(observation: Any, label: str, command_ids: set[str], errors: list[str]) -> None:
+def _validate_observation(
+    observation: Any,
+    label: str,
+    command_ids: set[str],
+    errors: list[str],
+    *,
+    schema_version: int,
+) -> dict[str, Any] | None:
     if not isinstance(observation, dict):
         errors.append(f"{label} must be an object")
-        return
+        return None
     source = observation.get("source")
-    if source not in SOURCES:
+    if not isinstance(source, str) or source not in SOURCES:
         errors.append(f"{label}.source must be one of {sorted(SOURCES)}")
-        return
+        return None
     extractor = observation.get("extractor")
-    if extractor not in EXTRACTORS[source]:
+    if not isinstance(extractor, str) or extractor not in EXTRACTORS[source]:
         errors.append(f"{label}.extractor must be one of {sorted(EXTRACTORS[source])}")
     if source == "manual":
         if not isinstance(observation.get("reason"), str) or not observation["reason"].strip():
             errors.append(f"{label}.reason must explain the manual review")
-        return
+        return None
     command_id = observation.get("command_id")
     if command_id not in command_ids:
         errors.append(f"{label}.command_id must reference a declared command")
@@ -165,51 +301,116 @@ def _validate_observation(observation: Any, label: str, command_ids: set[str], e
         errors.append(f"{label}.expression is required")
     if source == "file":
         _validate_relative(observation.get("path"), f"{label}.path", errors)
-        if observation.get("root", "workspace") not in {"workspace", "outputs"}:
+        observation_root = observation.get("root", "workspace")
+        if (
+            not isinstance(observation_root, str)
+            or observation_root not in {"workspace", "outputs"}
+        ):
             errors.append(f"{label}.root must be workspace or outputs")
-    unit = observation.get("unit", "unitless")
-    if unit not in UNITS:
-        errors.append(f"{label}.unit must be one of {sorted(UNITS)}")
+    default_unit: Any = (
+        "unitless"
+        if schema_version == 1
+        else {"symbol": "1", "scale": 1, "semantic_type": "unitless"}
+    )
+    return _validate_unit(
+        observation.get("unit", default_unit),
+        f"{label}.unit",
+        errors,
+        schema_version=schema_version,
+    )
 
 
-def _validate_comparison(comparison: Any, label: str, errors: list[str]) -> None:
+def _validate_comparison(
+    comparison: Any,
+    label: str,
+    errors: list[str],
+    *,
+    expected_type: str,
+    expected_value: Any,
+) -> None:
     if not isinstance(comparison, dict):
         errors.append(f"{label} must be an object")
         return
     method = comparison.get("method")
-    if method not in METHODS:
+    method_valid = isinstance(method, str) and method in METHODS
+    if not method_valid:
         errors.append(f"{label}.method must be one of {sorted(METHODS)}")
-    if comparison.get("combination") not in {"all", "any"}:
+    combination = comparison.get("combination")
+    if not isinstance(combination, str) or combination not in {"all", "any"}:
         errors.append(f"{label}.combination must explicitly be all or any")
     minimum_runs = comparison.get("minimum_runs", 1)
     if not isinstance(minimum_runs, int) or isinstance(minimum_runs, bool) or minimum_runs < 1:
         errors.append(f"{label}.minimum_runs must be a positive integer")
     direction = comparison.get("direction", "two_sided")
-    if direction not in {"two_sided", "higher_is_better", "lower_is_better"}:
+    if (
+        not isinstance(direction, str)
+        or direction not in {"two_sided", "higher_is_better", "lower_is_better"}
+    ):
         errors.append(f"{label}.direction is invalid")
     tolerances = [
         comparison.get("absolute"),
         comparison.get("relative"),
         comparison.get("rounding_absolute"),
     ]
-    if method in {"numeric_tolerance", "equivalence_interval", "non_inferiority"}:
-        if not any(_finite_number(value) and float(value) >= 0 for value in tolerances):
+    if method_valid and method in {
+        "numeric_tolerance",
+        "equivalence_interval",
+        "non_inferiority",
+    }:
+        if not any(finite_number(value) and float(value) >= 0 for value in tolerances):
             errors.append(f"{label} needs a non-negative absolute, relative, or rounding_absolute")
     for key in ("absolute", "relative", "rounding_absolute"):
         value = comparison.get(key)
-        if value is not None and (not _finite_number(value) or float(value) < 0):
+        if value is not None and (not finite_number(value) or float(value) < 0):
             errors.append(f"{label}.{key} must be a finite non-negative number")
     threshold = comparison.get("minimum_correlation")
-    if method == "spearman_correlation" and (
-        not _finite_number(threshold) or not -1 <= float(threshold) <= 1
+    if method_valid and method == "spearman_correlation" and (
+        not finite_number(threshold) or not -1 <= float(threshold) <= 1
     ):
         errors.append(f"{label}.minimum_correlation must be between -1 and 1")
+    maximum_distance = comparison.get("maximum_distance")
+    if method_valid and method == "distribution_distance" and (
+        not finite_number(maximum_distance) or not 0 <= float(maximum_distance) <= 1
+    ):
+        errors.append(f"{label}.maximum_distance must be between 0 and 1")
+    compatible = {
+        "numeric_tolerance": {"scalar", "array", "table", "distribution"},
+        "equivalence_interval": {"scalar"},
+        "non_inferiority": {"scalar"},
+        "spearman_correlation": {"array", "ranking"},
+        "exact_order": {"array", "ranking"},
+        "exact_match": EXPECTED_TYPES,
+        "set_equality": {"array", "ranking"},
+        "artifact_hash": {"artifact_hash"},
+        "distribution_distance": {"distribution"},
+    }
+    method_types = compatible.get(method) if isinstance(method, str) else None
+    if method_types is not None and expected_type not in method_types:
+        errors.append(f"{label}.method {method} is incompatible with expected type {expected_type}")
+    if method_valid and method in {
+        "numeric_tolerance",
+        "equivalence_interval",
+        "non_inferiority",
+    }:
+        numeric_value = (
+            expected_value.get("rows")
+            if expected_type == "table" and isinstance(expected_value, dict)
+            else expected_value
+        )
+        if not numeric_tree(numeric_value):
+            errors.append(f"{label}.method {method} requires numeric expected values")
 
 
 def validate(plan: dict, plan_path: Path) -> list[str]:
     errors: list[str] = []
-    if plan.get("schema_version") != 1:
-        errors.append("schema_version must be 1")
+    schema_version = plan.get("schema_version")
+    if (
+        not isinstance(schema_version, int)
+        or isinstance(schema_version, bool)
+        or schema_version not in {1, 2}
+    ):
+        errors.append("schema_version must be 1 or 2")
+        schema_version = 2
     repository = plan.get("repository")
     if not isinstance(repository, str) or not repository.strip():
         return ["repository must be a non-empty relative or absolute path"]
@@ -250,7 +451,11 @@ def validate(plan: dict, plan_path: Path) -> list[str]:
         errors.append("execution must be an object")
     else:
         mode = execution.get("workspace_mode")
-        if mode not in {"copy", "git_worktree", "container"}:
+        if not isinstance(mode, str) or mode not in {
+            "copy",
+            "git_worktree",
+            "container",
+        }:
             errors.append("execution.workspace_mode must be copy, git_worktree, or container")
         _validate_capabilities(execution, "execution", errors, require_network=True)
         if mode == "container" and (
@@ -261,12 +466,17 @@ def validate(plan: dict, plan_path: Path) -> list[str]:
             errors.append("execution.container_image must be pinned by @sha256")
         if not isinstance(execution.get("retain_workspace", False), bool):
             errors.append("execution.retain_workspace must be boolean")
+        if not isinstance(execution.get("allow_argv_secrets", False), bool):
+            errors.append("execution.allow_argv_secrets must be boolean")
         exclusions = execution.get("exclude_paths", {})
         if not isinstance(exclusions, dict) or not all(
             isinstance(key, str) and key and isinstance(reason, str) and reason.strip()
             for key, reason in exclusions.items()
         ):
             errors.append("execution.exclude_paths must map path components to non-empty reasons")
+    allow_argv_secrets = bool(
+        isinstance(execution, dict) and execution.get("allow_argv_secrets", False)
+    )
     commands = plan.get("commands")
     command_ids: set[str] = set()
     if not isinstance(commands, list) or not commands:
@@ -295,11 +505,23 @@ def validate(plan: dict, plan_path: Path) -> list[str]:
                         if not argument:
                             errors.append(f"{label}.argv[{arg_index}] must not be empty")
                         if contains_high_confidence_secret(argument):
-                            errors.append(f"{label}.argv[{arg_index}] contains secret-like material; use secret_ref")
+                            errors.append(
+                                f"{label}.argv[{arg_index}] contains secret-like material; "
+                                "use secret_bindings"
+                            )
                         if arg_index > 0 and isinstance(argv[arg_index - 1], str) and SENSITIVE_FLAGS.fullmatch(argv[arg_index - 1]):
-                            errors.append(f"{label}.argv[{arg_index}] follows a sensitive flag; use secret_ref")
+                            errors.append(
+                                f"{label}.argv[{arg_index}] follows a sensitive flag; "
+                                "use secret_bindings"
+                            )
                     else:
                         _validate_secret_ref(argument, f"{label}.argv[{arg_index}]", errors)
+                        if not allow_argv_secrets:
+                            errors.append(
+                                f"{label}.argv[{arg_index}] uses an argv secret_ref, which is "
+                                "disabled by default; use secret_bindings or explicitly set "
+                                "execution.allow_argv_secrets=true for high-risk compatibility"
+                            )
             if "env" in command or "environment" in command:
                 errors.append(f"{label} must use secret_bindings instead of embedded environment values")
             bindings = command.get("secret_bindings", [])
@@ -356,22 +578,56 @@ def validate(plan: dict, plan_path: Path) -> list[str]:
                 elif claim_id in claim_ids:
                     errors.append(f"{label}.id duplicates {claim_id!r}")
                 claim_ids.add(claim_id)
-            if not _numeric_tree(claim.get("expected")):
-                errors.append(f"{label}.expected must be a finite number or numeric array")
-            unit = claim.get("unit", "unitless")
-            if unit not in UNITS:
-                errors.append(f"{label}.unit must be one of {sorted(UNITS)}")
+            expected_type, expected_value = _validate_expected(
+                claim.get("expected"),
+                f"{label}.expected",
+                errors,
+                schema_version=schema_version,
+            )
+            default_unit: Any = (
+                "unitless"
+                if schema_version == 1
+                else {"symbol": "1", "scale": 1, "semantic_type": "unitless"}
+            )
+            claim_unit = _validate_unit(
+                claim.get("unit", default_unit),
+                f"{label}.unit",
+                errors,
+                schema_version=schema_version,
+            )
             command_refs = claim.get("command_ids")
             if not isinstance(command_refs, list) or not command_refs:
                 errors.append(f"{label}.command_ids must be a non-empty list")
+            elif not all(isinstance(item, str) for item in command_refs):
+                errors.append(f"{label}.command_ids must contain only command IDs")
             elif len(command_refs) != len(set(command_refs)):
                 errors.append(f"{label}.command_ids must not contain duplicates")
             else:
                 unknown = sorted(set(command_refs) - command_ids)
                 if unknown:
                     errors.append(f"{label}.command_ids reference unknown command(s): {', '.join(unknown)}")
-            _validate_observation(claim.get("observation"), f"{label}.observation", command_ids, errors)
-            _validate_comparison(claim.get("comparison"), f"{label}.comparison", errors)
+            observation_unit = _validate_observation(
+                claim.get("observation"),
+                f"{label}.observation",
+                command_ids,
+                errors,
+                schema_version=schema_version,
+            )
+            if (
+                claim_unit is not None
+                and observation_unit is not None
+                and claim_unit["semantic_type"] != observation_unit["semantic_type"]
+            ):
+                errors.append(
+                    f"{label}.observation.unit semantic_type must match {label}.unit"
+                )
+            _validate_comparison(
+                claim.get("comparison"),
+                f"{label}.comparison",
+                errors,
+                expected_type=expected_type,
+                expected_value=expected_value,
+            )
     secret_findings = _find_secret_material(plan)
     if secret_findings:
         errors.append("plan must not contain literal or secret-shaped material: " + ", ".join(secret_findings))
