@@ -1,8 +1,72 @@
-# 科研论文复现：Codex Skill
+# 论文复现与实验验证：Codex Skill
 
-这是一个面向带代码、数据和实验论文的证据优先 Codex Skill。
+<p align="center">
+  <img src="docs/assets/research-paper-reproduction-hero.svg" alt="Codex 论文复现：从论文 claim 到可验证报告" width="100%">
+</p>
 
-V1.3 保留 V1.2 的证据边界，并增加仅供维护者本地运行的 OpenAI API 评测 CLI、5 个真实来源的拒绝/阻塞/修订案例、独立评审与裁决记录、恶意研究材料威胁模型、Docker 加固和安全安装器。它不是对外 HTTP API，不提供 API Key，也不允许第三方消耗维护者或 Fund credits。
+<p align="center">
+  <strong>先规划，再执行；每一个计算 claim 都有证据可查。</strong>
+</p>
+
+<p align="center">
+  面向论文复现、实验验证和计算可复现性的证据优先 Codex Skill。
+</p>
+
+<p align="center">
+  <a href="README.md">English</a> · <a href="README_ZH.md">简体中文</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/FullFighting/reproduce-research-paper/actions/workflows/validate.yml"><img alt="Validate" src="https://github.com/FullFighting/reproduce-research-paper/actions/workflows/validate.yml/badge.svg"></a>
+  <a href="https://github.com/FullFighting/reproduce-research-paper/releases/latest"><img alt="Release" src="https://img.shields.io/badge/release-v1.3.0-blue"></a>
+  <a href="https://www.python.org/"><img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-3776AB"></a>
+  <a href="benchmarks/benchmark-report.md"><img alt="15/15 个公开 claim 检查" src="https://img.shields.io/badge/public_claim_checks-15%2F15-0f766e"></a>
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-green"></a>
+</p>
+
+> [!IMPORTANT]
+> 本项目复现的是**明确声明的计算 claim**，不是给整篇论文判定“科学真伪”。命令成功或手工抄录指标都不足以得到正向结果；必须有运行绑定的机器观测、有效的仓库与策略检查，以及重新计算的比较结果。
+
+## 从论文到可审计证据
+
+| 规划 | 执行 | 验证 | 交付 |
+|---|---|---|---|
+| 通读论文，把准确 claim 映射到官方代码、数据和命令。 | 先预览预算和能力边界，得到明确批准后才执行。 | 从运行生成的工件中提取指标，重新计算类型化比较。 | 交付包含日志、哈希、provenance 和 claim-scoped 报告的可追溯证据包。 |
+
+**适用场景：** 论文复现、科研实验复现、paper-to-code、实验结果验证、失败诊断和计算可复现性检查。
+
+## 60 秒开始使用
+
+只需 Python 3.10+ 和标准库即可安装：
+
+```bash
+git clone https://github.com/FullFighting/reproduce-research-paper.git
+cd reproduce-research-paper
+python scripts/install_skill.py --scope user
+```
+
+然后向 Codex 提供论文 PDF、URL、DOI 或标题：
+
+```text
+使用 $reproduce-research-paper 通读这篇论文，识别可执行 claim，
+盘点官方代码和数据，并先生成只预览、不执行的论文复现计划。
+未经我确认，不要下载数据或运行实验。
+```
+
+[查看离线演示](README.md#offline-demo) · [检查 15 个公开 claim](benchmarks/benchmark-report.md) · [阅读证据策略](skills/reproduce-research-paper/references/evidence-policy.md)
+
+## 为什么它不只是“把代码跑起来”
+
+| 常见捷径 | 证据优先做法 |
+|---|---|
+| “脚本正常退出了。” | 只接受声明的机器提取器从运行生成工件中读取的结果。 |
+| “README 说这就是正确环境。” | 绑定完整代码树、Git 状态、数据、权重、配置和环境。 |
+| “这个数字看起来差不多。” | 使用预先声明的容差或统计策略比较类型化数值。 |
+| “手工把图表中的值记下来即可。” | 手工表格和图片始终保留为 `MANUAL_REVIEW_REQUIRED`。 |
+| “指标匹配说明论文正确。” | 只报告限定范围的计算 claim，并保留因果解释与一般化边界。 |
+
+> [!NOTE]
+> V1.3 增加仅供维护者本地运行的 OpenAI API 评测 CLI、5 个真实来源的拒绝/阻塞/修订案例、独立评审与裁决记录、恶意研究材料威胁模型、Docker 加固和安全安装器。目前尚未发布付费 API 实测结果。
 
 > 本结果只验证记录环境和协议下声明的计算 claim，不验证整篇论文的真实性、因果解释或一般化能力。
 
