@@ -776,6 +776,43 @@ class ReproduceResearchPaperTests(unittest.TestCase):
         comparison = json.loads((bundle / "comparison.json").read_text(encoding="utf-8"))
         self.assertEqual(comparison["claims"][0]["status"], "BLOCKED")
 
+    def test_container_limits_apply_to_container_not_docker_wrapper(self):
+        sys.path.insert(0, str(SCRIPTS))
+        try:
+            import run_reproduction
+
+            capabilities = execution(network="disabled")
+            outputs = self.case_root / "outputs"
+            outputs.mkdir()
+            with mock.patch.object(
+                run_reproduction,
+                "_local_argv",
+                return_value=(0, False, "ok", "", {}),
+            ) as wrapper:
+                _, _, _, _, enforcement = run_reproduction._container_argv(
+                    ["python", "experiment.py"],
+                    {"cwd": "."},
+                    capabilities,
+                    self.repository,
+                    outputs,
+                    "python@sha256:" + "a" * 64,
+                    60,
+                    {},
+                )
+            docker_argv = wrapper.call_args.args[0]
+            self.assertIn("--network", docker_argv)
+            self.assertEqual(docker_argv[docker_argv.index("--network") + 1], "none")
+            self.assertIn("cpu=60:61", docker_argv)
+            self.assertIn(
+                f"fsize={8 * 1024 * 1024}:{8 * 1024 * 1024}",
+                docker_argv,
+            )
+            self.assertFalse(wrapper.call_args.kwargs["apply_posix_limits"])
+            self.assertEqual(enforcement["memory"], "Docker --memory")
+            self.assertIn("Docker --ulimit cpu", enforcement["cpu"])
+        finally:
+            sys.path.pop(0)
+
     def test_inventory_hashes_every_file_and_changes_with_core_code(self):
         self.write_program("print(1)\n")
         (self.repository / "requirements.lock.txt").write_text(

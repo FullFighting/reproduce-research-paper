@@ -190,13 +190,31 @@ def _local_argv(
     capabilities: dict,
     environment: dict[str, str],
     timeout: int,
+    *,
+    apply_posix_limits: bool = True,
 ) -> tuple[int | None, bool, str, str, dict]:
     creationflags = subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0
-    preexec_fn = _posix_limits(capabilities) if os.name != "nt" else None
+    preexec_fn = (
+        _posix_limits(capabilities)
+        if os.name != "nt" and apply_posix_limits
+        else None
+    )
     enforcement = {
         "network": "explicitly unrestricted by reviewed plan",
-        "memory": "POSIX rlimit" if os.name != "nt" else "recorded only on Windows host",
-        "cpu": "POSIX rlimit plus wall timeout" if os.name != "nt" else "wall timeout on Windows host",
+        "memory": (
+            "POSIX rlimit"
+            if os.name != "nt" and apply_posix_limits
+            else "not applied to wrapper process"
+            if os.name != "nt"
+            else "recorded only on Windows host"
+        ),
+        "cpu": (
+            "POSIX rlimit plus wall timeout"
+            if os.name != "nt" and apply_posix_limits
+            else "wall timeout only for wrapper process"
+            if os.name != "nt"
+            else "wall timeout on Windows host"
+        ),
         "process_cleanup": "process group/tree termination",
     }
     process = subprocess.Popen(
@@ -241,6 +259,16 @@ def _container_argv(
         "256",
         "--memory",
         f"{capabilities['max_memory_mb']}m",
+        "--ulimit",
+        (
+            f"cpu={capabilities['max_cpu_seconds']}:"
+            f"{int(capabilities['max_cpu_seconds']) + 1}"
+        ),
+        "--ulimit",
+        (
+            f"fsize={int(capabilities['max_single_file_mb']) * 1024 * 1024}:"
+            f"{int(capabilities['max_single_file_mb']) * 1024 * 1024}"
+        ),
         "--tmpfs",
         "/tmp:rw,noexec,nosuid,size=256m",
         "--mount",
@@ -264,12 +292,15 @@ def _container_argv(
         {**capabilities, "max_memory_mb": max(capabilities["max_memory_mb"], 1024)},
         environment,
         timeout,
+        apply_posix_limits=False,
     )
     result[4].update(
         {
             "network": "Docker --network none" if capabilities["network"] == "disabled" else "explicitly unrestricted",
             "source_write": "Docker read-only bind mount",
             "memory": "Docker --memory",
+            "cpu": "Docker --ulimit cpu plus wall timeout",
+            "file_size": "Docker --ulimit fsize plus post-run verification",
             "gpu": "Docker --gpus" if capabilities.get("max_gpus") else "no GPU devices requested",
         }
     )
