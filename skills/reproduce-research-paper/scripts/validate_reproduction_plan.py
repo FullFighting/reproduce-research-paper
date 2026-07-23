@@ -28,6 +28,12 @@ from value_contract import (
 
 
 SAFE_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
+CONTAINER_IMAGE_PATTERN = re.compile(
+    r"^(?:[a-z0-9]+(?:[._-][a-z0-9]+)*(?::[0-9]+)?/)?"
+    r"(?:[a-z0-9]+(?:[._-][a-z0-9]+)*/)*"
+    r"[a-z0-9]+(?:[._-][a-z0-9]+)*@sha256:[0-9a-f]{64}$"
+)
+CONTAINER_USER_PATTERN = re.compile(r"^[1-9][0-9]*(?::[1-9][0-9]*)?$")
 PAPER_CONTEXT_FIELDS = (
     "research_question",
     "method",
@@ -458,12 +464,25 @@ def validate(plan: dict, plan_path: Path) -> list[str]:
         }:
             errors.append("execution.workspace_mode must be copy, git_worktree, or container")
         _validate_capabilities(execution, "execution", errors, require_network=True)
-        if mode == "container" and (
-            not isinstance(execution.get("container_image"), str)
-            or not execution["container_image"].strip()
-            or "@sha256:" not in execution["container_image"]
-        ):
-            errors.append("execution.container_image must be pinned by @sha256")
+        if mode == "container":
+            image = execution.get("container_image")
+            if not isinstance(image, str) or not CONTAINER_IMAGE_PATTERN.fullmatch(
+                image
+            ):
+                errors.append(
+                    "execution.container_image must be a lowercase digest-only "
+                    "reference such as registry.example/research@sha256:<64 hex>; "
+                    "tags and unpinned images are forbidden"
+                )
+            container_user = execution.get("container_user", "65532:65532")
+            if (
+                not isinstance(container_user, str)
+                or not CONTAINER_USER_PATTERN.fullmatch(container_user)
+            ):
+                errors.append(
+                    "execution.container_user must be a non-root numeric UID or "
+                    "UID:GID (default 65532:65532)"
+                )
         if not isinstance(execution.get("retain_workspace", False), bool):
             errors.append("execution.retain_workspace must be boolean")
         if not isinstance(execution.get("allow_argv_secrets", False), bool):

@@ -3,6 +3,7 @@ __pycache__/
 .pytest_cache/
 .reproduce-runtime/
 tests/.reproduce-runtime/
+tests/.evaluation-runtime/
 tests/.validator-packages/
 reproduction-output/
 benchmarks/.venv/
@@ -11,5 +12,7 @@ benchmarks/.work/
 *.log
 !benchmarks/results/**/logs/*.log
 .env
+evaluations/results/*
+!evaluations/results/.gitkeep
 .DS_Store
 Thumbs.db

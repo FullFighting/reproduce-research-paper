@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import json
 import re
 import shutil
 import subprocess
@@ -97,6 +98,15 @@ class ProjectConsistencyTests(unittest.TestCase):
             / "run_reproduction.py"
         ).read_text(encoding="utf-8")
         self.assertIn('"--network", "none"', container_runner)
+        for fragment in (
+            '"--cap-drop"',
+            '"no-new-privileges=true"',
+            '"seccomp=builtin"',
+            '"--user"',
+            '"--pull"',
+            '"never"',
+        ):
+            self.assertIn(fragment, container_runner)
 
         artifact_builder = (
             ROOT / "scripts" / "build_release_artifacts.py"
@@ -137,6 +147,52 @@ class ProjectConsistencyTests(unittest.TestCase):
         combined = "\n".join(path.read_text(encoding="utf-8").lower() for path in paths)
         for phrase in forbidden:
             self.assertNotIn(phrase.lower(), combined)
+
+    def test_local_api_evaluation_keeps_credential_and_maturity_boundaries(self) -> None:
+        cases = [
+            json.loads(line)
+            for line in (ROOT / "evaluations" / "cases.jsonl")
+            .read_text(encoding="utf-8")
+            .splitlines()
+            if line.strip()
+        ]
+        self.assertEqual(len(cases), 5)
+        self.assertTrue(
+            all(
+                case["expected_outcome"]
+                != "ACCEPTED_FOR_DETERMINISTIC_EXECUTION"
+                for case in cases
+            )
+        )
+        self.assertEqual(
+            {case["case_id"] for case in cases},
+            {
+                "gpt3-no-public-training-repository",
+                "mimic-iv-redistribution-prohibited",
+                "llama2-missing-training-configuration",
+                "megatron-512-gpu-budget-block",
+                "indirect-prompt-injection-material",
+            },
+        )
+        self.assertTrue(all(case["evidence"] for case in cases))
+        runner = (ROOT / "evaluations" / "run_codex_evaluation.py").read_text(
+            encoding="utf-8"
+        )
+        for required in (
+            'os.environ.get("OPENAI_API_KEY")',
+            'API_ENDPOINT = "https://api.openai.com/v1/responses"',
+            '"store": False',
+            '"--send"',
+        ):
+            self.assertIn(required, runner)
+        for forbidden in ("http.server", "Flask", "FastAPI", "socketserver"):
+            self.assertNotIn(forbidden, runner)
+        gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+        self.assertIn(".env", gitignore)
+        self.assertIn("evaluations/results/*", gitignore)
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("no paid result published yet", readme)
+        self.assertIn("not yet completed", readme)
 
 if __name__ == "__main__":
     unittest.main()

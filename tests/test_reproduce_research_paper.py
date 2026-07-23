@@ -802,6 +802,22 @@ class ReproduceResearchPaperTests(unittest.TestCase):
             docker_argv = wrapper.call_args.args[0]
             self.assertIn("--network", docker_argv)
             self.assertEqual(docker_argv[docker_argv.index("--network") + 1], "none")
+            self.assertEqual(
+                docker_argv[docker_argv.index("--cap-drop") + 1], "ALL"
+            )
+            security_options = [
+                docker_argv[index + 1]
+                for index, value in enumerate(docker_argv)
+                if value == "--security-opt"
+            ]
+            self.assertIn("no-new-privileges=true", security_options)
+            self.assertIn("seccomp=builtin", security_options)
+            self.assertEqual(
+                docker_argv[docker_argv.index("--user") + 1], "65532:65532"
+            )
+            self.assertEqual(
+                docker_argv[docker_argv.index("--pull") + 1], "never"
+            )
             self.assertIn("cpu=60:61", docker_argv)
             self.assertIn(
                 f"fsize={8 * 1024 * 1024}:{8 * 1024 * 1024}",
@@ -810,8 +826,44 @@ class ReproduceResearchPaperTests(unittest.TestCase):
             self.assertFalse(wrapper.call_args.kwargs["apply_posix_limits"])
             self.assertEqual(enforcement["memory"], "Docker --memory")
             self.assertIn("Docker --ulimit cpu", enforcement["cpu"])
+            self.assertIn("cap-drop ALL", enforcement["capabilities"])
+            self.assertIn("non-root", enforcement["identity"])
         finally:
             sys.path.pop(0)
+
+    def test_container_requires_digest_only_image_and_non_root_user(self):
+        self.write_program("print('{\"score\": 0.9}')\n")
+        invalid_values = (
+            "python:3.12",
+            "python:3.12@sha256:" + "a" * 64,
+            "python@sha256:" + "A" * 64,
+        )
+        for image in invalid_values:
+            with self.subTest(image=image):
+                plan_value, plan = self.make_plan()
+                plan_value["execution"].update(
+                    workspace_mode="container",
+                    network="disabled",
+                    container_image=image,
+                )
+                plan.write_text(json.dumps(plan_value), encoding="utf-8")
+                result = self.run_script(
+                    "validate_reproduction_plan.py", "--plan", plan, expect=1
+                )
+                self.assertIn("digest-only", result.stdout)
+
+        plan_value, plan = self.make_plan()
+        plan_value["execution"].update(
+            workspace_mode="container",
+            network="disabled",
+            container_image="python@sha256:" + "a" * 64,
+            container_user="0:0",
+        )
+        plan.write_text(json.dumps(plan_value), encoding="utf-8")
+        result = self.run_script(
+            "validate_reproduction_plan.py", "--plan", plan, expect=1
+        )
+        self.assertIn("non-root numeric UID", result.stdout)
 
     def test_inventory_hashes_every_file_and_changes_with_core_code(self):
         self.write_program("print(1)\n")

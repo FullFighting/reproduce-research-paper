@@ -1,0 +1,46 @@
+name: Independent planning review
+description: Volunteer to score one published Codex planning-pilot case.
+title: "Independent review: "
+labels: ["independent-review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read `evaluations/protocol.md` and `docs/independent-review-call.md`.
+        Do not include restricted papers, credentials, private data, or personal contact details.
+  - type: input
+    id: case
+    attributes:
+      label: Pilot case ID
+      placeholder: numpy-broadcasting
+    validations:
+      required: true
+  - type: textarea
+    id: background
+    attributes:
+      label: Relevant public background
+      description: Briefly describe relevant research or research-software experience.
+    validations:
+      required: true
+  - type: input
+    id: affiliation
+    attributes:
+      label: Affiliation or independent status
+    validations:
+      required: true
+  - type: textarea
+    id: conflicts
+    attributes:
+      label: Conflicts of interest
+      description: State none if none are known.
+    validations:
+      required: true
+  - type: checkboxes
+    id: integrity
+    attributes:
+      label: Review integrity
+      options:
+        - label: I will bind my review to the exact plan SHA-256 and disclose proposed modifications.
+          required: true
+        - label: I will not include restricted content, credentials, or private data.
+          required: true

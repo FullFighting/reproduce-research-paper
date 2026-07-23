@@ -58,7 +58,12 @@
 }
 ```
 
-All six `paper_context` fields are required. Network must be explicit. Container images must use an `@sha256:` digest.
+All six `paper_context` fields are required. Network must be explicit. Container
+images must use a lowercase digest-only reference ending in
+`@sha256:<64 lowercase hex>`; mutable tags and tag-plus-digest references are
+rejected. Container execution uses non-root `65532:65532` unless
+`execution.container_user` supplies another reviewed non-zero numeric UID or
+UID:GID.
 
 ## Commands and secrets
 

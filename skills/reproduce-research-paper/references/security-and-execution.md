@@ -45,7 +45,32 @@ The runner independently enforces the default, records `argv_secret_compatibilit
 
 - `copy`: run in a temporary copy; host network isolation is not claimed.
 - `git_worktree`: require a clean Git source and run in a detached worktree.
-- `container`: mount source read-only, mount outputs separately, pin the image digest, and use Docker `--network none` when network is disabled.
+- `container`: mount source read-only, mount outputs separately, require a
+  digest-only image reference, refuse implicit pulls, and use Docker
+  `--network none` when network is disabled.
+
+Container mode also drops every Linux capability, sets
+`no-new-privileges=true`, explicitly selects Docker's built-in restricted
+seccomp profile, and runs as numeric non-root user `65532:65532` by default.
+Set `execution.container_user` to another reviewed non-zero numeric `UID` or
+`UID:GID` only when the output mount requires it. The runner never accepts root.
+
+The image must already exist locally because `--pull never` is enforced. Pull
+and inspect it as a separate maintainer-controlled admission step, verify its
+publisher and digest, then place only the immutable form in the plan:
+
+```json
+{
+  "workspace_mode": "container",
+  "container_image": "registry.example/research@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "container_user": "65532:65532"
+}
+```
+
+Mutable tags, including tag-plus-digest references, are rejected so the evidence
+record has one unambiguous image identity. Docker is an isolation layer, not a
+proof against kernel or daemon compromise; high-risk adversarial code still
+requires a dedicated host or VM and human approval.
 
 Write the bundle outside the research repository. Reject external symlinks and preserve the original source.
 

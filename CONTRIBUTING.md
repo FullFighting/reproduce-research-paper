@@ -6,10 +6,11 @@ Before a pull request:
 
 ```powershell
 python -m compileall -q skills/reproduce-research-paper/scripts
-python -m compileall -q scripts
+python -m compileall -q evaluations scripts
 python -m unittest discover -s tests -v
 python scripts/sync_benchmark_facts.py --check
 python scripts/validate_codex_evaluation.py
+python evaluations/run_codex_evaluation.py --validate-cases
 ```
 
 For schema, release, or execution-boundary changes, also generate a clean `git archive` and run `scripts/verify_release_archive.py`. Container changes must pass `scripts/run_container_e2e.py`.
@@ -25,4 +26,12 @@ For behavior changes:
 
 Use the five-dimension plan-review rubric in [docs/evaluation-methodology.md](docs/evaluation-methodology.md). A contributed case may be accepted, revised, rejected, or blocked; a rejection is useful evaluation evidence and must not be rewritten into a success.
 
-Never commit credentials, private datasets, paywalled text, proprietary model weights, or third-party data without redistribution permission.
+For API evaluation contributions, keep the runner local and preview-first. Do not
+add a web server, key proxy, automatic paid retry, committed API key,
+Organization/Project credential, request header, or environment dump. Publish
+only public or authorized inputs and reviewed, redacted results. Bind every
+independent review to the exact plan SHA-256 and preserve disagreements and
+adjudication as separate records.
+
+Never commit credentials, private datasets, paywalled text, proprietary model
+weights, or third-party data without redistribution permission.

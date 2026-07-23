@@ -42,6 +42,9 @@ from repository_state import (  # noqa: E402
 from validate_reproduction_plan import plan_fingerprint, validate  # noqa: E402
 
 
+DEFAULT_CONTAINER_USER = "65532:65532"
+
+
 def _copy_ignore(exclusions: dict[str, str]):
     excluded_names = set(DEFAULT_EXCLUSIONS) | set(exclusions)
 
@@ -249,12 +252,24 @@ def _container_argv(
     image: str,
     timeout: int,
     environment: dict[str, str],
+    *,
+    container_user: str = DEFAULT_CONTAINER_USER,
 ) -> tuple[int | None, bool, str, str, dict]:
     docker = [
         "docker",
         "run",
         "--rm",
+        "--pull",
+        "never",
         "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges=true",
+        "--security-opt",
+        "seccomp=builtin",
+        "--user",
+        container_user,
         "--pids-limit",
         "256",
         "--memory",
@@ -298,6 +313,11 @@ def _container_argv(
         {
             "network": "Docker --network none" if capabilities["network"] == "disabled" else "explicitly unrestricted",
             "source_write": "Docker read-only bind mount",
+            "image": "digest-only plan reference with Docker --pull never",
+            "capabilities": "Docker --cap-drop ALL",
+            "privilege_escalation": "Docker no-new-privileges=true",
+            "identity": f"Docker numeric non-root user {container_user}",
+            "syscalls": "Docker built-in restricted seccomp profile",
             "memory": "Docker --memory",
             "cpu": "Docker --ulimit cpu plus wall timeout",
             "file_size": "Docker --ulimit fsize plus post-run verification",
@@ -484,6 +504,9 @@ def execute(plan: dict, plan_path: Path, bundle: Path) -> tuple[dict, bool]:
                     plan["execution"]["container_image"],
                     command["timeout_seconds"],
                     child_environment,
+                    container_user=plan["execution"].get(
+                        "container_user", DEFAULT_CONTAINER_USER
+                    ),
                 )
             else:
                 command_dir = (workspace / command.get("cwd", ".")).resolve()
