@@ -1,6 +1,10 @@
 # Changelog
 
-## 1.0.0 — 2026-07-23
+## 1.0.1 - 2026-07-23
+
+- Preserve published evidence-bundle bytes across Windows and Linux Git checkouts so provenance hashes remain portable.
+
+## 1.0.0 - 2026-07-23
 
 First stable release.
 

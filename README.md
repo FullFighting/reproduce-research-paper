@@ -1,7 +1,7 @@
 # Reproduce Research Paper
 
 [![Validate](https://github.com/FullFighting/reproduce-research-paper/actions/workflows/validate.yml/badge.svg)](https://github.com/FullFighting/reproduce-research-paper/actions/workflows/validate.yml)
-[![Release](https://img.shields.io/badge/release-v1.0.0-blue)](CHANGELOG.md)
+[![Release](https://img.shields.io/badge/release-v1.0.1-blue)](CHANGELOG.md)
 [![Python](https://img.shields.io/badge/python-3.10%2B-3776AB)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 

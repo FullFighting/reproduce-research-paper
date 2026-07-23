@@ -1,0 +1,3 @@
+# Published evidence bundles are byte-addressed artifacts. Preserve exact bytes.
+# They were generated with CRLF, which is a line ending here rather than whitespace.
+benchmarks/results/** -text whitespace=cr-at-eol
