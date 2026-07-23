@@ -1,9 +1,9 @@
 ---
 name: reproduce-research-paper
-description: Reproduce computational claims from research papers with code, data, experiments, tables, figures, or model outputs. Use when Codex must read a paper as a whole, map claims to official repositories and executable commands, draft a preview-only reproduction plan, run authorized experiments in isolation, compare machine-extracted results, diagnose divergence, or deliver a traceable evidence bundle. Do not use to invent artifacts, bypass access controls, treat process success as scientific proof, or promote manual observations to reproduced claims.
+description: Evidence-first research paper reproduction and computational reproducibility for Codex. Use when the user asks to reproduce a paper, replicate research results, implement or run paper code, verify a table, figure, metric, ablation, or model output, diagnose a failed reproduction, compare experiments with published claims, or create an auditable evidence bundle. Read the whole paper, map claims to official code and data, draft a preview-only plan, execute only after approval, and accept only run-bound machine observations. Never invent missing artifacts, bypass access controls, treat process success as scientific proof, or promote manual observations to reproduced claims.
 ---
 
-# Reproduce research paper
+# Reproduce research papers
 
 Build a continuous evidence chain:
 

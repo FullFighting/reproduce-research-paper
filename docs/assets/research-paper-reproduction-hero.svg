@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+  <title id="title">Research Paper Reproduction for Codex</title>
+  <desc id="desc">An evidence-first workflow from paper claim through reviewed plan, isolated run, machine observation, verified comparison, and traceable report.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07142f"/>
+      <stop offset="0.52" stop-color="#102a56"/>
+      <stop offset="1" stop-color="#0d6f73"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7dd3fc"/>
+      <stop offset="1" stop-color="#5eead4"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#020617" flood-opacity=".35"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="420" rx="28" fill="url(#bg)"/>
+  <circle cx="1060" cy="48" r="190" fill="#38bdf8" opacity=".08"/>
+  <circle cx="120" cy="400" r="210" fill="#2dd4bf" opacity=".08"/>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <text x="72" y="92" fill="#bae6fd" font-size="20" font-weight="700" letter-spacing="3">OPENAI CODEX SKILL · EVIDENCE FIRST</text>
+    <text x="72" y="158" fill="#ffffff" font-size="48" font-weight="750">Research Paper Reproduction</text>
+    <text x="72" y="204" fill="#cbd5e1" font-size="23">Plan carefully. Run safely. Verify every computational claim.</text>
+  </g>
+  <g transform="translate(72 260)" filter="url(#shadow)" font-family="Segoe UI, Arial, sans-serif">
+    <g>
+      <rect width="154" height="82" rx="16" fill="#ffffff" opacity=".96"/>
+      <text x="77" y="35" text-anchor="middle" fill="#0f172a" font-size="15" font-weight="700">PAPER CLAIM</text>
+      <text x="77" y="58" text-anchor="middle" fill="#475569" font-size="13">location + metric</text>
+    </g>
+    <path d="M164 41h34" stroke="url(#accent)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M191 34l10 7-10 7" fill="none" stroke="#5eead4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <g transform="translate(208)">
+      <rect width="154" height="82" rx="16" fill="#ffffff" opacity=".96"/>
+      <text x="77" y="35" text-anchor="middle" fill="#0f172a" font-size="15" font-weight="700">REVIEWED PLAN</text>
+      <text x="77" y="58" text-anchor="middle" fill="#475569" font-size="13">preview + budget</text>
+    </g>
+    <path d="M372 41h34" stroke="url(#accent)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M399 34l10 7-10 7" fill="none" stroke="#5eead4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <g transform="translate(416)">
+      <rect width="154" height="82" rx="16" fill="#ffffff" opacity=".96"/>
+      <text x="77" y="35" text-anchor="middle" fill="#0f172a" font-size="15" font-weight="700">ISOLATED RUN</text>
+      <text x="77" y="58" text-anchor="middle" fill="#475569" font-size="13">bound environment</text>
+    </g>
+    <path d="M580 41h34" stroke="url(#accent)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M607 34l10 7-10 7" fill="none" stroke="#5eead4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <g transform="translate(624)">
+      <rect width="154" height="82" rx="16" fill="#ffffff" opacity=".96"/>
+      <text x="77" y="35" text-anchor="middle" fill="#0f172a" font-size="15" font-weight="700">OBSERVATION</text>
+      <text x="77" y="58" text-anchor="middle" fill="#475569" font-size="13">machine extracted</text>
+    </g>
+    <path d="M788 41h34" stroke="url(#accent)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M815 34l10 7-10 7" fill="none" stroke="#5eead4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <g transform="translate(832)">
+      <rect width="224" height="82" rx="16" fill="#ecfeff"/>
+      <text x="112" y="35" text-anchor="middle" fill="#0f172a" font-size="15" font-weight="700">VERIFIED REPORT</text>
+      <text x="112" y="58" text-anchor="middle" fill="#0f766e" font-size="13">traceable evidence bundle</text>
+    </g>
+  </g>
+  <rect x="72" y="378" width="1056" height="4" rx="2" fill="url(#accent)" opacity=".85"/>
+</svg>

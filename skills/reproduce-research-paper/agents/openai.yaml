@@ -1,4 +1,4 @@
 interface:
-  display_name: "Reproduce Research Paper"
-  short_description: "Reproduce paper claims from run-bound evidence"
-  default_prompt: "Use $reproduce-research-paper to read this paper as a whole, inventory its official repository, and create a preview-only claim reproduction plan before executing anything."
+  display_name: "Research Paper Reproduction"
+  short_description: "Reproduce paper claims with traceable evidence"
+  default_prompt: "Use $reproduce-research-paper to read this paper, map its executable claims to official code and data, and create a preview-only reproduction plan before running anything."
