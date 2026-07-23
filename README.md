@@ -1,7 +1,7 @@
 # Reproduce Research Paper
 
 [![Validate](https://github.com/FullFighting/reproduce-research-paper/actions/workflows/validate.yml/badge.svg)](https://github.com/FullFighting/reproduce-research-paper/actions/workflows/validate.yml)
-[![Release](https://img.shields.io/badge/release-v1.0.1-blue)](CHANGELOG.md)
+[![Release](https://img.shields.io/badge/release-v1.1.0-blue)](https://github.com/FullFighting/reproduce-research-paper/releases/latest)
 [![Python](https://img.shields.io/badge/python-3.10%2B-3776AB)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -11,17 +11,37 @@ V1 closes a dangerous reproducibility gap: a successful command plus a hand-writ
 
 > This result verifies only the declared computational claim under the recorded environment and protocol.
 
-## Public V1 evidence
+## Why Codex
 
-The repository includes [15 real-paper, public, low-cost claim reproductions](benchmarks/benchmark-report.md) from Nature, Nature Methods, JMLR, KDD, NeurIPS, ICML, Journal of Financial Economics, and Mathematical Programming Computation, plus influential peer-reviewed research-software venues.
+Research reproduction requires both semantic reasoning and deterministic verification.
 
+Codex is used to:
+
+- read the paper as a whole;
+- identify executable claims and their locations;
+- map claims to official repositories, datasets, and commands;
+- draft a reviewable, preview-only reproduction plan;
+- diagnose failed or divergent runs;
+- propose regression tests and documentation updates.
+
+Codex does not assign scientific truth. The bundled deterministic runtime controls execution, extracts observations, verifies provenance, recomputes comparisons, and renders the final claim-scoped report.
+
+The [Codex planning evaluation pilot](docs/codex-evaluation/README.md) publishes three paper/repository cases with initial prompts, draft plans, review records, revised plans, evidence links, and honest telemetry limitations. It is a pilot from the Codex desktop workflow, not an independently human-reviewed benchmark.
+
+## Public evidence
+
+The repository includes [15 public, paper-linked, low-cost, claim-level executable cases](benchmarks/benchmark-report.md) from Nature, Nature Methods, JMLR, KDD, NeurIPS, ICML, Journal of Financial Economics, and Mathematical Programming Computation, plus influential peer-reviewed research-software venues.
+
+<!-- benchmark-facts:start -->
+- 15 public, paper-linked, claim-level executable cases.
 - 15/15 claims reproduced within their declared tolerance.
 - 15/15 evidence bundles pass full artifact re-hashing and report recomputation.
-- 70.363 seconds total recorded wall time on the release machine.
-- 0 GPUs, 0 API tokens, and $0 estimated external API cost.
+- 0 deterministic-runtime API tokens and $0 estimated external API cost.
+<!-- benchmark-facts:end -->
+- 0 GPUs were requested by every benchmark plan.
 - Every case publishes its paper/code links, plan, environment lock, data/license note, raw logs, observation, comparison, report, provenance, and scope limitations.
 
-These are bounded claim-level reproductions. They do not pretend to rerun every large-scale experiment or validate every scientific conclusion in all 15 papers.
+These are bounded claim-level executable checks. They do not pretend to rerun every large-scale experiment or validate every scientific conclusion in the linked papers.
 
 ## What V1 enforces
 
@@ -108,9 +128,11 @@ None means “the paper is true.” They describe only the declared computationa
 ```powershell
 python -m compileall -q skills/reproduce-research-paper/scripts
 python -m unittest discover -s tests -v
+python scripts/sync_benchmark_facts.py --check
+python scripts/validate_codex_evaluation.py
 ```
 
-The 15-paper benchmark is intentionally separate from CI because it downloads optional dependencies and one live public finance archive:
+The 15-case benchmark is intentionally separate from CI because it downloads optional dependencies and one live public finance archive:
 
 ```powershell
 python -m pip install -r benchmarks/harness/requirements.lock.txt

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "case_id": "sklearn-iris-svm",
+  "bundle_path": "../../../benchmarks/results/sklearn-iris-svm",
+  "plan_sha256": "efc4f3ff3ed9220835811da133c7e6acbc2cd5c411e7d8f8fa2d98491d964dec",
+  "provenance_sha256": "4337a5a28f4bfa4d479ffac88dea672c4cddb5a7dffb79c828d0066c4be917fd",
+  "report_sha256": "a21991dffeb93ecdfd8f0209afcc8b50cb448031331a36d4429c573dc80bc0cb",
+  "claim_status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE"
+}

@@ -1,0 +1,38 @@
+name: Extractor request
+description: Request a machine-readable observation source or extractor.
+title: "[Extractor request] "
+body:
+  - type: dropdown
+    id: source
+    attributes:
+      label: Source type
+      options:
+        - stdout or stderr
+        - JSON
+        - CSV
+        - NumPy
+        - Parquet
+        - Other structured output
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Minimal public example
+      description: Show a redacted source snippet, target value, unit, and proposed expression.
+    validations:
+      required: true
+  - type: textarea
+    id: semantics
+    attributes:
+      label: Row, column, aggregation, and error behavior
+      description: Define selection, aggregation, missing values, duplicates, and units.
+    validations:
+      required: true
+  - type: checkboxes
+    id: manual
+    attributes:
+      label: Verification boundary
+      options:
+        - label: I understand manual image/table reading cannot directly produce a reproduced status.
+          required: true

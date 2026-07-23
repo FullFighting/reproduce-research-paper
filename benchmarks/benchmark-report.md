@@ -1,8 +1,8 @@
-# V1 public paper-reproduction benchmark
+# Public paper-linked claim-level benchmark
 
 Generated: 2026-07-23T07:37:13+00:00
 
-This benchmark contains 15 real-paper, public, low-cost claim-level reproductions. It does not claim that all findings in all 15 papers were independently replicated. Each linked evidence bundle contains its plan, repository/environment inventory, raw logs, machine-extracted observation, recomputed comparison, report, and provenance manifest.
+This benchmark contains 15 public, paper-linked, low-cost, claim-level executable cases. It does not claim that the papers themselves were independently replicated. Each linked evidence bundle contains its plan, repository/environment inventory, raw logs, machine-extracted observation, recomputed comparison, report, and provenance manifest.
 
 - Cases executed: **15**
 - Reproduced within declared tolerance: **15**

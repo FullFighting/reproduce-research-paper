@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0 - 2026-07-23
+
+- Makes `benchmarks/benchmark-summary.json` the single source for published benchmark counts and costs; CI rejects stale reports, README facts, and application facts.
+- Reframes the benchmark as 15 public, paper-linked, claim-level executable cases rather than whole-paper reproductions.
+- Adds a three-case Codex planning-evaluation pilot with prompts, draft/revised plans, review records, evidence bindings, and explicit unavailable telemetry.
+- Documents why Codex handles semantic interpretation while deterministic tooling handles execution and verification.
+- Narrows the proposed API-credit program to measurable planning evaluation, failure analysis, regression fixtures, community plans, transparency, and releases.
+- Adds public issue forms, pull-request template, CODEOWNERS, roadmap, maintainer disclosure, and evaluation methodology.
+- Links the release badge to the immutable GitHub release flow and records the public maintainer handle without inventing personal identity fields.
+
 ## 1.0.1 - 2026-07-23
 
 - Preserve published evidence-bundle bytes across Windows and Linux Git checkouts so provenance hashes remain portable.
@@ -17,4 +27,4 @@ First stable release.
 - Generates a complete evidence bundle and verifies every artifact before recomputing comparisons and reports.
 - Replaces ambiguous `VERIFIED` with claim-scoped reproduction statuses.
 - Adds explicit comparison policies, multi-run statistics, unit conversion, arrays/tables, correlation, order, equivalence intervals, and non-inferiority.
-- Publishes 15 real-paper, public, low-cost evidence bundles covering scientific computing, machine learning, operations research, finance, and econometrics.
+- Publishes 15 public, paper-linked, low-cost, claim-level evidence bundles covering scientific computing, machine learning, operations research, finance, and econometrics.

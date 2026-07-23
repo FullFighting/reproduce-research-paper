@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "evaluation_name": "Codex planning evaluation pilot",
+  "case_count": 3,
+  "planning_surface": "Codex desktop",
+  "exact_model_id": null,
+  "token_measurement_status": "UNAVAILABLE",
+  "review_type": "Codex self-review plus deterministic schema and evidence feedback",
+  "independent_human_review": false,
+  "accepted_plan_count": 3,
+  "scope": "A transparency pilot, not an independently human-reviewed planning benchmark."
+}

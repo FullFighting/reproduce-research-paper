@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "case_id": "sklearn-iris-svm",
+  "planning_surface": "Codex desktop",
+  "execution_authorized": false,
+  "paper_scope_read": "whole paper plus official repository context",
+  "draft_claim": "Check that a released scikit-learn pipeline can train and evaluate an SVM on Iris.",
+  "draft_command_mapping": "Run a benchmark adapter against the installed scikit-learn package.",
+  "draft_observation": "Extract test accuracy from JSON stdout.",
+  "draft_comparison": "Use a predeclared non-inferiority threshold.",
+  "open_questions": [
+    "The split ratio, seed, stratification, preprocessing, and no-tuning rule must be explicit.",
+    "The plan must distinguish API capability from a paper-table or state-of-the-art claim."
+  ]
+}

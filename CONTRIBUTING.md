@@ -6,7 +6,10 @@ Before a pull request:
 
 ```powershell
 python -m compileall -q skills/reproduce-research-paper/scripts
+python -m compileall -q scripts
 python -m unittest discover -s tests -v
+python scripts/sync_benchmark_facts.py --check
+python scripts/validate_codex_evaluation.py
 ```
 
 For behavior changes:
@@ -17,5 +20,7 @@ For behavior changes:
 4. preserve old failed evidence rather than editing it into a passing result;
 5. cite official paper, code, data, and license sources for benchmark cases;
 6. keep runtime code compatible with Python 3.10+ and the standard library, with optional imports only for optional formats.
+
+Use the five-dimension plan-review rubric in [docs/evaluation-methodology.md](docs/evaluation-methodology.md). A contributed case may be accepted, revised, rejected, or blocked; a rejection is useful evaluation evidence and must not be rewritten into a success.
 
 Never commit credentials, private datasets, paywalled text, proprietary model weights, or third-party data without redistribution permission.

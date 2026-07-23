@@ -1,0 +1,48 @@
+name: Reproduction request
+description: Propose a public paper and official code/data source for a claim-level plan.
+title: "[Reproduction request] "
+body:
+  - type: input
+    id: paper
+    attributes:
+      label: Paper
+      description: Public title, DOI, or publisher URL.
+    validations:
+      required: true
+  - type: input
+    id: code
+    attributes:
+      label: Official code or data
+      description: Public repository or authoritative data URL.
+    validations:
+      required: true
+  - type: textarea
+    id: claim
+    attributes:
+      label: Executable claim and paper location
+      description: State one bounded computational claim, table/equation/section, metric, and unit.
+    validations:
+      required: true
+  - type: textarea
+    id: license
+    attributes:
+      label: Data and license
+      description: Describe access, redistribution, credentials, and known license limits.
+    validations:
+      required: true
+  - type: textarea
+    id: budget
+    attributes:
+      label: Expected budget
+      description: CPU/GPU, memory, disk, time, network, tokens, and external cost.
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Safety boundaries
+      options:
+        - label: I am not requesting paywall, CAPTCHA, credential, or access-control bypass.
+          required: true
+        - label: I understand a claim-level result does not verify the whole paper.
+          required: true

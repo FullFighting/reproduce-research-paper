@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "case_id": "numpy-broadcasting",
+  "status": "ACCEPTED_FOR_DETERMINISTIC_EXECUTION",
+  "accepted_plan_sha256": "482472124f0be7f344bc1c5fd188792a7dbca899ac19f0232e8def53bb4baeeb",
+  "revisions": [
+    "Narrowed the claim to a deterministic broadcasting checksum.",
+    "Fixed the synthetic input, stdout JSONPath observation, exact tolerance, CPU budget, and package lock.",
+    "Added an explicit exclusion of ecosystem adoption and performance claims."
+  ],
+  "execution_boundary": "Codex proposes and revises; the deterministic runtime executes and verifies."
+}

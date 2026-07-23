@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "planning_surface": "Codex desktop",
+  "model_family": "GPT-5-based Codex",
+  "exact_model_id": null,
+  "measurement_status": "UNAVAILABLE",
+  "input_tokens": null,
+  "output_tokens": null,
+  "total_tokens": null,
+  "estimated_cost_usd": null,
+  "api_credits_consumed": false,
+  "independent_human_review": false,
+  "reason": "This Codex desktop task did not expose per-case token telemetry or an exact model ID."
+}

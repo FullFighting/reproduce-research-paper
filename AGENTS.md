@@ -20,8 +20,11 @@ Maintain an evidence-first Codex Skill for computational paper reproduction. Pro
 
 ```powershell
 python -m compileall -q skills/reproduce-research-paper/scripts
+python -m compileall -q scripts
 python -m unittest discover -s tests -v
 python skills/reproduce-research-paper/scripts/validate_reproduction_plan.py --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json
+python scripts/sync_benchmark_facts.py --check
+python scripts/validate_codex_evaluation.py
 ```
 
 When the Codex `skill-creator` package is available, also run its `quick_validate.py` against `skills/reproduce-research-paper/`.

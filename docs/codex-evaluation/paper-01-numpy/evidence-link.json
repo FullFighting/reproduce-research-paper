@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "case_id": "numpy-broadcasting",
+  "bundle_path": "../../../benchmarks/results/numpy-broadcasting",
+  "plan_sha256": "482472124f0be7f344bc1c5fd188792a7dbca899ac19f0232e8def53bb4baeeb",
+  "provenance_sha256": "9a4a8a20422f3bf9ab0b4bc75cce7f375822079b432dfb620da08ac181e5f743",
+  "report_sha256": "3f67ac767776c35c9eca3ea9c469a92f14e19cf56c1078293d6d4951a8693305",
+  "claim_status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE"
+}
