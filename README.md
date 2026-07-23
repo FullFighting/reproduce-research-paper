@@ -7,10 +7,11 @@ It turns a reported result into a reviewable chain of paper claim, repository ar
 ## What it does
 
 - inventories code, data, weights, dependency files, entry points, licenses, and large artifacts without executing project code;
-- converts target tables, figures, and metrics into a secret-free, reviewable reproduction plan;
+- requires a paper-wide context covering the question, method, data/splits, training/inference, evaluation protocol, and stated limitations before a plan can run;
+- converts target tables, figures, and metrics into a secret-free, reviewable plan that maps every claim to commands and expected evidence;
 - previews commands by default and executes them only with `--execute`;
 - compares observed metrics against predeclared absolute and/or relative tolerances;
-- produces an auditable report with `VERIFIED`, `PARTIAL`, `CONTRADICTED`, `BLOCKED`, or `NOT_RUN` status.
+- binds plans, comparison results, and execution records with SHA-256 fingerprints, then produces an auditable report with `VERIFIED`, `PARTIAL`, `CONTRADICTED`, `BLOCKED`, or `NOT_RUN` status.
 
 ## Install as a Codex Skill
 
@@ -46,7 +47,7 @@ The execution command above is a preview. Add `--execute` only after reviewing t
 
 ## Quality contract
 
-A `VERIFIED` claim requires an executed command record and a metric comparison within the plan's predeclared tolerance. Missing data, weights, licensing, seeds, environment details, or access is evidence of a blocker; it is not a gap to be guessed away.
+A `VERIFIED` claim requires: the same reviewed plan hash in the command record and metric comparison, successful execution of every command mapped to that claim, and a result within the plan's predeclared tolerance. Missing data, weights, licensing, seeds, environment details, or access is evidence of a blocker; it is not a gap to be guessed away.
 
 The project does not bypass access controls, download restricted data, expose credentials, alter original research repositories, or make causal claims from a matching metric.
 
@@ -58,6 +59,8 @@ python -m unittest discover -s tests -v
 ```
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change and [SECURITY.md](SECURITY.md) before reporting a vulnerability.
+
+The transparent adopter ledger is in [ADOPTERS.md](ADOPTERS.md), maintainer responsibilities are in [GOVERNANCE.md](GOVERNANCE.md), and the evidence-backed application draft is in [docs/codex-open-source-application.md](docs/codex-open-source-application.md).
 
 ## Why this exists
 

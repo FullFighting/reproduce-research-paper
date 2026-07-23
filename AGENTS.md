@@ -6,7 +6,8 @@ Maintain an evidence-first Codex Skill for computational research reproduction.
 
 - Keep `skills/reproduce-research-paper/scripts/` compatible with Python 3.10+ and the standard library.
 - Do not equate a successful process exit with a verified research claim.
-- Require paper location, declared metric, expected value, tolerance, and observed output for a verified claim.
+- Require whole-paper context, paper location, declared metric, expected value, tolerance, mapped command IDs, and observed output for a verified claim.
+- Require matching plan fingerprints in execution and comparison artifacts before a report can be VERIFIED.
 - Keep command execution behind an explicit `--execute` flag.
 - Never add access-control bypasses, credential collection, automatic package installation, hidden network requests, or fabricated result recovery.
 - Keep original research repositories immutable; direct generated logs and reports to a separate output directory.

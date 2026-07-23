@@ -11,6 +11,14 @@ SKILL = ROOT / "skills" / "reproduce-research-paper"
 SCRIPTS = SKILL / "scripts"
 EXAMPLES = SKILL / "assets" / "examples"
 RUNTIME = ROOT / "tests" / ".reproduce-runtime"
+PAPER_CONTEXT = {
+    "research_question": "Can a toy command reproduce one declared metric?",
+    "method": "Run a deterministic toy script.",
+    "data_and_splits": "Fixed synthetic test split.",
+    "training_or_inference": "Run once without tuning.",
+    "evaluation_protocol": "Read one JSON metric from standard output.",
+    "limitations": "Fixture only; not a scientific result.",
+}
 
 
 class ReproduceResearchPaperTests(unittest.TestCase):
@@ -92,8 +100,9 @@ class ReproduceResearchPaperTests(unittest.TestCase):
     def test_plan_rejects_shell_and_secret_like_keys(self):
         plan = {
             "repository": str(EXAMPLES / "toy-repository"),
+            "paper_context": PAPER_CONTEXT,
             "commands": [{"id": "unsafe", "command": "python x.py", "argv": ["python", "x.py"], "timeout_seconds": 30}],
-            "claims": [{"id": "c1", "paper_location": "p. 1", "metric": "score", "expected": 1, "tolerance": {"absolute": 0}}],
+            "claims": [{"id": "c1", "paper_location": "p. 1", "metric": "score", "expected": 1, "tolerance": {"absolute": 0}, "protocol": "one fixed evaluation", "command_ids": ["unsafe"], "evidence_output": "stdout score"}],
             "api_key": "must-not-be-here",
         }
         path = self.runtime_path("unsafe-plan.json")
@@ -102,6 +111,65 @@ class ReproduceResearchPaperTests(unittest.TestCase):
         self.assertIn("shell command strings", result.stdout)
         self.assertIn("secret-like keys", result.stdout)
         self.assertNotIn("must-not-be-here", result.stdout)
+
+    def test_runner_redacts_secret_like_command_output(self):
+        for name in ("redaction.stdout.log", "redaction.stderr.log", "run-record.json"):
+            path = RUNTIME / name
+            path.unlink(missing_ok=True)
+            self.addCleanup(path.unlink, missing_ok=True)
+        plan = {
+            "repository": str(EXAMPLES / "toy-repository"),
+            "paper_context": PAPER_CONTEXT,
+            "commands": [{"id": "redaction", "argv": [sys.executable, "-c", "print('token=super-secret-value')"], "timeout_seconds": 30}],
+            "claims": [{"id": "c1", "paper_location": "p. 1", "metric": "score", "expected": 1, "tolerance": {"absolute": 0}, "protocol": "one fixed evaluation", "command_ids": ["redaction"], "evidence_output": "stdout score"}],
+        }
+        path = self.runtime_path("redaction-plan.json")
+        path.write_text(json.dumps(plan), encoding="utf-8")
+        self.run_script("run_reproduction.py", "--plan", path, "--output", RUNTIME, "--execute")
+        log = (RUNTIME / "redaction.stdout.log").read_text(encoding="utf-8")
+        self.assertIn("[REDACTED]", log)
+        self.assertNotIn("super-secret-value", log)
+
+    def test_plan_requires_whole_paper_context_and_safe_command_id(self):
+        plan = {
+            "repository": str(EXAMPLES / "toy-repository"),
+            "commands": [{"id": "../escape", "argv": ["python", "run_experiment.py"], "timeout_seconds": 30}],
+            "claims": [{"id": "c1", "paper_location": "p. 1", "metric": "score", "expected": 1, "tolerance": {"absolute": 0}}],
+        }
+        path = self.runtime_path("unsafe-plan.json")
+        path.write_text(json.dumps(plan), encoding="utf-8")
+        result = self.run_script("validate_reproduction_plan.py", "--plan", path, expect=1)
+        self.assertIn("paper_context must summarize", result.stdout)
+        self.assertIn("commands[1].id must match", result.stdout)
+
+    def test_report_refuses_verified_status_for_mismatched_plan_evidence(self):
+        source_repository = EXAMPLES / "toy-repository"
+        for name in ("smoke-experiment.stdout.log", "smoke-experiment.stderr.log", "run-record.json"):
+            path = RUNTIME / name
+            path.unlink(missing_ok=True)
+            self.addCleanup(path.unlink, missing_ok=True)
+        plan = json.loads((EXAMPLES / "reproduction-plan.json").read_text(encoding="utf-8"))
+        plan["repository"] = str(source_repository)
+        plan["commands"][0]["argv"][0] = sys.executable
+        original_plan = self.runtime_path("original-plan.json")
+        original_plan.write_text(json.dumps(plan), encoding="utf-8")
+        self.run_script("run_reproduction.py", "--plan", original_plan, "--output", RUNTIME, "--execute")
+        comparison = self.runtime_path("comparison.json")
+        self.run_script("compare_metrics.py", "--plan", original_plan, "--observed", EXAMPLES / "observed-metrics.json", "--output", comparison)
+        altered = json.loads(json.dumps(plan))
+        altered["claims"][0]["expected"] = 0.91
+        altered_plan = self.runtime_path("altered-plan.json")
+        altered_plan.write_text(json.dumps(altered), encoding="utf-8")
+        inventory = self.runtime_path("inventory.json")
+        report = self.runtime_path("mismatched-report.md")
+        self.run_script("inventory_artifacts.py", "--repository", source_repository, "--output", inventory)
+        self.run_script(
+            "build_report.py", "--plan", altered_plan, "--inventory", inventory, "--comparison", comparison,
+            "--run-record", RUNTIME / "run-record.json", "--output", report
+        )
+        text = report.read_text(encoding="utf-8")
+        self.assertIn("`PARTIAL`", text)
+        self.assertIn("Evidence integrity warning", text)
 
     def test_missing_observation_is_blocked(self):
         plan = EXAMPLES / "reproduction-plan.json"

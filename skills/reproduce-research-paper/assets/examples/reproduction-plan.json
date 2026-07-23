@@ -4,6 +4,14 @@
     "title": "Toy reproducibility example",
     "reference": "Example paper, Table 1"
   },
+  "paper_context": {
+    "research_question": "Can the declared method reach the reported test accuracy on the fixed toy split?",
+    "method": "A deterministic toy classifier represented by run_experiment.py.",
+    "data_and_splits": "The example uses a fixed synthetic test split; no external data are downloaded.",
+    "training_or_inference": "Run the supplied script once with its recorded deterministic behavior.",
+    "evaluation_protocol": "Read test_accuracy from the script output and compare it once without tuning.",
+    "limitations": "This fixture validates evidence handling only; it is not a scientific result."
+  },
   "commands": [
     {
       "id": "smoke-experiment",
@@ -19,7 +27,9 @@
       "metric": "test_accuracy",
       "expected": 0.9,
       "tolerance": {"absolute": 0.02},
-      "protocol": "Evaluate the fixed test split once; do not tune on it."
+      "protocol": "Evaluate the fixed test split once; do not tune on it.",
+      "command_ids": ["smoke-experiment"],
+      "evidence_output": "stdout JSON field test_accuracy"
     }
   ]
 }

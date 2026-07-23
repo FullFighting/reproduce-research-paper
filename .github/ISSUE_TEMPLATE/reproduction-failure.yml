@@ -1,0 +1,44 @@
+name: Reproduction failure or evidence gap
+description: Report an anonymized failure that can become a regression case.
+title: "reproduction: "
+labels: ["reproduction"]
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include private data, credentials, licensed paper text, private repository URLs, or unpublished results."
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected evidence status
+      description: State VERIFIED, PARTIAL, CONTRADICTED, BLOCKED, or NOT_RUN and why.
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: Include anonymized command IDs, public fixture details, and the actual status.
+    validations:
+      required: true
+  - type: textarea
+    id: minimal_case
+    attributes:
+      label: Minimal reproducible case
+      description: Provide only the smallest public or fictional inputs needed to reproduce the issue.
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - missing artifact
+        - access or license
+        - environment drift
+        - execution error
+        - protocol ambiguity
+        - metric mismatch
+        - resource limit
+        - integrity risk
+    validations:
+      required: true

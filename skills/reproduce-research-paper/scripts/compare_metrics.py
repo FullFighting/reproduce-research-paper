@@ -4,8 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
+
+from validate_reproduction_plan import plan_fingerprint
 
 
 def load_observed(path: Path) -> tuple[dict[str, float], dict[str, float]]:
@@ -27,6 +30,10 @@ def load_observed(path: Path) -> tuple[dict[str, float], dict[str, float]]:
                 by_claim[item["claim_id"]] = float(item["value"])
         return by_metric, by_claim
     raise ValueError("observed metrics must be an object or list")
+
+
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def main() -> int:
@@ -61,7 +68,12 @@ def main() -> int:
             "status": "verified" if any(allowed) else "contradicted",
         })
     summary = {status: sum(item["status"] == status for item in results) for status in ("verified", "contradicted", "blocked")}
-    payload = {"claims": results, "summary": summary}
+    payload = {
+        "plan_sha256": plan_fingerprint(plan),
+        "observed_sha256": sha256_file(args.observed),
+        "claims": results,
+        "summary": summary,
+    }
     rendered = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

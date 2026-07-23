@@ -5,13 +5,27 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from validate_reproduction_plan import validate  # noqa: E402
+from validate_reproduction_plan import is_within, plan_fingerprint, validate  # noqa: E402
+
+
+REDACTION_PATTERNS = (
+    re.compile(r"(?i)\b(api[_-]?key|secret|token|password|webhook|credential)\s*([:=])\s*[^\s,;]+"),
+    re.compile(r"(?i)([?&](?:api[_-]?key|secret|token|password|webhook|credential)=)[^&#\s]+"),
+    re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{16,})\b"),
+)
+
+
+def redact(text: str) -> str:
+    redacted = REDACTION_PATTERNS[0].sub(lambda match: f"{match.group(1)}{match.group(2)}[REDACTED]", text)
+    redacted = REDACTION_PATTERNS[1].sub(lambda match: f"{match.group(1)}[REDACTED]", redacted)
+    return REDACTION_PATTERNS[2].sub("[REDACTED]", redacted)
 
 
 def main() -> int:
@@ -19,6 +33,7 @@ def main() -> int:
     parser.add_argument("--plan", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--execute", action="store_true", help="run the reviewed command argv arrays")
+    parser.add_argument("--continue-on-error", action="store_true", help="continue after a failed command")
     args = parser.parse_args()
     try:
         plan = json.loads(args.plan.read_text(encoding="utf-8"))
@@ -30,9 +45,14 @@ def main() -> int:
         return 1
     root_value = Path(plan["repository"])
     repository = root_value.resolve() if root_value.is_absolute() else (args.plan.parent / root_value).resolve()
+    output = args.output.resolve()
+    if is_within(output, repository):
+        parser.error("--output must be outside the research repository to preserve it")
+    fingerprint = plan_fingerprint(plan)
     preview = {
         "mode": "execute" if args.execute else "preview",
-        "repository": str(repository),
+        "repository": repository.name,
+        "plan_sha256": fingerprint,
         "commands": [
             {"id": item["id"], "argv": item["argv"], "cwd": item.get("cwd", "."), "timeout_seconds": item["timeout_seconds"]}
             for item in plan["commands"]
@@ -42,12 +62,12 @@ def main() -> int:
         print(json.dumps(preview, ensure_ascii=False, indent=2))
         return 0
 
-    args.output.mkdir(parents=True, exist_ok=True)
+    output.mkdir(parents=True, exist_ok=True)
     records = []
     for item in plan["commands"]:
         command_dir = (repository / item.get("cwd", ".")).resolve()
         started = time.time()
-        record = {"id": item["id"], "argv": item["argv"], "cwd": str(command_dir), "timeout_seconds": item["timeout_seconds"]}
+        record = {"id": item["id"], "argv": item["argv"], "cwd": item.get("cwd", "."), "timeout_seconds": item["timeout_seconds"]}
         try:
             result = subprocess.run(item["argv"], cwd=command_dir, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=item["timeout_seconds"], check=False)
             record.update({"exit_code": result.returncode, "timed_out": False})
@@ -57,15 +77,17 @@ def main() -> int:
             stdout = (exc.stdout or "") if isinstance(exc.stdout, str) else ""
             stderr = (exc.stderr or "") if isinstance(exc.stderr, str) else ""
         record["duration_seconds"] = round(time.time() - started, 3)
-        stdout_path = args.output / f"{item['id']}.stdout.log"
-        stderr_path = args.output / f"{item['id']}.stderr.log"
-        stdout_path.write_text(stdout, encoding="utf-8")
-        stderr_path.write_text(stderr, encoding="utf-8")
+        stdout_path = output / f"{item['id']}.stdout.log"
+        stderr_path = output / f"{item['id']}.stderr.log"
+        stdout_path.write_text(redact(stdout), encoding="utf-8")
+        stderr_path.write_text(redact(stderr), encoding="utf-8")
         record["stdout_log"] = stdout_path.name
         record["stderr_log"] = stderr_path.name
         records.append(record)
-    payload = {"mode": "execute", "repository": str(repository), "commands": records}
-    record_path = args.output / "run-record.json"
+        if (record["timed_out"] or record["exit_code"] != 0) and not args.continue_on_error:
+            break
+    payload = {"mode": "execute", "repository": repository.name, "plan_sha256": fingerprint, "commands": records}
+    record_path = output / "run-record.json"
     record_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"run_record": str(record_path), "successful": all(item["exit_code"] == 0 and not item["timed_out"] for item in records)}, ensure_ascii=False, indent=2))
     return 0 if all(item["exit_code"] == 0 and not item["timed_out"] for item in records) else 1

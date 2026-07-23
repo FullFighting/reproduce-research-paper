@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
@@ -23,7 +24,15 @@ def relative(path: Path, root: Path) -> str:
     return path.relative_to(root).as_posix()
 
 
-def inventory(repository: Path, max_files: int) -> dict:
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def inventory(repository: Path, max_files: int, hash_max_bytes: int) -> dict:
     root = repository.resolve()
     if not root.is_dir():
         raise ValueError(f"repository is not a directory: {root}")
@@ -41,8 +50,21 @@ def inventory(repository: Path, max_files: int) -> dict:
     def selected(predicate):
         return sorted(relative(path, root) for path in files if predicate(path))
 
+    fingerprint_candidates = [
+        path for path in files
+        if (path.name in DEPENDENCY_FILES or path.name in ENTRYPOINT_NAMES or path.name.lower() in {"readme.md", "readme.rst"})
+        and path.stat().st_size <= hash_max_bytes
+    ]
+    content_fingerprints = [
+        {"path": relative(path, root), "bytes": path.stat().st_size, "sha256": sha256_file(path)}
+        for path in sorted(fingerprint_candidates)
+    ]
+    repository_fingerprint = hashlib.sha256(
+        json.dumps(content_fingerprints, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
     return {
-        "repository": str(root),
+        "repository": root.name,
+        "repository_fingerprint": repository_fingerprint,
         "file_count": len(files),
         "dependency_files": selected(lambda p: p.name in DEPENDENCY_FILES),
         "entrypoints": selected(lambda p: p.name in ENTRYPOINT_NAMES or p.name.startswith("run_")),
@@ -55,6 +77,7 @@ def inventory(repository: Path, max_files: int) -> dict:
             for path in sorted(files)
             if path.stat().st_size >= 100 * 1024 * 1024
         ],
+        "content_fingerprints": content_fingerprints,
     }
 
 
@@ -62,12 +85,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repository", required=True, type=Path)
     parser.add_argument("--max-files", type=int, default=5000)
+    parser.add_argument("--hash-max-bytes", type=int, default=1024 * 1024)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    if args.max_files < 1:
-        parser.error("--max-files must be positive")
+    if args.max_files < 1 or args.hash_max_bytes < 1:
+        parser.error("--max-files and --hash-max-bytes must be positive")
     try:
-        result = inventory(args.repository, args.max_files)
+        result = inventory(args.repository, args.max_files, args.hash_max_bytes)
     except ValueError as exc:
         parser.error(str(exc))
     payload = json.dumps(result, ensure_ascii=False, indent=2) + "\n"

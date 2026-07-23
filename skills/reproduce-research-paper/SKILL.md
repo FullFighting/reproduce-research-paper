@@ -31,11 +31,13 @@ python <SKILL_ROOT>/scripts/inventory_artifacts.py `
 
 Read [evidence-policy.md](references/evidence-policy.md) before assigning a reproduction status. Read [failure-taxonomy.md](references/failure-taxonomy.md) when an artifact is incomplete or a run fails.
 
+Read the whole paper before selecting target metrics. Record the research question, method, data and split construction, training/inference procedure, evaluation protocol, ablations that affect the target claim, and stated limitations. Do not infer these from the abstract alone. If the paper is a PDF, use a PDF-reading capability when available; otherwise ask the user for a text extraction or the relevant sections.
+
 Check the paper against the inventory: each target claim needs a paper location, a reported metric/figure/table, a command or entry point, inputs, configuration, and an observable output. Record only claims that can be stated precisely.
 
 ### 2. Write and validate a reproduction plan
 
-Copy and adapt [reproduction-plan.json](assets/examples/reproduction-plan.json). Plans use argument arrays, not shell strings, so the command and working directory are reviewable.
+Copy and adapt [reproduction-plan.json](assets/examples/reproduction-plan.json). A valid plan must contain `paper_context` for all six paper-wide fields and map every claim to one or more `command_ids` plus an `evidence_output`. Plans use argument arrays, not shell strings, so the command and working directory are reviewable.
 
 ```powershell
 python <SKILL_ROOT>/scripts/validate_reproduction_plan.py `
@@ -59,7 +61,7 @@ python <SKILL_ROOT>/scripts/run_reproduction.py `
   --execute
 ```
 
-The runner creates `run-record.json` and per-command stdout/stderr logs. It executes only the reviewed `argv` arrays in the plan; it does not install packages or fetch data by itself. Stop on a failed command unless the user requests a diagnostic continuation.
+The runner creates `run-record.json` and per-command stdout/stderr logs. It executes only the reviewed `argv` arrays in the plan; it does not install packages or fetch data by itself. Output must be outside the research repository, logs are redacted for common credential patterns, and the runner stops after a failed command unless `--continue-on-error` is explicitly requested.
 
 ### 4. Compare reported and observed results
 
@@ -87,13 +89,13 @@ python <SKILL_ROOT>/scripts/build_report.py `
 
 Use only these statuses:
 
-- `VERIFIED`: target evidence was executed and all compared claims met predeclared tolerances.
+- `VERIFIED`: the exact reviewed plan, mapped command records, and all compared claims agree with predeclared tolerances.
 - `PARTIAL`: at least one target claim was verified, but another was blocked, not comparable, or failed.
 - `CONTRADICTED`: an executed, comparable claim fell outside its predeclared tolerance.
 - `BLOCKED`: required artifacts, access, or execution prerequisites were unavailable.
 - `NOT_RUN`: the requested experiment was not executed.
 
-Do not call a claim verified solely because code ran. Do not call an observed correlation proof of a paper's causal explanation. State hardware, software versions, data version, seeds, command IDs, and deviations that materially affect interpretation.
+Do not call a claim verified solely because code ran. Do not call an observed correlation proof of a paper's causal explanation. State hardware, software versions, data version, seeds, command IDs, plan SHA-256, and deviations that materially affect interpretation.
 
 ## Diagnosis guidance
 

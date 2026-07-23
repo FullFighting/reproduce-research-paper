@@ -8,6 +8,6 @@
 使用 $reproduce-research-paper 复现这篇论文的表 2。先盘点代码和数据、预览命令；未经我确认，不要下载数据或启动昂贵实验。
 ```
 
-它默认只预览执行计划，只有显式加上 `--execute` 才会运行已审核的命令；结果按预先声明的容差比对，并输出 `VERIFIED`、`PARTIAL`、`CONTRADICTED`、`BLOCKED` 或 `NOT_RUN`。
+它要求先从论文整体记录研究问题、方法、数据与划分、训练/推理、评估协议和局限性，再把每条结论绑定到具体命令与证据输出。它默认只预览执行计划，只有显式加上 `--execute` 才会运行已审核的命令；结果按预先声明的容差比对，并输出 `VERIFIED`、`PARTIAL`、`CONTRADICTED`、`BLOCKED` 或 `NOT_RUN`。
 
 详细安装、演示与开发说明请见 [README.md](README.md)。

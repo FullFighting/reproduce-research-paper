@@ -2,7 +2,7 @@
 
 ## Plan
 
-`reproduction-plan.json` contains a local `repository`, target `claims`, and reviewable `commands`. Each command uses an `argv` list, a relative `cwd`, and `timeout_seconds` from 1 to 86,400. Claim tolerances may contain `absolute`, `relative`, or both.
+`reproduction-plan.json` contains a local `repository`, a whole-paper `paper_context`, target `claims`, and reviewable `commands`. `paper_context` must record the research question, method, data/splits, training or inference, evaluation protocol, and reported limitations before execution. Each command uses an `argv` list, a relative `cwd`, and `timeout_seconds` from 1 to 86,400. Claim tolerances may contain `absolute`, `relative`, or both. Each claim names its `command_ids` and expected `evidence_output`; a result is not verified if its mapped commands did not complete successfully.
 
 ## Observed metrics
 
@@ -20,7 +20,7 @@ or a list of records:
 
 ## Run record
 
-`run_reproduction.py --execute` writes command identifiers, argv, resolved working directory, timing, exit code, timeout state, and relative log filenames. It deliberately does not copy log bodies into reports.
+`run_reproduction.py --execute` writes the reviewed-plan SHA-256, command identifiers, argv, relative working directory, timing, exit code, timeout state, and relative log filenames. It deliberately does not copy log bodies into reports.
 
 ## Report contract
 
