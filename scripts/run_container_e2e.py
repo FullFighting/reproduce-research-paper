@@ -45,6 +45,38 @@ def digest_reference(image: str) -> str:
     return reference
 
 
+def failed_bundle_diagnostics(bundle: Path) -> dict:
+    diagnostics: dict = {}
+    record_path = bundle / "run-record.json"
+    if record_path.is_file():
+        record = json.loads(record_path.read_text(encoding="utf-8"))
+        diagnostics["policy_violations"] = record.get("policy_violations", [])
+        diagnostics["commands"] = [
+            {
+                "id": item.get("id"),
+                "exit_code": item.get("exit_code"),
+                "timed_out": item.get("timed_out"),
+                "error": item.get("error"),
+                "policy_violations": item.get("policy_violations", []),
+                "stderr": (
+                    (bundle / item["stderr_log"]).read_text(
+                        encoding="utf-8", errors="replace"
+                    )
+                    if item.get("stderr_log")
+                    and (bundle / item["stderr_log"]).is_file()
+                    else None
+                ),
+            }
+            for item in record.get("commands", [])
+        ]
+    comparison_path = bundle / "comparison.json"
+    if comparison_path.is_file():
+        diagnostics["comparison"] = json.loads(
+            comparison_path.read_text(encoding="utf-8")
+        ).get("claims", [])
+    return diagnostics
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--image", default="python:3.12-alpine")
@@ -67,7 +99,7 @@ def main() -> int:
         plan_path = root / "plan.json"
         bundle = root / "bundle"
         plan_path.write_text(json.dumps(plan, indent=2) + "\n", encoding="utf-8")
-        command(
+        runner = command(
             [
                 sys.executable,
                 str(RUNNER),
@@ -76,8 +108,20 @@ def main() -> int:
                 "--output",
                 str(bundle),
                 "--execute",
-            ]
+            ],
+            check=False,
         )
+        if runner.returncode != 0:
+            raise RuntimeError(
+                json.dumps(
+                    {
+                        "runner_stdout": runner.stdout,
+                        "runner_stderr": runner.stderr,
+                        "bundle": failed_bundle_diagnostics(bundle),
+                    },
+                    indent=2,
+                )
+            )
         command([sys.executable, str(VERIFIER), "--bundle", str(bundle)])
         record = json.loads((bundle / "run-record.json").read_text(encoding="utf-8"))
         execution = record["commands"][0]["capability_enforcement"]
