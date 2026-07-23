@@ -10,7 +10,7 @@ body:
     id: expected
     attributes:
       label: Expected evidence status
-      description: State VERIFIED, PARTIAL, CONTRADICTED, BLOCKED, or NOT_RUN and why.
+      description: State the V1 claim status and why.
     validations:
       required: true
   - type: textarea
@@ -35,10 +35,17 @@ body:
         - missing artifact
         - access or license
         - environment drift
+        - repository drift
+        - undeclared write
+        - capability violation
+        - secret exposure
         - execution error
+        - observation unbound
+        - extractor error
         - protocol ambiguity
+        - statistical insufficiency
         - metric mismatch
         - resource limit
-        - integrity risk
+        - provenance mismatch
     validations:
       required: true

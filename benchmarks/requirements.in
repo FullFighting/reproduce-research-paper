@@ -1,0 +1,11 @@
+numpy
+scipy
+scikit-learn
+statsmodels
+networkx
+scikit-image
+xgboost
+lightgbm
+shap
+umap-learn
+cvxpy

@@ -1,55 +1,67 @@
-# Codex Open Source application draft
+# Codex open source application guide — V1
 
-Last reviewed: 2026-07-23.
+Last verified against the official forms on 2026-07-23.
 
-Use the [Codex open source fund form](https://openai.com/form/codex-open-source-fund/) for this early project. The more established [Codex for Open Source form](https://openai.com/form/codex-for-oss/) asks for meaningful usage, adoption, or clear ecosystem importance plus evidence of active maintenance; apply there once real usage and maintenance signals exist.
+- [Codex open source fund](https://openai.com/form/codex-open-source-fund/)
+- [Codex for Open Source](https://openai.com/form/codex-for-oss/)
 
-Do not invent stars, downloads, adopters, benchmarks, or observed time savings. Replace placeholders only with facts that are publicly verifiable at submission time.
+The fund is the stronger immediate application for a new project. Codex for Open Source emphasizes active open-source maintainers plus meaningful usage/adoption or ecosystem importance. The public 15-paper benchmark is strong technical evidence, but it is not external adoption. Do not describe stars, users, contributors, downloads, or time savings until they are publicly verifiable.
 
-## Codex open source fund
+## Recommended form answers
 
-### Which open source project are you representing?
+### Project
 
-Reproduce Research Paper
+`Reproduce Research Paper`
 
-### Brief description of the project
+### Repository
 
-Reproduce Research Paper is an open-source Codex Skill for auditing computational research papers with code and experiments. It requires a paper-wide context, maps each reported claim to approved commands and evidence outputs, keeps execution opt-in, compares observed metrics against predeclared tolerances, and produces SHA-256-bound reproducibility reports. It does not fabricate missing artifacts or treat a successful process exit as scientific verification.
+`https://github.com/FullFighting/reproduce-research-paper`
 
-### GitHub repository
+### Your role
 
-https://github.com/FullFighting/reproduce-research-paper
+`Primary maintainer. I designed the evidence model, isolated runner, machine observation extractors, comparison policies, public benchmark, tests, documentation, and release process. I review changes that affect execution safety, provenance, credentials, scientific status, and privacy.`
 
-### How would you use API credits for your project?
+### Brief project description
 
-We would use API credits for a 90-day public maintenance program: triage anonymized reproduction failures, turn them into regression cases, review contribution proposals, improve paper-to-plan coverage checks, and publish release notes with measured token use and maintainer decisions. Credits would support open-source maintenance and evaluation artifacts, not private research data, paywalled content, or autonomous scientific claims.
+`Reproduce Research Paper is a Codex Skill for evidence-first reproduction of computational research. It reads the whole paper, binds each claim to an isolated command and machine extractor, records code/data/environment hashes, and recomputes reports from raw evidence. V1 publishes 15 real-paper CPU cases with 15/15 valid bundles, zero GPUs, zero API tokens, and explicit limits against interpreting metric agreement as proof of a paper.`
 
-### Is there anything else you'd like us to know?
+### Why it qualifies
 
-The project is safety-oriented by design: commands are previewed before execution; external downloads and expensive experiments require user approval; plans prohibit embedded credentials and shell strings; output must remain outside the research repository; common credential patterns are redacted from logs; and report status requires matching plan hashes, command coverage, and metric evidence. Current external adoption is not claimed.
+`The project provides reusable open infrastructure for a difficult scientific workflow: turning paper claims into reviewable, isolated, machine-traceable evidence. V1 removes hand-written metric trust, prevents manual figures from becoming positive verdicts, detects source mutation and secret leakage, and publishes 15 paper-linked evidence bundles across ML, scientific computing, operations research, finance, and econometrics.`
 
-## Codex for Open Source (apply after active-maintenance evidence exists)
+### How API credits would be used
 
-### Describe your role
+`Credits would support an open 90-day maintenance program: triage public reproduction failures, review contributed paper plans, build regression fixtures, and develop separately labeled modules for expert peer review, academic-integrity screening, and dataset-quality checks. We would publish prompts, tests, token/cost records, maintainer decisions, and release notes. Credits would not fund private-data ingestion, paywall bypass, fabricated results, or unattended expensive runs.`
 
-Primary maintainer. I design and maintain the Skill workflow, review command-execution and evidence-classification changes, triage reproduction failures, maintain regression cases, own releases, and protect privacy boundaries.
+### Anything else
 
-### Why does this repository qualify? (keep within 500 characters)
+`V1 is deliberately conservative. A successful process exit is never scientific evidence; observations must come from run-bound logs/files; unsigned SHA-256 provenance is described as integrity rather than authorship proof; manual tables/images require review; network isolation is claimed only in container mode. The public benchmark records 70.363 seconds total wall time, 0 GPUs, 0 API tokens, and $0 external API cost. External adoption is not claimed.`
 
-Reproduce Research Paper provides reusable, evidence-first infrastructure for computational research reproduction. It turns a paper's complete experimental context into a reviewable plan, binds claims to commands and outputs, and emits auditable verdicts instead of treating code execution as proof. The public repository includes zero-dependency tooling, cross-platform CI, and regression tests. Add verified usage or adoption facts here only when available.
+## Evidence to link
 
-### How will you use API credits? (keep within 500 characters)
+- [V1 benchmark report](../benchmarks/benchmark-report.md)
+- [15 immutable-style evidence bundle reports](../benchmarks/results)
+- [Security policy](../SECURITY.md)
+- [V1 changelog](../CHANGELOG.md)
+- [Contribution policy](../CONTRIBUTING.md)
+- [Adopter ledger](../ADOPTERS.md)
 
-Use credits for Codex-assisted issue triage, anonymized regression-case generation, contribution review, release maintenance, and evaluation of paper-to-plan coverage. Publish resulting tests, docs, release notes, token-use records, and maintainer decisions. Do not use credits for private datasets, restricted sources, automated paper claims, or unattended expensive experiments.
+## Honest readiness assessment
 
-### Anything else we should know? (keep within 500 characters)
+| Criterion | V1 evidence | Assessment |
+|---|---|---|
+| Public open-source repository | MIT license, source, tests, CI, V1 release | met |
+| Active maintenance | release process, issue template, governance, security policy | met for initial release |
+| Technical usefulness | end-to-end bundle, 15 real-paper claim cases | strong initial evidence |
+| Meaningful usage/adoption | no verified external users yet | gap |
+| Ecosystem importance | plausible research tooling value, not independently established | emerging |
 
-The project is intentionally conservative: no credential collection, access-control bypass, hidden network activity, automatic dependency installation, or unreviewed execution. Reports distinguish verified, partial, contradicted, blocked, and not-run outcomes. The adopter ledger stays empty until external usage is verifiable, and status rules are protected by regression tests.
+Submit the fund application now. For Codex for Open Source, the form can be submitted honestly, but the application will be materially stronger after independent issues, adopters, citations, forks, or contributed reproduction cases appear.
 
-## Public 90-day delivery plan after support
+## 90-day public delivery plan
 
-- Days 1-30: publish an anonymized reproduction-failure template and at least 10 public regression cases covering plan coverage, path safety, credential redaction, and evidence mismatches.
-- Days 31-60: add contributor-reviewed examples for two additional public, lightweight computational-paper formats and publish maintainer triage outcomes.
-- Days 61-90: publish a versioned benchmark report, an evidence-classification migration guide, and an API-maintenance transparency note with measured—not estimated—token use.
+1. Days 1–30: publish triage outcomes for real user reproduction failures and add at least five contributor-reviewed plans.
+2. Days 31–60: release a separately permissioned professional peer-review module and dataset-quality audit module, each with negative tests and no automatic scientific verdict.
+3. Days 61–90: prototype academic-integrity screening with source/citation boundaries, publish false-positive analysis, and evaluate signed DSSE/Sigstore or in-toto provenance.
 
-Each delivery must be evidenced by public commits, issues, pull requests, releases, or benchmark artifacts. If a target is not met, document the reason rather than retrospectively changing the claim.
+If a target is missed, document it. Never rewrite targets or invent usage after the fact.

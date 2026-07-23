@@ -1,16 +1,32 @@
 {
+  "schema_version": 1,
   "repository": "toy-repository",
   "paper": {
     "title": "Toy reproducibility example",
-    "reference": "Example paper, Table 1"
+    "reference": "Bundled V1 evidence-chain fixture",
+    "paper_url": "https://example.org/toy-paper",
+    "code_url": "https://example.org/toy-code"
   },
   "paper_context": {
     "research_question": "Can the declared method reach the reported test accuracy on the fixed toy split?",
     "method": "A deterministic toy classifier represented by run_experiment.py.",
-    "data_and_splits": "The example uses a fixed synthetic test split; no external data are downloaded.",
+    "data_and_splits": "The fixture uses a fixed synthetic test split; no external data are downloaded.",
     "training_or_inference": "Run the supplied script once with its recorded deterministic behavior.",
-    "evaluation_protocol": "Read test_accuracy from the script output and compare it once without tuning.",
+    "evaluation_protocol": "Extract test_accuracy from the command's actual standard output and compare it without tuning.",
     "limitations": "This fixture validates evidence handling only; it is not a scientific result."
+  },
+  "execution": {
+    "workspace_mode": "copy",
+    "network": "unrestricted",
+    "write_paths": [],
+    "max_memory_mb": 512,
+    "max_cpu_seconds": 60,
+    "max_disk_mb": 32,
+    "max_output_files": 20,
+    "max_single_file_mb": 8,
+    "max_gpus": 0,
+    "retain_workspace": false,
+    "exclude_paths": {}
   },
   "commands": [
     {
@@ -26,10 +42,25 @@
       "paper_location": "Table 1, test split",
       "metric": "test_accuracy",
       "expected": 0.9,
-      "tolerance": {"absolute": 0.02},
+      "unit": "ratio",
       "protocol": "Evaluate the fixed test split once; do not tune on it.",
       "command_ids": ["smoke-experiment"],
-      "evidence_output": "stdout JSON field test_accuracy"
+      "observation": {
+        "source": "stdout",
+        "command_id": "smoke-experiment",
+        "extractor": "jsonpath",
+        "expression": "$.test_accuracy",
+        "unit": "ratio"
+      },
+      "comparison": {
+        "method": "numeric_tolerance",
+        "absolute": 0.02,
+        "relative": 0.03,
+        "combination": "all",
+        "minimum_runs": 1,
+        "aggregate": "mean",
+        "direction": "two_sided"
+      }
     }
   ]
 }

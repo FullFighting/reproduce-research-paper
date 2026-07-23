@@ -3,8 +3,13 @@ __pycache__/
 .pytest_cache/
 .reproduce-runtime/
 tests/.reproduce-runtime/
+tests/.validator-packages/
 reproduction-output/
+benchmarks/.venv/
+benchmarks/.packages/
+benchmarks/.work/
 *.log
+!benchmarks/results/**/logs/*.log
 .env
 .DS_Store
 Thumbs.db

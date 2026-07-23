@@ -1,26 +1,31 @@
 # Repository guidance
 
-Maintain an evidence-first Codex Skill for computational research reproduction.
+## Scope
+
+Maintain an evidence-first Codex Skill for computational paper reproduction. Protect the continuous chain from paper claim to run-bound observation and freshly computed report.
 
 ## Constraints
 
 - Keep `skills/reproduce-research-paper/scripts/` compatible with Python 3.10+ and the standard library.
-- Do not equate a successful process exit with a verified research claim.
-- Require whole-paper context, paper location, declared metric, expected value, tolerance, mapped command IDs, and observed output for a verified claim.
-- Require matching plan fingerprints in execution and comparison artifacts before a report can be VERIFIED.
-- Keep command execution behind an explicit `--execute` flag.
-- Never add access-control bypasses, credential collection, automatic package installation, hidden network requests, or fabricated result recovery.
-- Keep original research repositories immutable; direct generated logs and reports to a separate output directory.
+- Keep NumPy and Parquet support optional.
+- Never restore a hand-written observed-metrics input.
+- Never treat process success, a README assertion, or a manual figure as a reproduced claim.
+- Preserve full repository/Git/environment binding and pre/post checks.
+- Keep external writes and expensive execution behind reviewed plans and explicit `--execute`.
+- Keep network isolation claims limited to controls actually enforced.
+- Never commit secrets or raw data without redistribution permission.
+- Preserve the disclaimer that a matched computational claim does not verify a paper's causal explanation or generalizability.
 
 ## Validation
 
-Run before proposing changes:
-
-```bash
+```powershell
 python -m compileall -q skills/reproduce-research-paper/scripts
 python -m unittest discover -s tests -v
+python skills/reproduce-research-paper/scripts/validate_reproduction_plan.py --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json
 ```
+
+When the Codex `skill-creator` package is available, also run its `quick_validate.py` against `skills/reproduce-research-paper/`.
 
 ## Pull requests
 
-Explain the claimed behavior being changed, include a regression test, and state the effect on evidence classification, command execution, privacy, and reproducibility reports.
+Explain the evidence boundary being changed, include a negative regression test and a legitimate control, and list any impact on repository state, capability enforcement, observation lineage, status semantics, secrets, cost, or privacy.
