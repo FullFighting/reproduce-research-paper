@@ -1,4 +1,4 @@
-# Verified adopters
+# Used by (verified adopters only)
 
 No external adopters are recorded yet.
 

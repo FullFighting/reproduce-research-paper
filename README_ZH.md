@@ -2,7 +2,7 @@
 
 这是一个面向带代码、数据和实验论文的证据优先 Codex Skill。
 
-V1.2 不接受人工编写的 `observed-metrics.json`。只有从本次运行生成的 stdout、stderr、JSON、CSV、NumPy、Parquet 或文件哈希工件中，通过预先声明的机器提取规则得到的观测，才有资格进入比较。手工读取的表格、图片或曲线只能标记为 `MANUAL_REVIEW_REQUIRED`。
+V1.3 保留 V1.2 的证据边界，并增加仅供维护者本地运行的 OpenAI API 评测 CLI、5 个真实来源的拒绝/阻塞/修订案例、独立评审与裁决记录、恶意研究材料威胁模型、Docker 加固和安全安装器。它不是对外 HTTP API，不提供 API Key，也不允许第三方消耗维护者或 Fund credits。
 
 > 本结果只验证记录环境和协议下声明的计算 claim，不验证整篇论文的真实性、因果解释或一般化能力。
 
@@ -11,6 +11,20 @@ V1.2 不接受人工编写的 `observed-metrics.json`。只有从本次运行生
 科研复现同时需要语义推理和确定性验证。Codex 负责通读论文、定位可执行 claim、映射官方代码/数据/命令、生成可评审的 preview-only 计划、诊断失败和提出回归测试；确定性 runtime 负责隔离执行、机器提取、provenance 校验、重新比较和生成 claim-scoped 报告。Codex 不负责给论文判定“科学真伪”。
 
 [Codex 规划评估试点](docs/codex-evaluation/README.md)公开了 3 个论文/仓库案例的初始提示、草案计划、评审记录、修订计划、证据链接和 telemetry 限制。它来自本次 Codex desktop 工作流，不冒充经过独立人工评审的正式基准。
+
+## 成熟度
+
+| 组件 | 状态 |
+|---|---|
+| 确定性证据 runtime | Stable v1.3 |
+| 公开 claim-level benchmark | 15 个已验证案例 |
+| Codex 规划试点 | 3 个案例；自评审加确定性反馈 |
+| 维护者本地 API 评测 | CLI 已可运行；5 个真实来源负例；尚未发布付费实测结果 |
+| 独立人工评测 | 协议和 reviewer call 已发布；尚未完成 |
+| 广泛外部采用 | 早期；尚无已核实外部采用者 |
+| 科学运行签名 | 规划中；发布归档已有 GitHub build attestation |
+
+15 个确定性案例不是 Codex 效果评测；3 个 pilot 也不冒充独立人工评审。
 
 ## 已完成的公开验证
 
@@ -33,7 +47,7 @@ V1.2 不接受人工编写的 `observed-metrics.json`。只有从本次运行生
 - 单位采用 `symbol + scale + semantic_type`，可表达 BLEU、F1、能耗、FLOPs、吞吐、货币、基点和自定义指标；
 - 全量代码树、Git commit、dirty diff、submodule、数据、权重、配置和环境锁分别哈希；
 - 执行前后检查原仓库与运行 workspace，未声明写入会使证据失效；
-- 支持 copy、独立 Git worktree、只读源码挂载的 Docker container 三种模式；
+- 支持 copy、独立 Git worktree、只读源码挂载的 Docker container 三种模式；container 强制 digest-only 镜像、`--pull never`、`--cap-drop ALL`、禁止提权、受限 seccomp 和非 root 数字用户；
 - 网络、CPU、内存、磁盘、GPU、输出数量和写目录必须声明；
 - 密钥默认只能通过环境变量 `secret_bindings` 注入；argv secret 默认拒绝，只有显式高风险兼容模式才允许并记录偏差；
 - 最终报告从原始工件重新计算，不信任 comparison 中已有的 verdict；
@@ -47,7 +61,28 @@ V1.2 不接受人工编写的 `observed-metrics.json`。只有从本次运行生
 未经我确认，不要下载数据或运行实验。
 ```
 
-验证、预览、执行和校验：
+一键安装、更新、检查和卸载：
+
+```bash
+python scripts/install_skill.py --scope user
+python scripts/install_skill.py --scope repository --target /path/to/repository
+python scripts/install_skill.py --action check --scope user
+python scripts/install_skill.py --action update --scope user
+python scripts/install_skill.py --action uninstall --scope user
+```
+
+Linux/macOS 验证与预览：
+
+```bash
+python3 skills/reproduce-research-paper/scripts/validate_reproduction_plan.py \
+  --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json
+
+python3 skills/reproduce-research-paper/scripts/run_reproduction.py \
+  --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json \
+  --output reproduction-output
+```
+
+Windows PowerShell 验证、预览、执行和校验：
 
 ```powershell
 python skills/reproduce-research-paper/scripts/validate_reproduction_plan.py `
@@ -66,4 +101,16 @@ python skills/reproduce-research-paper/scripts/build_report.py `
   --bundle reproduction-output
 ```
 
-完整设计、开发命令和 V1.2 证据见 [英文 README](README.md)。
+## 维护者本地 API 评测
+
+`evaluations/run_codex_evaluation.py` 只在维护者本机运行。默认只预览；只有显式提供模型、成本上限、输出目录和 `--send`，并从当前进程环境读取 `OPENAI_API_KEY` 后，才会调用固定的官方 Responses API。Key、请求头、Organization 凭据和环境变量不会写入日志或 evidence bundle。
+
+```bash
+python evaluations/run_codex_evaluation.py --validate-cases
+
+python evaluations/run_codex_evaluation.py \
+  --case mimic-iv-redistribution-prohibited \
+  --model gpt-5.6-terra
+```
+
+详见[评测说明](evaluations/README.md)、[评测协议](evaluations/protocol.md)、[恶意研究材料威胁模型](docs/threat-model.md)和[独立评审招募](docs/independent-review-call.md)。完整设计、开发命令和 V1.3 证据见[英文 README](README.md)。

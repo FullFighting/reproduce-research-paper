@@ -20,11 +20,12 @@ Maintain an evidence-first Codex Skill for computational paper reproduction. Pro
 
 ```powershell
 python -m compileall -q skills/reproduce-research-paper/scripts
-python -m compileall -q scripts
+python -m compileall -q evaluations scripts
 python -m unittest discover -s tests -v
 python skills/reproduce-research-paper/scripts/validate_reproduction_plan.py --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json
 python scripts/sync_benchmark_facts.py --check
 python scripts/validate_codex_evaluation.py
+python evaluations/run_codex_evaluation.py --validate-cases
 ```
 
 CI additionally runs the README offline demo, focused negative/security tests, a clean release-archive verification, and a digest-pinned Docker `--network none` end-to-end case.

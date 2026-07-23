@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/FullFighting/reproduce-research-paper/evaluations/reviewer-score.schema.json",
+  "title": "Independent reproduction-plan review",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "case_id",
+    "plan_sha256",
+    "reviewed_at",
+    "reviewer",
+    "scores",
+    "decision",
+    "decision_reason",
+    "modifications",
+    "evidence_bundle"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "case_id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+    "plan_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "reviewed_at": {"type": "string", "format": "date-time"},
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "affiliation", "independent", "conflict_of_interest"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "affiliation": {"type": "string"},
+        "independent": {"const": true},
+        "conflict_of_interest": {"type": "string"}
+      }
+    },
+    "scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_identification",
+        "command_mapping",
+        "data_license_handling",
+        "budget_design",
+        "comparison_policy"
+      ],
+      "properties": {
+        "claim_identification": {"type": "integer", "minimum": 0, "maximum": 2},
+        "command_mapping": {"type": "integer", "minimum": 0, "maximum": 2},
+        "data_license_handling": {"type": "integer", "minimum": 0, "maximum": 2},
+        "budget_design": {"type": "integer", "minimum": 0, "maximum": 2},
+        "comparison_policy": {"type": "integer", "minimum": 0, "maximum": 2}
+      }
+    },
+    "decision": {
+      "enum": [
+        "ACCEPTED_FOR_DETERMINISTIC_EXECUTION",
+        "REVISE",
+        "REJECTED_SCIENTIFIC_SCOPE",
+        "REJECTED_SAFETY_OR_PRIVACY",
+        "BLOCKED_DATA_OR_LICENSE",
+        "BLOCKED_COMPUTE_OR_ACCESS"
+      ]
+    },
+    "decision_reason": {"type": "string", "minLength": 1},
+    "modifications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field", "before", "after", "reason"],
+        "properties": {
+          "field": {"type": "string"},
+          "before": {"type": ["string", "null"]},
+          "after": {"type": ["string", "null"]},
+          "reason": {"type": "string"}
+        }
+      }
+    },
+    "evidence_bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "path", "provenance_sha256", "reason"],
+      "properties": {
+        "status": {"enum": ["UNBOUND", "BOUND", "NOT_APPLICABLE"]},
+        "path": {"type": ["string", "null"]},
+        "provenance_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "reason": {"type": "string"}
+      }
+    }
+  }
+}

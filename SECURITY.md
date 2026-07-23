@@ -13,8 +13,13 @@ Report a vulnerability through GitHub Security Advisories rather than a public i
 - no unreported original-source mutation or undeclared write;
 - no report that trusts a stored verdict without recomputation;
 - no claim that unsigned SHA-256 provenance proves authorship.
+- no evaluation API key outside the current process environment;
+- no paid evaluation request without explicit `--send`, a model, token cap, and
+  local cost cap;
+- no public HTTP endpoint, credential proxy, or third-party access to
+  maintainer-controlled API credits.
 
-## Known V1.2 limits
+## Known limits
 
 - Copy/worktree mode cannot enforce host network isolation. `network=disabled` therefore requires container mode.
 - Windows host mode records memory/CPU budgets but only enforces wall timeout and process-tree cleanup; use container mode for stronger controls.
@@ -22,5 +27,7 @@ Report a vulnerability through GitHub Security Advisories rather than a public i
 - Regex redaction is defense in depth, not a substitute for never emitting secrets.
 - Unsigned provenance detects unsynchronized changes, not a malicious rewrite of both evidence and manifest.
 - NumPy and Parquet extractors require optional third-party packages.
+- API-cost records are estimates from returned token telemetry and a versioned
+  pricing snapshot; the OpenAI invoice is authoritative.
 
 Please include the smallest safe reproducer, affected version, platform, and which invariant fails. Do not include a real credential or restricted research data.

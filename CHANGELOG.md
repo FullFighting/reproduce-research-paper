@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.0 - 2026-07-23
+
+- Adds a maintainer-local OpenAI Responses API evaluation CLI with preview-first `--send`, environment-only credentials, fixed endpoint, structured outputs, explicit token/cost budgets, and public telemetry schemas.
+- Publishes five real-source negative planning cases covering unavailable official training code, restricted MIMIC-IV redistribution, missing Llama 2 training configuration, a 512-GPU budget block, and indirect prompt injection without mislabeling them as measured API results.
+- Adds a repository-scoped malicious-research-material threat model and hardens Docker execution with `--cap-drop ALL`, `no-new-privileges`, a numeric non-root user, digest-only image validation, `--pull never`, and explicit built-in seccomp.
+- Adds independent five-dimension review records, exact plan-hash binding, human modification records, disagreement detection, adjudication, and final evidence-bundle binding.
+- Adds a standard-library installer for user or repository scope with install, update, integrity check, uninstall, version reporting, local-change protection, and post-install validation.
+- Adds Linux/macOS quick-start commands, an honest maturity table, an end-to-end tamper demo, a reviewer call, and a repository Code of Conduct.
+- Keeps maintainer API keys, Organization credentials, request headers, environment dumps, and generated evaluation results out of committed artifacts.
+
 ## 1.2.0 - 2026-07-23
 
 - Adds schema v2 typed expected values: scalar, array, labeled table, ranking, categorical, string, artifact hash, and distribution.

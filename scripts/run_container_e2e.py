@@ -129,6 +129,16 @@ def main() -> int:
             raise RuntimeError("container did not record Docker --network none")
         if execution.get("source_write") != "Docker read-only bind mount":
             raise RuntimeError("container did not record a read-only source mount")
+        if execution.get("capabilities") != "Docker --cap-drop ALL":
+            raise RuntimeError("container did not record all capabilities dropped")
+        if execution.get("privilege_escalation") != "Docker no-new-privileges=true":
+            raise RuntimeError("container did not record no-new-privileges")
+        if execution.get("syscalls") != "Docker built-in restricted seccomp profile":
+            raise RuntimeError("container did not record restricted seccomp")
+        if "non-root user" not in execution.get("identity", ""):
+            raise RuntimeError("container did not record a non-root identity")
+        if execution.get("image") != "digest-only plan reference with Docker --pull never":
+            raise RuntimeError("container did not record digest-only no-pull policy")
         if record["repository_integrity"]["source_tree_changed"]:
             raise RuntimeError("container changed the source tree")
     print(json.dumps({"valid": True, "image": image, "network": "none"}, indent=2))
