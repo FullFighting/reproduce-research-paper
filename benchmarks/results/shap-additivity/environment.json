@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-07-23T07:36:07+00:00",
+  "generator": {
+    "name": "reproduce-research-paper",
+    "version": "1.0.0"
+  },
+  "python": {
+    "version": "3.12.13",
+    "implementation": "CPython",
+    "executable_name": "python.exe"
+  },
+  "platform": {
+    "system": "Windows",
+    "release": "11",
+    "machine": "AMD64"
+  },
+  "command_secret_refs": [],
+  "declared_package_versions": {
+    "numpy": "2.4.6",
+    "scikit-learn": "1.9.0",
+    "shap": "0.52.0"
+  },
+  "lock_files": [
+    "requirements.lock.txt"
+  ],
+  "environment_values_recorded": false
+}

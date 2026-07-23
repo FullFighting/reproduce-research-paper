@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-07-23T07:36:38+00:00",
+  "repository": "harness",
+  "file_count": 2,
+  "bytes": 11412,
+  "tree_sha256": "f1cbb6a5b007a645313ca04b09cad5592486ca0abe399ecb16ab682760b5294f",
+  "git_commit": "c1a61684d8a8c78fff870dc7583bea6e196b55d2",
+  "git_dirty": false,
+  "dirty_diff_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "submodules": {},
+  "exclusions": [],
+  "categories": {
+    "code": {
+      "file_count": 1,
+      "bytes": 10727,
+      "sha256": "36b49b66b81c526d379b13487ffed8ff7f0168e548be33d15101578e442b45b7"
+    },
+    "data": {
+      "file_count": 0,
+      "bytes": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "weights": {
+      "file_count": 0,
+      "bytes": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "config": {
+      "file_count": 0,
+      "bytes": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "environment": {
+      "file_count": 1,
+      "bytes": 685,
+      "sha256": "0a0c8227bab23fa3570552b8f2984f1208084baf8898d79d03ab7d85ed2e1119"
+    }
+  },
+  "files": [
+    {
+      "path": "experiment.py",
+      "type": "file",
+      "bytes": 10727,
+      "sha256": "e946254a4707e77866e29166d4df7a5dbddda51054a568cd4abaf9d8621e6139",
+      "category": "code"
+    },
+    {
+      "path": "requirements.lock.txt",
+      "type": "file",
+      "bytes": 685,
+      "sha256": "c994966df591982be3e462bb4675e68b888c4eed0dd2147b0aea0f3d9459f3b2",
+      "category": "environment"
+    }
+  ],
+  "inventory_sha256": "8db8cca817fe5a57d435380ae5feffd04c1cd2e84e2c667e5445f99a2236f381"
+}

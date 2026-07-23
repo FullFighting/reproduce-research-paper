@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "e809522bb5fb7049842852a6c5fea41dedce8c327e2594e39fe464ce75fa4af8",
+  "observations_sha256": "bb1275f61276d06d7362ccc2b087bd8a18698cf94e383a4ccae7f75ddcee30ec",
+  "run_record_sha256": "6f6d188bd882f6e3677273b04822c55517ea315f8604d960558e2f78235181c1",
+  "claims": [
+    {
+      "claim_id": "adam-quadratic",
+      "metric": "distance_to_optimum",
+      "paper_location": "Algorithm 1",
+      "expected": 0.0,
+      "unit": "unitless",
+      "observation_source_sha256": "7c4a88a5d804c1056214b1578d58093de2f38cb0e5f79c61e6d304903be38e15",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 2.6802181174839472e-11,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "numeric_tolerance",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 2.6802181174839472e-11,
+        "standard_deviation": 0.0,
+        "absolute_error": 2.6802181174839472e-11,
+        "relative_error": 26.802181174839472,
+        "checks": [
+          {
+            "kind": "absolute",
+            "limit": 1e-08,
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_record_sha256": "afbfa4059b9ec18cf799df328afd37133d9f4e8b6fec0f4a37f834f3bad49d98",
+  "observations": [
+    {
+      "claim_id": "cvxpy-markowitz",
+      "metric": "first_asset_weight",
+      "run_record_sha256": "afbfa4059b9ec18cf799df328afd37133d9f4e8b6fec0f4a37f834f3bad49d98",
+      "source": "stdout",
+      "command_id": "paper-claim",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "expression": "$.metric",
+      "unit": "ratio",
+      "normalized_unit": "ratio",
+      "extracted_at": "2026-07-23T07:36:37+00:00",
+      "status": "EXTRACTED",
+      "source_artifact": "logs/paper-claim.stdout.log",
+      "source_sha256": "28d6a7248e36c8e9f2da952465d5978f192c54dbdc22c121479ffcf97bac943b",
+      "raw_value": 0.7999999974932861,
+      "normalized_value": 0.7999999974932861
+    }
+  ],
+  "evidence_sources": [
+    "logs/paper-claim.stdout.log"
+  ]
+}

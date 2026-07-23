@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "bd550a0877ff9485a1ffe2ac86aad5df1de9e42129b05063745ead5051b67998",
+  "observations_sha256": "c2e14cf9638da1dfef288b62874046be8eda3b9c74bd360c6858bf4f9f0eaa29",
+  "run_record_sha256": "8a91bf5844b1dff203fc25ab7607fd1bc2787eb2d5cee67c16ed13be22501232",
+  "claims": [
+    {
+      "claim_id": "scipy-optimization",
+      "metric": "terminal_objective",
+      "paper_location": "Optimization module capability",
+      "expected": 0.0,
+      "unit": "unitless",
+      "observation_source_sha256": "e14f753ba29a7f6e8f1eaa59101ac8b566b8c722bb203893b4bf4c6e6841d668",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 2.0055896490142818e-11,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "numeric_tolerance",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 2.0055896490142818e-11,
+        "standard_deviation": 0.0,
+        "absolute_error": 2.0055896490142818e-11,
+        "relative_error": 20.055896490142818,
+        "checks": [
+          {
+            "kind": "absolute",
+            "limit": 1e-10,
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

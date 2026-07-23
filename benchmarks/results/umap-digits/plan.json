@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "repository": "../../harness",
+  "paper": {
+    "title": "UMAP: Uniform Manifold Approximation and Projection",
+    "reference": "McInnes et al., Journal of Open Source Software 3(29):861 (2018)",
+    "paper_url": "https://joss.theoj.org/papers/10.21105/joss.00861",
+    "code_url": "https://github.com/lmcinnes/umap"
+  },
+  "paper_context": {
+    "research_question": "Does a fixed low-cost UMAP embedding preserve local neighborhoods above a predeclared threshold?",
+    "method": "Embed 300 standardized handwritten-digit observations into two dimensions.",
+    "data_and_splits": "Digits dataset distributed by scikit-learn; first 300 observations.",
+    "training_or_inference": "One CPU embedding with random_state=42 and one thread.",
+    "evaluation_protocol": "Measure 10-neighbor trustworthiness; require at least 0.90.",
+    "limitations": "Reduced public-data probe, not the full paper benchmark suite."
+  },
+  "environment": {
+    "packages": [
+      "numpy",
+      "scipy",
+      "scikit-learn",
+      "umap-learn"
+    ],
+    "lock_files": [
+      "requirements.lock.txt"
+    ]
+  },
+  "execution": {
+    "workspace_mode": "copy",
+    "network": "unrestricted",
+    "write_paths": [],
+    "max_memory_mb": 4096,
+    "max_cpu_seconds": 180,
+    "max_disk_mb": 64,
+    "max_output_files": 50,
+    "max_single_file_mb": 16,
+    "max_gpus": 0,
+    "retain_workspace": false,
+    "exclude_paths": {}
+  },
+  "commands": [
+    {
+      "id": "paper-claim",
+      "argv": [
+        "python",
+        "experiment.py",
+        "--case",
+        "umap-digits"
+      ],
+      "cwd": ".",
+      "timeout_seconds": 180
+    }
+  ],
+  "claims": [
+    {
+      "id": "umap-digits",
+      "paper_location": "Nonlinear dimension-reduction implementation",
+      "metric": "trustworthiness",
+      "expected": 0.9,
+      "unit": "ratio",
+      "protocol": "Measure 10-neighbor trustworthiness; require at least 0.90.",
+      "command_ids": [
+        "paper-claim"
+      ],
+      "observation": {
+        "source": "stdout",
+        "command_id": "paper-claim",
+        "extractor": "jsonpath",
+        "expression": "$.metric",
+        "unit": "ratio"
+      },
+      "comparison": {
+        "method": "non_inferiority",
+        "absolute": 0.0,
+        "combination": "all",
+        "minimum_runs": 1,
+        "aggregate": "mean",
+        "direction": "higher_is_better"
+      }
+    }
+  ]
+}

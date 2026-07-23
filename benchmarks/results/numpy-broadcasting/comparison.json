@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "c0dcf3ac8b568c4a8b89db3b931258cd91e526fffa1e6ec8960aecfdfb2467dd",
+  "observations_sha256": "f160777e954698231b05afb97166a1d20945aeb2b7f2e10741f9e8f294a5b273",
+  "run_record_sha256": "3f2888c39eec856ecdb08f2cc6eb98cc70d16b7b6b8bcfc1af0d08c1d96ee7d2",
+  "claims": [
+    {
+      "claim_id": "numpy-broadcasting",
+      "metric": "broadcast_checksum",
+      "paper_location": "Array programming and broadcasting discussion",
+      "expected": 96.0,
+      "unit": "unitless",
+      "observation_source_sha256": "263b6afa9f31e40310b1075862a6a712cf45c32cdf78e7d764f9d998e296bb2b",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 96.0,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "numeric_tolerance",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 96.0,
+        "standard_deviation": 0.0,
+        "absolute_error": 0.0,
+        "relative_error": 0.0,
+        "checks": [
+          {
+            "kind": "absolute",
+            "limit": 0.0,
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

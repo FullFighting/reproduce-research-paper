@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "61c9f90a825001d8da46ddd66c023ea7495b22c3d47bb3ebac137ee008cff241",
+  "observations_sha256": "5d3b920e5c35a10de00af05ec767cd977d5fe336798f813eb1649f2dc880a569",
+  "run_record_sha256": "add9c007dfe6580fdc3f974895302b7fa96f9854bcdd701a345f3dc86f977342",
+  "claims": [
+    {
+      "claim_id": "scaled-dot-product-attention",
+      "metric": "attention_row_sum_error",
+      "paper_location": "Equation 1, scaled dot-product attention",
+      "expected": 0.0,
+      "unit": "unitless",
+      "observation_source_sha256": "b78364693648eb56e7edf497b6529170f7838826eaffe0c0e29e7ad3a5e5ba8d",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 0.0,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "numeric_tolerance",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 0.0,
+        "standard_deviation": 0.0,
+        "absolute_error": 0.0,
+        "relative_error": 0.0,
+        "checks": [
+          {
+            "kind": "absolute",
+            "limit": 1e-12,
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

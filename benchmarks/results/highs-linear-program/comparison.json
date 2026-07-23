@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "6ce48bdaa8ad905ef3c5f7de7b06c7380b9cd32dcde0b778d2b87dd4678ee16e",
+  "observations_sha256": "feb8682b6d145f5605010033ec352243f15b32940499f18dc3ef41cb01064e5e",
+  "run_record_sha256": "105971619fc1cfdcfa30ba82a23a5f59a7372c9aded52c15898ffc1df9e3b6b5",
+  "claims": [
+    {
+      "claim_id": "highs-linear-program",
+      "metric": "optimal_objective",
+      "paper_location": "HiGHS linear-optimization implementation",
+      "expected": 3.3333333333333335,
+      "unit": "unitless",
+      "observation_source_sha256": "6f90df8416c5ca77e1bfd3d8ed9b338d849630e086c30a9c3c235cbed045b8b9",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 3.3333333333333335,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "numeric_tolerance",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 3.3333333333333335,
+        "standard_deviation": 0.0,
+        "absolute_error": 0.0,
+        "relative_error": 0.0,
+        "checks": [
+          {
+            "kind": "absolute",
+            "limit": 1e-10,
+            "passed": true
+          },
+          {
+            "kind": "relative",
+            "limit": 1e-10,
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

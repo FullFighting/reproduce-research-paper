@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "2ee2b60920bfe570066ebd8d004ddcd2b1d0730f5c24eff11bf1791d8f80133b",
+  "observations_sha256": "165936990f88a5d45852868d2dfa11b70d1b2e80f25c7344919f30e143d15901",
+  "run_record_sha256": "72d16bff0810f1f13d95ae811928b1470cb9bd73d5f3821daf9904d35b4b143e",
+  "claims": [
+    {
+      "claim_id": "umap-digits",
+      "metric": "trustworthiness",
+      "paper_location": "Nonlinear dimension-reduction implementation",
+      "expected": 0.9,
+      "unit": "ratio",
+      "observation_source_sha256": "1e505aaf6155d65d0aff745d4a6445654b7a89509091b343eb9efc51db0a014a",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 0.9614212067955478,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "non_inferiority",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 0.9614212067955478,
+        "standard_deviation": 0.0,
+        "direction": "higher_is_better",
+        "margin": 0.0,
+        "passed": true
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

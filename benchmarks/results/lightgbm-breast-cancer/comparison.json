@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "e0f621ba95f3d7fb57d399da3bf42abc270e4184337f20baccffe73ea59a7608",
+  "observations_sha256": "3ffe3d30a3cfce9055fd13d210bdd7d3daaa2f90b78d9cb837a8367d84e4bf8c",
+  "run_record_sha256": "3fee6cfd9b2605a9a615bd8ee1acda6911e5abe39c9db08087a2d15e89260a8c",
+  "claims": [
+    {
+      "claim_id": "lightgbm-breast-cancer",
+      "metric": "test_accuracy",
+      "paper_location": "Released LightGBM implementation",
+      "expected": 0.9,
+      "unit": "ratio",
+      "observation_source_sha256": "4e289779c9f6d0baa30d4e74b16c72b069aa7ad5f13c098b5b8050c55a795c89",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 0.951048951048951,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "non_inferiority",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 0.951048951048951,
+        "standard_deviation": 0.0,
+        "direction": "higher_is_better",
+        "margin": 0.0,
+        "passed": true
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

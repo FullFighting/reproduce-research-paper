@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_record_sha256": "e8c3a12780edb22ccec95526fe069d9f5e634660a4e28e5945fb77389c411792",
+  "observations": [
+    {
+      "claim_id": "fama-french-factors",
+      "metric": "max_factor_reconstruction_error",
+      "run_record_sha256": "e8c3a12780edb22ccec95526fe069d9f5e634660a4e28e5945fb77389c411792",
+      "source": "stdout",
+      "command_id": "paper-claim",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "expression": "$.metric",
+      "unit": "percentage_point",
+      "normalized_unit": "percentage_point",
+      "extracted_at": "2026-07-23T07:37:13+00:00",
+      "status": "EXTRACTED",
+      "source_artifact": "logs/paper-claim.stdout.log",
+      "source_sha256": "6538164ee2a7e97ec84b63b087901fc9aa54481295940443086655078c7721f4",
+      "raw_value": 0.00456666666666683,
+      "normalized_value": 0.00456666666666683
+    }
+  ],
+  "evidence_sources": [
+    "logs/paper-claim.stdout.log"
+  ]
+}

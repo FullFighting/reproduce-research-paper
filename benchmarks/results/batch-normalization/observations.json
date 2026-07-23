@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_record_sha256": "5362d17b8f2e0de21fff99f70774c7aba44b822add74ed7351da84538424d76b",
+  "observations": [
+    {
+      "claim_id": "batch-normalization",
+      "metric": "normalization_invariant_error",
+      "run_record_sha256": "5362d17b8f2e0de21fff99f70774c7aba44b822add74ed7351da84538424d76b",
+      "source": "stdout",
+      "command_id": "paper-claim",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "expression": "$.metric",
+      "unit": "unitless",
+      "normalized_unit": "unitless",
+      "extracted_at": "2026-07-23T07:36:33+00:00",
+      "status": "EXTRACTED",
+      "source_artifact": "logs/paper-claim.stdout.log",
+      "source_sha256": "ca6a7b5cb4f9a69833ab18635860081abb75eeb2c9ba8f93b353d41ff3ab635d",
+      "raw_value": 0.0,
+      "normalized_value": 0.0
+    }
+  ],
+  "evidence_sources": [
+    "logs/paper-claim.stdout.log"
+  ]
+}

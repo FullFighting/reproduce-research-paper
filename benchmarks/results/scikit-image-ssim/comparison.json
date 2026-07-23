@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "80e8b233e962cc10646b1414c7a486cd4a4d162a2e10cb3eb6a33dfa327741d4",
+  "observations_sha256": "410cc4d4d48d647f246c70142cdb4be20548ed6f84efa724cd33a46b6b46be44",
+  "run_record_sha256": "57debcf2366e36d4e13f63d62d6be68f3f4eff073d6173be8815510a1e6434af",
+  "claims": [
+    {
+      "claim_id": "scikit-image-ssim",
+      "metric": "ssim",
+      "paper_location": "Image quality metrics capability",
+      "expected": 1.0,
+      "unit": "ratio",
+      "observation_source_sha256": "a1e7a01352f2e961ec5663bfc0323547157adb572f8f251976e6efb605c443b3",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 1.0,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "numeric_tolerance",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 1.0,
+        "standard_deviation": 0.0,
+        "absolute_error": 0.0,
+        "relative_error": 0.0,
+        "checks": [
+          {
+            "kind": "absolute",
+            "limit": 1e-12,
+            "passed": true
+          },
+          {
+            "kind": "relative",
+            "limit": 1e-12,
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "2e3596942ccc9a41064ce9319f6cf131e77628267456e0010235a9f1de1c5ec6",
+  "observations_sha256": "2c2827c3054e0f61dc1ea334578c1aa5c59af3dfef34d156483b99594303bc9e",
+  "run_record_sha256": "ef0cd0bd0b7be5a5f7c6e34ba9f7145868fa650ecb87521488c51bfc61025a8a",
+  "claims": [
+    {
+      "claim_id": "batch-normalization",
+      "metric": "normalization_invariant_error",
+      "paper_location": "Algorithm 1 mini-batch normalization",
+      "expected": 0.0,
+      "unit": "unitless",
+      "observation_source_sha256": "ca6a7b5cb4f9a69833ab18635860081abb75eeb2c9ba8f93b353d41ff3ab635d",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 0.0,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "numeric_tolerance",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 0.0,
+        "standard_deviation": 0.0,
+        "absolute_error": 0.0,
+        "relative_error": 0.0,
+        "checks": [
+          {
+            "kind": "absolute",
+            "limit": 1e-12,
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

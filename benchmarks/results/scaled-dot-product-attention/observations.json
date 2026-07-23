@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_record_sha256": "77737b055ae9ff19ed7305d3dc0c1ed646e2f4c83847c294597c223044497aab",
+  "observations": [
+    {
+      "claim_id": "scaled-dot-product-attention",
+      "metric": "attention_row_sum_error",
+      "run_record_sha256": "77737b055ae9ff19ed7305d3dc0c1ed646e2f4c83847c294597c223044497aab",
+      "source": "stdout",
+      "command_id": "paper-claim",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "expression": "$.metric",
+      "unit": "unitless",
+      "normalized_unit": "unitless",
+      "extracted_at": "2026-07-23T07:36:34+00:00",
+      "status": "EXTRACTED",
+      "source_artifact": "logs/paper-claim.stdout.log",
+      "source_sha256": "b78364693648eb56e7edf497b6529170f7838826eaffe0c0e29e7ad3a5e5ba8d",
+      "raw_value": 0.0,
+      "normalized_value": 0.0
+    }
+  ],
+  "evidence_sources": [
+    "logs/paper-claim.stdout.log"
+  ]
+}

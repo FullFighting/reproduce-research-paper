@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "repository": "../../harness",
+  "paper": {
+    "title": "Parallelizing the Dual Revised Simplex Method",
+    "reference": "Huangfu and Hall, Mathematical Programming Computation 10:119–142 (2018), doi:10.1007/s12532-017-0130-5",
+    "paper_url": "https://doi.org/10.1007/s12532-017-0130-5",
+    "code_url": "https://github.com/ERGO-Code/HiGHS"
+  },
+  "paper_context": {
+    "research_question": "Does the released HiGHS backend recover the analytic optimum of a bounded linear program?",
+    "method": "Solve a two-variable, two-constraint maximization through SciPy's HiGHS interface.",
+    "data_and_splits": "Synthetic linear program under this repository's MIT license.",
+    "training_or_inference": "One tiny CPU linear optimization.",
+    "evaluation_protocol": "Extract optimal objective and compare with 10/3.",
+    "limitations": "Correctness probe, not the paper's parallel speedup experiments."
+  },
+  "environment": {
+    "packages": [
+      "numpy",
+      "scipy",
+      "highspy"
+    ],
+    "lock_files": [
+      "requirements.lock.txt"
+    ]
+  },
+  "execution": {
+    "workspace_mode": "copy",
+    "network": "unrestricted",
+    "write_paths": [],
+    "max_memory_mb": 4096,
+    "max_cpu_seconds": 30,
+    "max_disk_mb": 64,
+    "max_output_files": 50,
+    "max_single_file_mb": 16,
+    "max_gpus": 0,
+    "retain_workspace": false,
+    "exclude_paths": {}
+  },
+  "commands": [
+    {
+      "id": "paper-claim",
+      "argv": [
+        "python",
+        "experiment.py",
+        "--case",
+        "highs-linear-program"
+      ],
+      "cwd": ".",
+      "timeout_seconds": 30
+    }
+  ],
+  "claims": [
+    {
+      "id": "highs-linear-program",
+      "paper_location": "HiGHS linear-optimization implementation",
+      "metric": "optimal_objective",
+      "expected": 3.3333333333333335,
+      "unit": "unitless",
+      "protocol": "Extract optimal objective and compare with 10/3.",
+      "command_ids": [
+        "paper-claim"
+      ],
+      "observation": {
+        "source": "stdout",
+        "command_id": "paper-claim",
+        "extractor": "jsonpath",
+        "expression": "$.metric",
+        "unit": "unitless"
+      },
+      "comparison": {
+        "method": "numeric_tolerance",
+        "absolute": 1e-10,
+        "relative": 1e-10,
+        "combination": "all",
+        "minimum_runs": 1,
+        "aggregate": "mean",
+        "direction": "two_sided"
+      }
+    }
+  ]
+}

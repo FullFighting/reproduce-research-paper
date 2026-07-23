@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "repository": "../../harness",
+  "paper": {
+    "title": "scikit-image: image processing in Python",
+    "reference": "van der Walt et al., PeerJ 2:e453 (2014), doi:10.7717/peerj.453",
+    "paper_url": "https://peerj.com/articles/453/",
+    "code_url": "https://github.com/scikit-image/scikit-image"
+  },
+  "paper_context": {
+    "research_question": "Does the released image-metrics implementation return identity similarity for identical images?",
+    "method": "Compute structural similarity for two identical deterministic 8-by-8 arrays.",
+    "data_and_splits": "Synthetic image under this repository's MIT license.",
+    "training_or_inference": "No training; one CPU metric evaluation.",
+    "evaluation_protocol": "Run once and extract SSIM from JSON stdout.",
+    "limitations": "Algorithmic identity check, not a reproduction of every gallery example."
+  },
+  "environment": {
+    "packages": [
+      "numpy",
+      "scikit-image"
+    ],
+    "lock_files": [
+      "requirements.lock.txt"
+    ]
+  },
+  "execution": {
+    "workspace_mode": "copy",
+    "network": "unrestricted",
+    "write_paths": [],
+    "max_memory_mb": 4096,
+    "max_cpu_seconds": 30,
+    "max_disk_mb": 64,
+    "max_output_files": 50,
+    "max_single_file_mb": 16,
+    "max_gpus": 0,
+    "retain_workspace": false,
+    "exclude_paths": {}
+  },
+  "commands": [
+    {
+      "id": "paper-claim",
+      "argv": [
+        "python",
+        "experiment.py",
+        "--case",
+        "scikit-image-ssim"
+      ],
+      "cwd": ".",
+      "timeout_seconds": 30
+    }
+  ],
+  "claims": [
+    {
+      "id": "scikit-image-ssim",
+      "paper_location": "Image quality metrics capability",
+      "metric": "ssim",
+      "expected": 1.0,
+      "unit": "ratio",
+      "protocol": "Run once and extract SSIM from JSON stdout.",
+      "command_ids": [
+        "paper-claim"
+      ],
+      "observation": {
+        "source": "stdout",
+        "command_id": "paper-claim",
+        "extractor": "jsonpath",
+        "expression": "$.metric",
+        "unit": "ratio"
+      },
+      "comparison": {
+        "method": "numeric_tolerance",
+        "absolute": 1e-12,
+        "relative": 1e-12,
+        "combination": "all",
+        "minimum_runs": 1,
+        "aggregate": "mean",
+        "direction": "two_sided"
+      }
+    }
+  ]
+}

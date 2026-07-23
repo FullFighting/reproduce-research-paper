@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "repository": "../../harness",
+  "paper": {
+    "title": "Statsmodels: Econometric and Statistical Modeling with Python",
+    "reference": "Seabold and Perktold, Proceedings of the 9th Python in Science Conference (2010)",
+    "paper_url": "https://conference.scipy.org/proceedings/scipy2010/seabold.html",
+    "code_url": "https://github.com/statsmodels/statsmodels"
+  },
+  "paper_context": {
+    "research_question": "Does the released Statsmodels OLS implementation reproduce the deterministic Longley regression fit?",
+    "method": "Fit OLS with an intercept to the package-distributed Longley macroeconomic dataset.",
+    "data_and_splits": "Longley dataset distributed with Statsmodels; 16 public macroeconomic observations.",
+    "training_or_inference": "Closed-form OLS estimation on CPU.",
+    "evaluation_protocol": "Run once and extract R-squared from JSON stdout.",
+    "limitations": "A certified small econometric fit, not every model family described by the software paper."
+  },
+  "environment": {
+    "packages": [
+      "numpy",
+      "scipy",
+      "statsmodels"
+    ],
+    "lock_files": [
+      "requirements.lock.txt"
+    ]
+  },
+  "execution": {
+    "workspace_mode": "copy",
+    "network": "unrestricted",
+    "write_paths": [],
+    "max_memory_mb": 4096,
+    "max_cpu_seconds": 30,
+    "max_disk_mb": 64,
+    "max_output_files": 50,
+    "max_single_file_mb": 16,
+    "max_gpus": 0,
+    "retain_workspace": false,
+    "exclude_paths": {}
+  },
+  "commands": [
+    {
+      "id": "paper-claim",
+      "argv": [
+        "python",
+        "experiment.py",
+        "--case",
+        "statsmodels-longley"
+      ],
+      "cwd": ".",
+      "timeout_seconds": 30
+    }
+  ],
+  "claims": [
+    {
+      "id": "statsmodels-longley",
+      "paper_location": "Ordinary least squares implementation",
+      "metric": "r_squared",
+      "expected": 0.995479004577296,
+      "unit": "ratio",
+      "protocol": "Run once and extract R-squared from JSON stdout.",
+      "command_ids": [
+        "paper-claim"
+      ],
+      "observation": {
+        "source": "stdout",
+        "command_id": "paper-claim",
+        "extractor": "jsonpath",
+        "expression": "$.metric",
+        "unit": "ratio"
+      },
+      "comparison": {
+        "method": "numeric_tolerance",
+        "absolute": 1e-12,
+        "relative": 1e-12,
+        "combination": "all",
+        "minimum_runs": 1,
+        "aggregate": "mean",
+        "direction": "two_sided"
+      }
+    }
+  ]
+}

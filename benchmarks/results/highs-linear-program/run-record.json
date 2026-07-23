@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "mode": "execute",
+  "created_at": "2026-07-23T07:36:39+00:00",
+  "generator": {
+    "name": "reproduce-research-paper",
+    "version": "1.0.0"
+  },
+  "repository": "harness",
+  "plan_sha256": "6ce48bdaa8ad905ef3c5f7de7b06c7380b9cd32dcde0b778d2b87dd4678ee16e",
+  "inventory_before_sha256": "6e76d62265d8ef9f27a16e4a33354e466a7fdb6e61a8134dda113a6d39ce703d",
+  "inventory_after_sha256": "fa8acb39c6464be84cd717211f6e68b4b116a3d3613a27d6ad334903f31be3df",
+  "environment_sha256": "9de1833bf00f75c7162bde541fc0c7fb9d76628de6ad2834a9242c787a218f97",
+  "workspace": {
+    "mode": "copy",
+    "isolation": "filesystem copy"
+  },
+  "repository_state": {
+    "source_before": {
+      "schema_version": 1,
+      "captured_at": "2026-07-23T07:36:38+00:00",
+      "repository": "harness",
+      "file_count": 2,
+      "bytes": 11412,
+      "tree_sha256": "f1cbb6a5b007a645313ca04b09cad5592486ca0abe399ecb16ab682760b5294f",
+      "git_commit": "c1a61684d8a8c78fff870dc7583bea6e196b55d2",
+      "git_dirty": false,
+      "dirty_diff_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "submodules": {},
+      "exclusions": [],
+      "categories": {
+        "code": {
+          "file_count": 1,
+          "bytes": 10727,
+          "sha256": "36b49b66b81c526d379b13487ffed8ff7f0168e548be33d15101578e442b45b7"
+        },
+        "data": {
+          "file_count": 0,
+          "bytes": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "weights": {
+          "file_count": 0,
+          "bytes": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "config": {
+          "file_count": 0,
+          "bytes": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "environment": {
+          "file_count": 1,
+          "bytes": 685,
+          "sha256": "0a0c8227bab23fa3570552b8f2984f1208084baf8898d79d03ab7d85ed2e1119"
+        }
+      },
+      "inventory_sha256": "8db8cca817fe5a57d435380ae5feffd04c1cd2e84e2c667e5445f99a2236f381"
+    },
+    "source_after": {
+      "schema_version": 1,
+      "captured_at": "2026-07-23T07:36:39+00:00",
+      "repository": "harness",
+      "file_count": 2,
+      "bytes": 11412,
+      "tree_sha256": "f1cbb6a5b007a645313ca04b09cad5592486ca0abe399ecb16ab682760b5294f",
+      "git_commit": "c1a61684d8a8c78fff870dc7583bea6e196b55d2",
+      "git_dirty": false,
+      "dirty_diff_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "submodules": {},
+      "exclusions": [],
+      "categories": {
+        "code": {
+          "file_count": 1,
+          "bytes": 10727,
+          "sha256": "36b49b66b81c526d379b13487ffed8ff7f0168e548be33d15101578e442b45b7"
+        },
+        "data": {
+          "file_count": 0,
+          "bytes": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "weights": {
+          "file_count": 0,
+          "bytes": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "config": {
+          "file_count": 0,
+          "bytes": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "environment": {
+          "file_count": 1,
+          "bytes": 685,
+          "sha256": "0a0c8227bab23fa3570552b8f2984f1208084baf8898d79d03ab7d85ed2e1119"
+        }
+      },
+      "inventory_sha256": "8db8cca817fe5a57d435380ae5feffd04c1cd2e84e2c667e5445f99a2236f381"
+    },
+    "workspace_before": {
+      "schema_version": 1,
+      "captured_at": "2026-07-23T07:36:38+00:00",
+      "repository": "workspace",
+      "file_count": 2,
+      "bytes": 11412,
+      "tree_sha256": "f1cbb6a5b007a645313ca04b09cad5592486ca0abe399ecb16ab682760b5294f",
+      "git_commit": null,
+      "git_dirty": null,
+      "dirty_diff_sha256": null,
+      "submodules": {},
+      "exclusions": [],
+      "categories": {
+        "code": {
+          "file_count": 1,
+          "bytes": 10727,
+          "sha256": "36b49b66b81c526d379b13487ffed8ff7f0168e548be33d15101578e442b45b7"
+        },
+        "data": {
+          "file_count": 0,
+          "bytes": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "weights": {
+          "file_count": 0,
+          "bytes": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "config": {
+          "file_count": 0,
+          "bytes": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "environment": {
+          "file_count": 1,
+          "bytes": 685,
+          "sha256": "0a0c8227bab23fa3570552b8f2984f1208084baf8898d79d03ab7d85ed2e1119"
+        }
+      },
+      "inventory_sha256": "c671b0826347b2efdbaa264ac295968d37a92ff0f2e098317713ba08b6bdd2b7"
+    },
+    "workspace_after": {
+      "schema_version": 1,
+      "captured_at": "2026-07-23T07:36:39+00:00",
+      "repository": "workspace",
+      "file_count": 2,
+      "bytes": 11412,
+      "tree_sha256": "f1cbb6a5b007a645313ca04b09cad5592486ca0abe399ecb16ab682760b5294f",
+      "git_commit": null,
+      "git_dirty": null,
+      "dirty_diff_sha256": null,
+      "submodules": {},
+      "exclusions": [],
+      "categories": {
+        "code": {
+          "file_count": 1,
+          "bytes": 10727,
+          "sha256": "36b49b66b81c526d379b13487ffed8ff7f0168e548be33d15101578e442b45b7"
+        },
+        "data": {
+          "file_count": 0,
+          "bytes": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "weights": {
+          "file_count": 0,
+          "bytes": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "config": {
+          "file_count": 0,
+          "bytes": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "environment": {
+          "file_count": 1,
+          "bytes": 685,
+          "sha256": "0a0c8227bab23fa3570552b8f2984f1208084baf8898d79d03ab7d85ed2e1119"
+        }
+      },
+      "inventory_sha256": "c671b0826347b2efdbaa264ac295968d37a92ff0f2e098317713ba08b6bdd2b7"
+    }
+  },
+  "repository_integrity": {
+    "source_tree_changed": false,
+    "source_filesystem_diff": {
+      "added": [],
+      "removed": [],
+      "modified": [],
+      "tree_changed": false
+    },
+    "workspace_core_changed": false,
+    "unauthorized_workspace_changes": []
+  },
+  "network_policy": "unrestricted",
+  "commands": [
+    {
+      "id": "paper-claim",
+      "cwd": ".",
+      "timeout_seconds": 30,
+      "capabilities": {
+        "max_memory_mb": 4096,
+        "max_gpus": 0,
+        "network": "unrestricted",
+        "max_cpu_seconds": 30,
+        "max_output_files": 50,
+        "write_paths": [],
+        "max_single_file_mb": 16,
+        "max_disk_mb": 64
+      },
+      "secret_refs": [],
+      "argv": [
+        "python",
+        "experiment.py",
+        "--case",
+        "highs-linear-program"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "capability_enforcement": {
+        "network": "explicitly unrestricted by reviewed plan",
+        "memory": "recorded only on Windows host",
+        "cpu": "wall timeout on Windows host",
+        "process_cleanup": "process group/tree termination"
+      },
+      "duration_seconds": 0.679,
+      "stdout_log": "logs/paper-claim.stdout.log",
+      "stderr_log": "logs/paper-claim.stderr.log",
+      "stdout_sha256": "6f90df8416c5ca77e1bfd3d8ed9b338d849630e086c30a9c3c235cbed045b8b9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "filesystem_diff": {
+        "workspace": {
+          "added": [],
+          "removed": [],
+          "modified": [],
+          "tree_changed": false
+        },
+        "outputs": {
+          "added": [],
+          "removed": [],
+          "modified": [],
+          "tree_changed": false
+        }
+      },
+      "policy_violations": []
+    }
+  ],
+  "policy_violations": [],
+  "deviations": [],
+  "cost": {
+    "api_tokens": 0,
+    "estimated_cost_usd": 0
+  }
+}

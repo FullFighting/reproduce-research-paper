@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_record_sha256": "b06d66894cd46b165eade41b5cf3974dfb751322c6ffe1ce82b6bb6afc8f3164",
+  "observations": [
+    {
+      "claim_id": "adam-quadratic",
+      "metric": "distance_to_optimum",
+      "run_record_sha256": "b06d66894cd46b165eade41b5cf3974dfb751322c6ffe1ce82b6bb6afc8f3164",
+      "source": "stdout",
+      "command_id": "paper-claim",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "expression": "$.metric",
+      "unit": "unitless",
+      "normalized_unit": "unitless",
+      "extracted_at": "2026-07-23T07:36:31+00:00",
+      "status": "EXTRACTED",
+      "source_artifact": "logs/paper-claim.stdout.log",
+      "source_sha256": "7c4a88a5d804c1056214b1578d58093de2f38cb0e5f79c61e6d304903be38e15",
+      "raw_value": 2.6802181174839472e-11,
+      "normalized_value": 2.6802181174839472e-11
+    }
+  ],
+  "evidence_sources": [
+    "logs/paper-claim.stdout.log"
+  ]
+}

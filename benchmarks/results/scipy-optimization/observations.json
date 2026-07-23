@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_record_sha256": "1219aefa1bc1c8f8a70717d688d368e18d3add2b9ac80e2213f7c3a74b52083c",
+  "observations": [
+    {
+      "claim_id": "scipy-optimization",
+      "metric": "terminal_objective",
+      "run_record_sha256": "1219aefa1bc1c8f8a70717d688d368e18d3add2b9ac80e2213f7c3a74b52083c",
+      "source": "stdout",
+      "command_id": "paper-claim",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "expression": "$.metric",
+      "unit": "unitless",
+      "normalized_unit": "unitless",
+      "extracted_at": "2026-07-23T07:35:51+00:00",
+      "status": "EXTRACTED",
+      "source_artifact": "logs/paper-claim.stdout.log",
+      "source_sha256": "e14f753ba29a7f6e8f1eaa59101ac8b566b8c722bb203893b4bf4c6e6841d668",
+      "raw_value": 2.0055896490142818e-11,
+      "normalized_value": 2.0055896490142818e-11
+    }
+  ],
+  "evidence_sources": [
+    "logs/paper-claim.stdout.log"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_record_sha256": "d029d56babc3a2f2ec8f0c4ca14c09f2de1c432a084d9bcec8b6fbb554c68475",
+  "observations": [
+    {
+      "claim_id": "sklearn-iris-svm",
+      "metric": "test_accuracy",
+      "run_record_sha256": "d029d56babc3a2f2ec8f0c4ca14c09f2de1c432a084d9bcec8b6fbb554c68475",
+      "source": "stdout",
+      "command_id": "paper-claim",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "expression": "$.metric",
+      "unit": "ratio",
+      "normalized_unit": "ratio",
+      "extracted_at": "2026-07-23T07:36:00+00:00",
+      "status": "EXTRACTED",
+      "source_artifact": "logs/paper-claim.stdout.log",
+      "source_sha256": "4f4996b20919aeed01513c6e528ba928e31d3f45b391347f1f8d19f9773dbcc3",
+      "raw_value": 0.9333333333333333,
+      "normalized_value": 0.9333333333333333
+    }
+  ],
+  "evidence_sources": [
+    "logs/paper-claim.stdout.log"
+  ]
+}

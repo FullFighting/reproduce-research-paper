@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "repository": "../../harness",
+  "paper": {
+    "title": "SciPy 1.0: fundamental algorithms for scientific computing in Python",
+    "reference": "Virtanen et al., Nature Methods 17, 261–272 (2020), doi:10.1038/s41592-019-0686-2",
+    "paper_url": "https://www.nature.com/articles/s41592-019-0686-2",
+    "code_url": "https://github.com/scipy/scipy"
+  },
+  "paper_context": {
+    "research_question": "Can SciPy's released optimizer solve a standard smooth nonlinear objective to numerical precision on CPU?",
+    "method": "Minimize the two-dimensional Rosenbrock function with BFGS from the conventional starting point.",
+    "data_and_splits": "Deterministic analytic objective; no dataset.",
+    "training_or_inference": "No training; one CPU optimization.",
+    "evaluation_protocol": "Run once and extract the terminal objective from JSON stdout.",
+    "limitations": "Capability-level reproduction; it does not reproduce the paper's project-history figures."
+  },
+  "environment": {
+    "packages": [
+      "numpy",
+      "scipy"
+    ],
+    "lock_files": [
+      "requirements.lock.txt"
+    ]
+  },
+  "execution": {
+    "workspace_mode": "copy",
+    "network": "unrestricted",
+    "write_paths": [],
+    "max_memory_mb": 4096,
+    "max_cpu_seconds": 30,
+    "max_disk_mb": 64,
+    "max_output_files": 50,
+    "max_single_file_mb": 16,
+    "max_gpus": 0,
+    "retain_workspace": false,
+    "exclude_paths": {}
+  },
+  "commands": [
+    {
+      "id": "paper-claim",
+      "argv": [
+        "python",
+        "experiment.py",
+        "--case",
+        "scipy-optimization"
+      ],
+      "cwd": ".",
+      "timeout_seconds": 30
+    }
+  ],
+  "claims": [
+    {
+      "id": "scipy-optimization",
+      "paper_location": "Optimization module capability",
+      "metric": "terminal_objective",
+      "expected": 0.0,
+      "unit": "unitless",
+      "protocol": "Run once and extract the terminal objective from JSON stdout.",
+      "command_ids": [
+        "paper-claim"
+      ],
+      "observation": {
+        "source": "stdout",
+        "command_id": "paper-claim",
+        "extractor": "jsonpath",
+        "expression": "$.metric",
+        "unit": "unitless"
+      },
+      "comparison": {
+        "method": "numeric_tolerance",
+        "absolute": 1e-10,
+        "combination": "all",
+        "minimum_runs": 1,
+        "aggregate": "mean",
+        "direction": "lower_is_better"
+      }
+    }
+  ]
+}

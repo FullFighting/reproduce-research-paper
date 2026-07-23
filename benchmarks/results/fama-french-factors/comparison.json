@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "6a5ffaaf22363bd4a17ac93fa5e2b9a291cbb62ede8aa81d8a2c6bb6e6304c5e",
+  "observations_sha256": "f6e404f668783944d35bbe37ec913501c08d3bff172fb526cbc66c361c63bc8f",
+  "run_record_sha256": "b8ee928d67e784e59d0a98a534b6fa72ec3c4246d06c63223e8d0b0b6e3a7ca8",
+  "claims": [
+    {
+      "claim_id": "fama-french-factors",
+      "metric": "max_factor_reconstruction_error",
+      "paper_location": "SMB and HML factor-construction equations",
+      "expected": 0.0,
+      "unit": "percentage_point",
+      "observation_source_sha256": "6538164ee2a7e97ec84b63b087901fc9aa54481295940443086655078c7721f4",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 0.00456666666666683,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "numeric_tolerance",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 0.00456666666666683,
+        "standard_deviation": 0.0,
+        "absolute_error": 0.00456666666666683,
+        "relative_error": 4566666666.66683,
+        "checks": [
+          {
+            "kind": "absolute",
+            "limit": 0.01,
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "22eaf68e7643a6db25009bbea2f97f5ab0487737aad6b09792ce704a1dad7900",
+  "observations_sha256": "22e43649d0e16680a3259fc3abdefd8bc26ab7350016c859603837522a1b07a2",
+  "run_record_sha256": "9aa452f7778d83e1908de8ed27124dbe47eff269cb112121ef135dc460a02586",
+  "claims": [
+    {
+      "claim_id": "sklearn-iris-svm",
+      "metric": "test_accuracy",
+      "paper_location": "Supervised-learning and consistent-estimator API",
+      "expected": 0.9,
+      "unit": "ratio",
+      "observation_source_sha256": "4f4996b20919aeed01513c6e528ba928e31d3f45b391347f1f8d19f9773dbcc3",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 0.9333333333333333,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "non_inferiority",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 0.9333333333333333,
+        "standard_deviation": 0.0,
+        "direction": "higher_is_better",
+        "margin": 0.0,
+        "passed": true
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

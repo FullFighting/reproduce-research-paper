@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "repository": "../../harness",
+  "paper": {
+    "title": "Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift",
+    "reference": "Ioffe and Szegedy, ICML 2015",
+    "paper_url": "https://proceedings.mlr.press/v37/ioffe15.html",
+    "code_url": "https://github.com/tensorflow/tensorflow"
+  },
+  "paper_context": {
+    "research_question": "Does the declared mini-batch transform produce zero means and unit variances?",
+    "method": "Apply the paper's normalization transform to a deterministic 4-by-2 batch.",
+    "data_and_splits": "Synthetic batch under this repository's MIT license.",
+    "training_or_inference": "No network training; one direct algorithm evaluation.",
+    "evaluation_protocol": "Extract the maximum mean/variance invariant error.",
+    "limitations": "Algorithmic invariant, not the ImageNet error or training-step speedup."
+  },
+  "environment": {
+    "packages": [
+      "numpy"
+    ],
+    "lock_files": [
+      "requirements.lock.txt"
+    ]
+  },
+  "execution": {
+    "workspace_mode": "copy",
+    "network": "unrestricted",
+    "write_paths": [],
+    "max_memory_mb": 4096,
+    "max_cpu_seconds": 30,
+    "max_disk_mb": 64,
+    "max_output_files": 50,
+    "max_single_file_mb": 16,
+    "max_gpus": 0,
+    "retain_workspace": false,
+    "exclude_paths": {}
+  },
+  "commands": [
+    {
+      "id": "paper-claim",
+      "argv": [
+        "python",
+        "experiment.py",
+        "--case",
+        "batch-normalization"
+      ],
+      "cwd": ".",
+      "timeout_seconds": 30
+    }
+  ],
+  "claims": [
+    {
+      "id": "batch-normalization",
+      "paper_location": "Algorithm 1 mini-batch normalization",
+      "metric": "normalization_invariant_error",
+      "expected": 0.0,
+      "unit": "unitless",
+      "protocol": "Extract the maximum mean/variance invariant error.",
+      "command_ids": [
+        "paper-claim"
+      ],
+      "observation": {
+        "source": "stdout",
+        "command_id": "paper-claim",
+        "extractor": "jsonpath",
+        "expression": "$.metric",
+        "unit": "unitless"
+      },
+      "comparison": {
+        "method": "numeric_tolerance",
+        "absolute": 1e-12,
+        "combination": "all",
+        "minimum_runs": 1,
+        "aggregate": "mean",
+        "direction": "lower_is_better"
+      }
+    }
+  ]
+}

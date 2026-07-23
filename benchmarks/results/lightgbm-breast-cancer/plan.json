@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "repository": "../../harness",
+  "paper": {
+    "title": "LightGBM: A Highly Efficient Gradient Boosting Decision Tree",
+    "reference": "Ke et al., NeurIPS 2017",
+    "paper_url": "https://proceedings.neurips.cc/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html",
+    "code_url": "https://github.com/microsoft/LightGBM"
+  },
+  "paper_context": {
+    "research_question": "Can the released CPU implementation learn a fixed small public classification task?",
+    "method": "Fit 40 depth-three boosting iterations on a fixed Breast Cancer Wisconsin split.",
+    "data_and_splits": "Breast Cancer Wisconsin dataset distributed by scikit-learn; fixed stratified split.",
+    "training_or_inference": "426 training observations, one CPU thread, no tuning.",
+    "evaluation_protocol": "One predeclared split; require accuracy no worse than 0.90.",
+    "limitations": "Smoke reproduction, not the paper's 20-times speedup or large-data benchmark."
+  },
+  "environment": {
+    "packages": [
+      "numpy",
+      "scipy",
+      "scikit-learn",
+      "lightgbm"
+    ],
+    "lock_files": [
+      "requirements.lock.txt"
+    ]
+  },
+  "execution": {
+    "workspace_mode": "copy",
+    "network": "unrestricted",
+    "write_paths": [],
+    "max_memory_mb": 4096,
+    "max_cpu_seconds": 60,
+    "max_disk_mb": 64,
+    "max_output_files": 50,
+    "max_single_file_mb": 16,
+    "max_gpus": 0,
+    "retain_workspace": false,
+    "exclude_paths": {}
+  },
+  "commands": [
+    {
+      "id": "paper-claim",
+      "argv": [
+        "python",
+        "experiment.py",
+        "--case",
+        "lightgbm-breast-cancer"
+      ],
+      "cwd": ".",
+      "timeout_seconds": 60
+    }
+  ],
+  "claims": [
+    {
+      "id": "lightgbm-breast-cancer",
+      "paper_location": "Released LightGBM implementation",
+      "metric": "test_accuracy",
+      "expected": 0.9,
+      "unit": "ratio",
+      "protocol": "One predeclared split; require accuracy no worse than 0.90.",
+      "command_ids": [
+        "paper-claim"
+      ],
+      "observation": {
+        "source": "stdout",
+        "command_id": "paper-claim",
+        "extractor": "jsonpath",
+        "expression": "$.metric",
+        "unit": "ratio"
+      },
+      "comparison": {
+        "method": "non_inferiority",
+        "absolute": 0.0,
+        "combination": "all",
+        "minimum_runs": 1,
+        "aggregate": "mean",
+        "direction": "higher_is_better"
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "9d1f50e8e99ba240bcf5fa053ac24e318ec0fe075ddc576481f5afd9ea595512",
+  "observations_sha256": "f5fcab6e222077837cd6346f5f1bd8a2c6a6c13ec92e23288e85d9e930cd4bac",
+  "run_record_sha256": "b5eefbb6a22b310a77eaf8847bb0c5c6ab555753674421f46265abe852d76cfe",
+  "claims": [
+    {
+      "claim_id": "cvxpy-markowitz",
+      "metric": "first_asset_weight",
+      "paper_location": "Convex quadratic modeling capability",
+      "expected": 0.8,
+      "unit": "ratio",
+      "observation_source_sha256": "28d6a7248e36c8e9f2da952465d5978f192c54dbdc22c121479ffcf97bac943b",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 0.7999999974932861,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "numeric_tolerance",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 0.7999999974932861,
+        "standard_deviation": 0.0,
+        "absolute_error": 2.5067139475254407e-09,
+        "relative_error": 3.133392434406801e-09,
+        "checks": [
+          {
+            "kind": "absolute",
+            "limit": 1e-06,
+            "passed": true
+          },
+          {
+            "kind": "relative",
+            "limit": 1e-06,
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_record_sha256": "8ae487cf8d8c7fa5afc1633427d09766d7424b65ccb8a6885d4b863ea20d439f",
+  "observations": [
+    {
+      "claim_id": "scikit-image-ssim",
+      "metric": "ssim",
+      "run_record_sha256": "8ae487cf8d8c7fa5afc1633427d09766d7424b65ccb8a6885d4b863ea20d439f",
+      "source": "stdout",
+      "command_id": "paper-claim",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "expression": "$.metric",
+      "unit": "ratio",
+      "normalized_unit": "ratio",
+      "extracted_at": "2026-07-23T07:35:56+00:00",
+      "status": "EXTRACTED",
+      "source_artifact": "logs/paper-claim.stdout.log",
+      "source_sha256": "a1e7a01352f2e961ec5663bfc0323547157adb572f8f251976e6efb605c443b3",
+      "raw_value": 1.0,
+      "normalized_value": 1.0
+    }
+  ],
+  "evidence_sources": [
+    "logs/paper-claim.stdout.log"
+  ]
+}

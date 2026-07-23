@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "repository": "../../harness",
+  "paper": {
+    "title": "XGBoost: A Scalable Tree Boosting System",
+    "reference": "Chen and Guestrin, KDD 2016, doi:10.1145/2939672.2939785",
+    "paper_url": "https://dl.acm.org/doi/10.1145/2939672.2939785",
+    "code_url": "https://github.com/dmlc/xgboost"
+  },
+  "paper_context": {
+    "research_question": "Can the released CPU histogram implementation learn a fixed small public classification task?",
+    "method": "Fit 40 depth-three boosted trees on a fixed Breast Cancer Wisconsin split.",
+    "data_and_splits": "Breast Cancer Wisconsin dataset distributed by scikit-learn; fixed stratified split.",
+    "training_or_inference": "426 training observations, one CPU thread, no tuning.",
+    "evaluation_protocol": "One predeclared split; require accuracy no worse than 0.90.",
+    "limitations": "Smoke reproduction of the released learning system, not the billion-example scalability or original benchmark tables."
+  },
+  "environment": {
+    "packages": [
+      "numpy",
+      "scipy",
+      "scikit-learn",
+      "xgboost"
+    ],
+    "lock_files": [
+      "requirements.lock.txt"
+    ]
+  },
+  "execution": {
+    "workspace_mode": "copy",
+    "network": "unrestricted",
+    "write_paths": [],
+    "max_memory_mb": 4096,
+    "max_cpu_seconds": 60,
+    "max_disk_mb": 64,
+    "max_output_files": 50,
+    "max_single_file_mb": 16,
+    "max_gpus": 0,
+    "retain_workspace": false,
+    "exclude_paths": {}
+  },
+  "commands": [
+    {
+      "id": "paper-claim",
+      "argv": [
+        "python",
+        "experiment.py",
+        "--case",
+        "xgboost-breast-cancer"
+      ],
+      "cwd": ".",
+      "timeout_seconds": 60
+    }
+  ],
+  "claims": [
+    {
+      "id": "xgboost-breast-cancer",
+      "paper_location": "End-to-end tree boosting system",
+      "metric": "test_accuracy",
+      "expected": 0.9,
+      "unit": "ratio",
+      "protocol": "One predeclared split; require accuracy no worse than 0.90.",
+      "command_ids": [
+        "paper-claim"
+      ],
+      "observation": {
+        "source": "stdout",
+        "command_id": "paper-claim",
+        "extractor": "jsonpath",
+        "expression": "$.metric",
+        "unit": "ratio"
+      },
+      "comparison": {
+        "method": "non_inferiority",
+        "absolute": 0.0,
+        "combination": "all",
+        "minimum_runs": 1,
+        "aggregate": "mean",
+        "direction": "higher_is_better"
+      }
+    }
+  ]
+}

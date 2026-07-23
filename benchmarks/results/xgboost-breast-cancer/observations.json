@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_record_sha256": "abb82619579317a3c36e0554cece6df9817ad03bf4d7d727b0620f8df1fd163f",
+  "observations": [
+    {
+      "claim_id": "xgboost-breast-cancer",
+      "metric": "test_accuracy",
+      "run_record_sha256": "abb82619579317a3c36e0554cece6df9817ad03bf4d7d727b0620f8df1fd163f",
+      "source": "stdout",
+      "command_id": "paper-claim",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "expression": "$.metric",
+      "unit": "ratio",
+      "normalized_unit": "ratio",
+      "extracted_at": "2026-07-23T07:36:03+00:00",
+      "status": "EXTRACTED",
+      "source_artifact": "logs/paper-claim.stdout.log",
+      "source_sha256": "265c99e2a717333c602860d2134aba55f81585f8814e86fa36eef78e651e47b7",
+      "raw_value": 0.9440559440559441,
+      "normalized_value": 0.9440559440559441
+    }
+  ],
+  "evidence_sources": [
+    "logs/paper-claim.stdout.log"
+  ]
+}

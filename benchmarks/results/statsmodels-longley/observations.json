@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_record_sha256": "7be854513879738950515551d23cc6b65d13fd0516a9660734de795815f47de8",
+  "observations": [
+    {
+      "claim_id": "statsmodels-longley",
+      "metric": "r_squared",
+      "run_record_sha256": "7be854513879738950515551d23cc6b65d13fd0516a9660734de795815f47de8",
+      "source": "stdout",
+      "command_id": "paper-claim",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "expression": "$.metric",
+      "unit": "ratio",
+      "normalized_unit": "ratio",
+      "extracted_at": "2026-07-23T07:35:54+00:00",
+      "status": "EXTRACTED",
+      "source_artifact": "logs/paper-claim.stdout.log",
+      "source_sha256": "36863270aeb5fec1f0d74253b0fe067573fd38dfd241637dd8435b6c950579bf",
+      "raw_value": 0.9954790045772947,
+      "normalized_value": 0.9954790045772947
+    }
+  ],
+  "evidence_sources": [
+    "logs/paper-claim.stdout.log"
+  ]
+}

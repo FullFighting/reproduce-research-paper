@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "1ac172602b3835bf35ab6adc1df932fc67e1117b41935ce4399d4f00d752ba6e",
+  "observations_sha256": "2a467a9b821c59d6f3c460e617d5da5f96d763cc56f99af20b4acd801c1052a9",
+  "run_record_sha256": "090a009a1a1b7ed09a6a9a183b4c6a8d8554d38ad53cd73d7a43106669b2bcfd",
+  "claims": [
+    {
+      "claim_id": "shap-additivity",
+      "metric": "additivity_error",
+      "paper_location": "Additive feature attribution framework",
+      "expected": 0.0,
+      "unit": "unitless",
+      "observation_source_sha256": "36593a5507bf11d0668a4de7ec387afdb1432ce0af938cd9c7a3b9dce46e3353",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 0.0,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "numeric_tolerance",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 0.0,
+        "standard_deviation": 0.0,
+        "absolute_error": 0.0,
+        "relative_error": 0.0,
+        "checks": [
+          {
+            "kind": "absolute",
+            "limit": 1e-10,
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "repository": "../../harness",
+  "paper": {
+    "title": "Adam: A Method for Stochastic Optimization",
+    "reference": "Kingma and Ba, ICLR 2015",
+    "paper_url": "https://arxiv.org/abs/1412.6980",
+    "code_url": "https://github.com/keras-team/keras/blob/master/keras/src/optimizers/adam.py"
+  },
+  "paper_context": {
+    "research_question": "Does a direct implementation of Algorithm 1 converge on a deterministic convex quadratic?",
+    "method": "Apply the paper's bias-corrected first- and second-moment updates for 500 steps.",
+    "data_and_splits": "Analytic one-dimensional quadratic; no dataset.",
+    "training_or_inference": "500 scalar CPU optimization steps.",
+    "evaluation_protocol": "Extract absolute distance to the known optimum.",
+    "limitations": "Algorithmic invariant, not the paper's neural-network benchmark tables."
+  },
+  "environment": {
+    "packages": [
+      "numpy"
+    ],
+    "lock_files": [
+      "requirements.lock.txt"
+    ]
+  },
+  "execution": {
+    "workspace_mode": "copy",
+    "network": "unrestricted",
+    "write_paths": [],
+    "max_memory_mb": 4096,
+    "max_cpu_seconds": 30,
+    "max_disk_mb": 64,
+    "max_output_files": 50,
+    "max_single_file_mb": 16,
+    "max_gpus": 0,
+    "retain_workspace": false,
+    "exclude_paths": {}
+  },
+  "commands": [
+    {
+      "id": "paper-claim",
+      "argv": [
+        "python",
+        "experiment.py",
+        "--case",
+        "adam-quadratic"
+      ],
+      "cwd": ".",
+      "timeout_seconds": 30
+    }
+  ],
+  "claims": [
+    {
+      "id": "adam-quadratic",
+      "paper_location": "Algorithm 1",
+      "metric": "distance_to_optimum",
+      "expected": 0.0,
+      "unit": "unitless",
+      "protocol": "Extract absolute distance to the known optimum.",
+      "command_ids": [
+        "paper-claim"
+      ],
+      "observation": {
+        "source": "stdout",
+        "command_id": "paper-claim",
+        "extractor": "jsonpath",
+        "expression": "$.metric",
+        "unit": "unitless"
+      },
+      "comparison": {
+        "method": "numeric_tolerance",
+        "absolute": 1e-08,
+        "combination": "all",
+        "minimum_runs": 1,
+        "aggregate": "mean",
+        "direction": "lower_is_better"
+      }
+    }
+  ]
+}

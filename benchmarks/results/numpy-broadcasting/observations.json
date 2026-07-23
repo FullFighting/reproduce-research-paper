@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_record_sha256": "a59c24ed7db35f20ba0b2a8b369c98e6f64c418c9a19a79d1bc59e5b0995f8f2",
+  "observations": [
+    {
+      "claim_id": "numpy-broadcasting",
+      "metric": "broadcast_checksum",
+      "run_record_sha256": "a59c24ed7db35f20ba0b2a8b369c98e6f64c418c9a19a79d1bc59e5b0995f8f2",
+      "source": "stdout",
+      "command_id": "paper-claim",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "expression": "$.metric",
+      "unit": "unitless",
+      "normalized_unit": "unitless",
+      "extracted_at": "2026-07-23T07:35:49+00:00",
+      "status": "EXTRACTED",
+      "source_artifact": "logs/paper-claim.stdout.log",
+      "source_sha256": "263b6afa9f31e40310b1075862a6a712cf45c32cdf78e7d764f9d998e296bb2b",
+      "raw_value": 96.0,
+      "normalized_value": 96.0
+    }
+  ],
+  "evidence_sources": [
+    "logs/paper-claim.stdout.log"
+  ]
+}

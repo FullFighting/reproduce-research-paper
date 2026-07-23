@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "repository": "../../harness",
+  "paper": {
+    "title": "Attention Is All You Need",
+    "reference": "Vaswani et al., NeurIPS 2017",
+    "paper_url": "https://proceedings.neurips.cc/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html",
+    "code_url": "https://github.com/tensorflow/tensor2tensor"
+  },
+  "paper_context": {
+    "research_question": "Does Equation 1 produce a row-stochastic attention matrix on a deterministic fixture?",
+    "method": "Compute scaled query-key products, row-wise softmax, and value aggregation.",
+    "data_and_splits": "Synthetic query, key, and value matrices under this repository's MIT license.",
+    "training_or_inference": "No training; one direct equation evaluation.",
+    "evaluation_protocol": "Extract maximum attention row-sum error.",
+    "limitations": "Equation-level reproduction, not WMT translation quality or training cost."
+  },
+  "environment": {
+    "packages": [
+      "numpy"
+    ],
+    "lock_files": [
+      "requirements.lock.txt"
+    ]
+  },
+  "execution": {
+    "workspace_mode": "copy",
+    "network": "unrestricted",
+    "write_paths": [],
+    "max_memory_mb": 4096,
+    "max_cpu_seconds": 30,
+    "max_disk_mb": 64,
+    "max_output_files": 50,
+    "max_single_file_mb": 16,
+    "max_gpus": 0,
+    "retain_workspace": false,
+    "exclude_paths": {}
+  },
+  "commands": [
+    {
+      "id": "paper-claim",
+      "argv": [
+        "python",
+        "experiment.py",
+        "--case",
+        "scaled-dot-product-attention"
+      ],
+      "cwd": ".",
+      "timeout_seconds": 30
+    }
+  ],
+  "claims": [
+    {
+      "id": "scaled-dot-product-attention",
+      "paper_location": "Equation 1, scaled dot-product attention",
+      "metric": "attention_row_sum_error",
+      "expected": 0.0,
+      "unit": "unitless",
+      "protocol": "Extract maximum attention row-sum error.",
+      "command_ids": [
+        "paper-claim"
+      ],
+      "observation": {
+        "source": "stdout",
+        "command_id": "paper-claim",
+        "extractor": "jsonpath",
+        "expression": "$.metric",
+        "unit": "unitless"
+      },
+      "comparison": {
+        "method": "numeric_tolerance",
+        "absolute": 1e-12,
+        "combination": "all",
+        "minimum_runs": 1,
+        "aggregate": "mean",
+        "direction": "lower_is_better"
+      }
+    }
+  ]
+}

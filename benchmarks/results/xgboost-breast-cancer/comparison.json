@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "0802f88d5b8f1985c9eccd13cd1b0c03a4a4e1b223283d499044675e9084805c",
+  "observations_sha256": "532b8638246b14cecf91c7100c37458fe03e9fe8fed6766660e7672845c1173d",
+  "run_record_sha256": "a830bae6486c7796e855b7ad387bf8fae7ecfb4c4fa079abda5eab107c462a70",
+  "claims": [
+    {
+      "claim_id": "xgboost-breast-cancer",
+      "metric": "test_accuracy",
+      "paper_location": "End-to-end tree boosting system",
+      "expected": 0.9,
+      "unit": "ratio",
+      "observation_source_sha256": "265c99e2a717333c602860d2134aba55f81585f8814e86fa36eef78e651e47b7",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 0.9440559440559441,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "non_inferiority",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 0.9440559440559441,
+        "standard_deviation": 0.0,
+        "direction": "higher_is_better",
+        "margin": 0.0,
+        "passed": true
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "repository": "../../harness",
+  "paper": {
+    "title": "Scikit-learn: Machine Learning in Python",
+    "reference": "Pedregosa et al., Journal of Machine Learning Research 12:2825–2830 (2011)",
+    "paper_url": "https://www.jmlr.org/papers/v12/pedregosa11a.html",
+    "code_url": "https://github.com/scikit-learn/scikit-learn"
+  },
+  "paper_context": {
+    "research_question": "Can the released scikit-learn pipeline train and evaluate an SVM on a fixed public split without tuning?",
+    "method": "Standardize Iris features, fit an RBF SVM, and score a stratified fixed test split.",
+    "data_and_splits": "Iris dataset distributed by scikit-learn; fixed 70/30 split with random_state=42.",
+    "training_or_inference": "105 training observations on CPU; no hyperparameter search.",
+    "evaluation_protocol": "One predeclared split; require accuracy no worse than 0.90.",
+    "limitations": "Low-cost API reproduction, not a paper table or a claim of state-of-the-art accuracy."
+  },
+  "environment": {
+    "packages": [
+      "numpy",
+      "scipy",
+      "scikit-learn"
+    ],
+    "lock_files": [
+      "requirements.lock.txt"
+    ]
+  },
+  "execution": {
+    "workspace_mode": "copy",
+    "network": "unrestricted",
+    "write_paths": [],
+    "max_memory_mb": 4096,
+    "max_cpu_seconds": 30,
+    "max_disk_mb": 64,
+    "max_output_files": 50,
+    "max_single_file_mb": 16,
+    "max_gpus": 0,
+    "retain_workspace": false,
+    "exclude_paths": {}
+  },
+  "commands": [
+    {
+      "id": "paper-claim",
+      "argv": [
+        "python",
+        "experiment.py",
+        "--case",
+        "sklearn-iris-svm"
+      ],
+      "cwd": ".",
+      "timeout_seconds": 30
+    }
+  ],
+  "claims": [
+    {
+      "id": "sklearn-iris-svm",
+      "paper_location": "Supervised-learning and consistent-estimator API",
+      "metric": "test_accuracy",
+      "expected": 0.9,
+      "unit": "ratio",
+      "protocol": "One predeclared split; require accuracy no worse than 0.90.",
+      "command_ids": [
+        "paper-claim"
+      ],
+      "observation": {
+        "source": "stdout",
+        "command_id": "paper-claim",
+        "extractor": "jsonpath",
+        "expression": "$.metric",
+        "unit": "ratio"
+      },
+      "comparison": {
+        "method": "non_inferiority",
+        "absolute": 0.0,
+        "combination": "all",
+        "minimum_runs": 1,
+        "aggregate": "mean",
+        "direction": "higher_is_better"
+      }
+    }
+  ]
+}

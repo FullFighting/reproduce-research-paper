@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_record_sha256": "0c808537c045e961a1200045ade9ce474f5d46291ce93169c4eea8d92695f973",
+  "observations": [
+    {
+      "claim_id": "shap-additivity",
+      "metric": "additivity_error",
+      "run_record_sha256": "0c808537c045e961a1200045ade9ce474f5d46291ce93169c4eea8d92695f973",
+      "source": "stdout",
+      "command_id": "paper-claim",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "expression": "$.metric",
+      "unit": "unitless",
+      "normalized_unit": "unitless",
+      "extracted_at": "2026-07-23T07:36:10+00:00",
+      "status": "EXTRACTED",
+      "source_artifact": "logs/paper-claim.stdout.log",
+      "source_sha256": "36593a5507bf11d0668a4de7ec387afdb1432ce0af938cd9c7a3b9dce46e3353",
+      "raw_value": 0.0,
+      "normalized_value": 0.0
+    }
+  ],
+  "evidence_sources": [
+    "logs/paper-claim.stdout.log"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "plan_sha256": "20e13fa7d187717ec1d32b376033f81e69becfcdfbe67430d3403939227e6d43",
+  "observations_sha256": "62a66ac04839c2aa94b6012bf2f4356ac7dc6274770df2acb5d2cc40c34a5cb8",
+  "run_record_sha256": "82bf3ca59f1854df7a51777ec4fc6f6fd4fa00d884ceeb46520dc2cedb61a052",
+  "claims": [
+    {
+      "claim_id": "statsmodels-longley",
+      "metric": "r_squared",
+      "paper_location": "Ordinary least squares implementation",
+      "expected": 0.995479004577296,
+      "unit": "ratio",
+      "observation_source_sha256": "36863270aeb5fec1f0d74253b0fe067573fd38dfd241637dd8435b6c950579bf",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "observed": 0.9954790045772947,
+      "status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE",
+      "details": {
+        "method": "numeric_tolerance",
+        "combination": "all",
+        "aggregate": "mean",
+        "run_count": 1,
+        "mean": 0.9954790045772947,
+        "standard_deviation": 0.0,
+        "absolute_error": 1.3322676295501878e-15,
+        "relative_error": 1.3383181598248778e-15,
+        "checks": [
+          {
+            "kind": "absolute",
+            "limit": 1e-12,
+            "passed": true
+          },
+          {
+            "kind": "relative",
+            "limit": 1e-12,
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "CLAIM_REPRODUCED_WITHIN_TOLERANCE": 1,
+    "CLAIM_NOT_REPRODUCED": 0,
+    "PARTIALLY_REPRODUCED": 0,
+    "INCONCLUSIVE": 0,
+    "BLOCKED": 0,
+    "NOT_ATTEMPTED": 0,
+    "MANUAL_REVIEW_REQUIRED": 0
+  }
+}

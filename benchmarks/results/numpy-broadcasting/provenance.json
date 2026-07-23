@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "bundle_format": "reproduce-research-paper-evidence-bundle",
+  "generator": {
+    "name": "reproduce-research-paper",
+    "version": "1.0.0"
+  },
+  "created_at": "2026-07-23T07:35:49+00:00",
+  "integrity_scope": "Hashes detect unsynchronized artifact changes; they do not prove authorship or protect against an attacker who can rewrite both artifacts and provenance.",
+  "artifacts": {
+    "comparison.json": {
+      "sha256": "8be304898ec5e3548028dcdeb996c16844097b25eb61d19e04ca692ae4987dee",
+      "bytes": 1459,
+      "role": "comparison",
+      "generated_from": [
+        "plan.json",
+        "run-record.json",
+        "observations.json"
+      ]
+    },
+    "environment.json": {
+      "sha256": "8d81f5a22b3e4591be68a8057d852d4cca22da5194b090dd48093ca4945aa733",
+      "bytes": 566,
+      "role": "environment",
+      "generated_from": [
+        "plan.json"
+      ]
+    },
+    "inventory-after.json": {
+      "sha256": "9979df8d638531e6df8f0682fa57861990bb5b993df16a443956fcfd9628a4be",
+      "bytes": 1770,
+      "role": "inventory-after",
+      "generated_from": [
+        "run-record.json"
+      ]
+    },
+    "inventory-before.json": {
+      "sha256": "8ee985f4ddba0c1ce6f066b430979bebc3a4eb30dd9552a59d4bd523a974eed8",
+      "bytes": 1770,
+      "role": "inventory-before",
+      "generated_from": [
+        "plan.json"
+      ]
+    },
+    "logs/paper-claim.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "command-log",
+      "generated_from": []
+    },
+    "logs/paper-claim.stdout.log": {
+      "sha256": "263b6afa9f31e40310b1075862a6a712cf45c32cdf78e7d764f9d998e296bb2b",
+      "bytes": 65,
+      "role": "command-log",
+      "generated_from": []
+    },
+    "observations.json": {
+      "sha256": "9da719b69008aa41f930c84b9da418fc0738f4f39b677c0b211f6535f6d21eea",
+      "bytes": 932,
+      "role": "observations",
+      "generated_from": [
+        "plan.json",
+        "run-record.json"
+      ]
+    },
+    "plan.json": {
+      "sha256": "482472124f0be7f344bc1c5fd188792a7dbca899ac19f0232e8def53bb4baeeb",
+      "bytes": 2506,
+      "role": "plan",
+      "generated_from": []
+    },
+    "report.md": {
+      "sha256": "3f67ac767776c35c9eca3ea9c469a92f14e19cf56c1078293d6d4951a8693305",
+      "bytes": 4382,
+      "role": "report",
+      "generated_from": [
+        "plan.json",
+        "inventory-before.json",
+        "inventory-after.json",
+        "environment.json",
+        "run-record.json",
+        "observations.json",
+        "comparison.json"
+      ]
+    },
+    "run-record.json": {
+      "sha256": "a59c24ed7db35f20ba0b2a8b369c98e6f64c418c9a19a79d1bc59e5b0995f8f2",
+      "bytes": 8537,
+      "role": "run-record",
+      "generated_from": [
+        "plan.json",
+        "inventory-before.json",
+        "environment.json"
+      ]
+    }
+  }
+}

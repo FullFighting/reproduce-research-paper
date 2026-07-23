@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_record_sha256": "27aff71f0c3fd495a843d8ed5a74dfa471a92609bda0fc6f68f28f392cd5c32c",
+  "observations": [
+    {
+      "claim_id": "umap-digits",
+      "metric": "trustworthiness",
+      "run_record_sha256": "27aff71f0c3fd495a843d8ed5a74dfa471a92609bda0fc6f68f28f392cd5c32c",
+      "source": "stdout",
+      "command_id": "paper-claim",
+      "extractor": "jsonpath",
+      "extractor_version": "rrp-jsonpath-1",
+      "expression": "$.metric",
+      "unit": "ratio",
+      "normalized_unit": "ratio",
+      "extracted_at": "2026-07-23T07:36:29+00:00",
+      "status": "EXTRACTED",
+      "source_artifact": "logs/paper-claim.stdout.log",
+      "source_sha256": "1e505aaf6155d65d0aff745d4a6445654b7a89509091b343eb9efc51db0a014a",
+      "raw_value": 0.9614212067955478,
+      "normalized_value": 0.9614212067955478
+    }
+  ],
+  "evidence_sources": [
+    "logs/paper-claim.stdout.log"
+  ]
+}
