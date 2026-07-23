@@ -161,6 +161,14 @@ def render_report(
             f"- API tokens used: `{run_record.get('cost', {}).get('api_tokens', 0)}`",
             f"- Estimated monetary cost: `{run_record.get('cost', {}).get('estimated_cost_usd', 0)}` USD",
             f"- Network policy: `{run_record.get('network_policy')}`",
+            *(
+                [
+                    "- Argv secret compatibility mode: "
+                    f"`{run_record.get('argv_secret_compatibility_mode')}`"
+                ]
+                if "argv_secret_compatibility_mode" in run_record
+                else []
+            ),
             f"- Policy violations: {_display(run_record.get('policy_violations', []))}",
             f"- Deviations: {_display(run_record.get('deviations', []))}",
             "",

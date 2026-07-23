@@ -27,6 +27,8 @@ python scripts/sync_benchmark_facts.py --check
 python scripts/validate_codex_evaluation.py
 ```
 
+CI additionally runs the README offline demo, focused negative/security tests, a clean release-archive verification, and a digest-pinned Docker `--network none` end-to-end case.
+
 When the Codex `skill-creator` package is available, also run its `quick_validate.py` against `skills/reproduce-research-paper/`.
 
 ## Pull requests

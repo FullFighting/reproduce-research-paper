@@ -5,6 +5,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -14,8 +17,8 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         python-version: ["3.10", "3.12"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Compile scripts
@@ -26,3 +29,40 @@ jobs:
         run: python scripts/validate_codex_evaluation.py
       - name: Run tests
         run: python -m unittest discover -s tests -v
+
+  evidence-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Run README offline demo end to end
+        run: |
+          python skills/reproduce-research-paper/scripts/validate_reproduction_plan.py --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json
+          python skills/reproduce-research-paper/scripts/run_reproduction.py --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json --output "$RUNNER_TEMP/offline-demo" --execute
+          python skills/reproduce-research-paper/scripts/build_report.py --bundle "$RUNNER_TEMP/offline-demo"
+      - name: Bundle tamper negative test
+        run: python -m unittest tests.test_reproduce_research_paper.ReproduceResearchPaperTests.test_tampering_with_log_or_comparison_invalidates_bundle -v
+      - name: Dirty source rejection test
+        run: python -m unittest tests.test_reproduce_research_paper.ReproduceResearchPaperTests.test_git_worktree_mode_rejects_dirty_source -v
+      - name: Undeclared write test
+        run: python -m unittest tests.test_reproduce_research_paper.ReproduceResearchPaperTests.test_copy_mode_preserves_original_and_detects_undeclared_writes -v
+      - name: Secret policy and redaction test
+        run: python -m unittest tests.test_reproduce_research_paper.ReproduceResearchPaperTests.test_argv_secrets_are_denied_by_default_and_environment_secrets_are_redacted -v
+      - name: Verify release archive
+        run: |
+          git archive --format=tar.gz --prefix=reproduce-research-paper/ -o "$RUNNER_TEMP/reproduce-research-paper.tar.gz" HEAD
+          python scripts/verify_release_archive.py --archive "$RUNNER_TEMP/reproduce-research-paper.tar.gz"
+
+  container-network-none:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Pull public container fixture
+        run: docker pull python:3.12-alpine
+      - name: Run digest-pinned container with no network
+        run: python scripts/run_container_e2e.py --image python:3.12-alpine

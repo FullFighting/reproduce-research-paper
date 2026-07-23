@@ -119,7 +119,11 @@ def _merge_capabilities(plan: dict, command: dict) -> dict:
     return merged
 
 
-def _resolve_command(command: dict) -> tuple[list[str], list[Any], dict[str, str], list[str]]:
+def _resolve_command(
+    command: dict,
+    *,
+    allow_argv_secrets: bool = False,
+) -> tuple[list[str], list[Any], dict[str, str], list[str]]:
     actual: list[str] = []
     recorded: list[Any] = []
     secrets: list[str] = []
@@ -128,6 +132,10 @@ def _resolve_command(command: dict) -> tuple[list[str], list[Any], dict[str, str
             actual.append(argument)
             recorded.append(argument)
         else:
+            if not allow_argv_secrets:
+                raise ValueError(
+                    "argv secret_ref is disabled by default; use secret_bindings"
+                )
             name = argument["secret_ref"]
             value = os.environ.get(name)
             if value is None:
@@ -401,6 +409,11 @@ def execute(plan: dict, plan_path: Path, bundle: Path) -> tuple[dict, bool]:
     records = []
     policy_violations: list[str] = []
     deviations: list[str] = []
+    allow_argv_secrets = bool(plan["execution"].get("allow_argv_secrets", False))
+    if allow_argv_secrets:
+        deviations.append(
+            "HIGH_RISK_COMPATIBILITY: argv secret_ref values may be visible in process listings"
+        )
     all_write_paths = list(plan["execution"].get("write_paths", []))
     for command in plan["commands"]:
         capabilities = _merge_capabilities(plan, command)
@@ -420,7 +433,10 @@ def execute(plan: dict, plan_path: Path, bundle: Path) -> tuple[dict, bool]:
             ],
         }
         try:
-            actual, recorded, child_environment, secrets = _resolve_command(command)
+            actual, recorded, child_environment, secrets = _resolve_command(
+                command,
+                allow_argv_secrets=allow_argv_secrets,
+            )
             record["argv"] = recorded
             child_environment["REPRO_OUTPUT_DIR"] = str(outputs)
             if capabilities["network"] == "disabled" and plan["execution"]["workspace_mode"] != "container":
@@ -559,6 +575,7 @@ def execute(plan: dict, plan_path: Path, bundle: Path) -> tuple[dict, bool]:
             "unauthorized_workspace_changes": unauthorized_workspace,
         },
         "network_policy": plan["execution"]["network"],
+        "argv_secret_compatibility_mode": allow_argv_secrets,
         "commands": records,
         "policy_violations": policy_violations,
         "deviations": deviations,

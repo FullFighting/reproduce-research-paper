@@ -35,10 +35,11 @@ Do not use `VERIFIED`, `CONTRADICTED`, or `NOT_RUN` in V1 reports.
 - Set `combination` explicitly. `all` means every supplied bound must pass; `any` must have a paper-specific justification.
 - Record unit conversion before comparison.
 - For multiple seeds, record raw values, minimum runs, aggregation, mean, and standard deviation.
-- `equivalence_interval` uses a 95% normal interval in V1 and needs at least two observations.
+- `equivalence_interval` uses a 95% normal interval in V1.2 and needs at least two observations.
 - `non_inferiority` requires a direction and margin.
-- Arrays and tables require matching shapes and element-wise success.
+- Numeric arrays and tables require matching shapes and element-wise success; labeled tables also require matching columns and row labels.
 - Rankings and curves may use exact order or Spearman correlation where scientifically appropriate.
+- Categorical, string, set, artifact-hash, and distribution claims require their explicit typed comparison methods.
 - Visual-only claims remain manual.
 
 ## Interpretation boundaries

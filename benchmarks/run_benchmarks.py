@@ -26,11 +26,20 @@ RUNNER = (
     / "run_reproduction.py"
 )
 VERIFIER = RUNNER.with_name("build_report.py")
+UNIT_DESCRIPTORS = {
+    "unitless": {"symbol": "1", "scale": 1, "semantic_type": "unitless"},
+    "ratio": {"symbol": "ratio", "scale": 1, "semantic_type": "ratio"},
+    "percentage_point": {
+        "symbol": "percentage_point",
+        "scale": 1,
+        "semantic_type": "return",
+    },
+}
 
 
 def plan_for(case: dict) -> dict:
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "repository": "../../harness",
         "paper": {
             "title": case["title"],
@@ -60,6 +69,7 @@ def plan_for(case: dict) -> dict:
             "max_output_files": 50,
             "max_single_file_mb": 16,
             "max_gpus": 0,
+            "allow_argv_secrets": False,
             "retain_workspace": False,
             "exclude_paths": {},
         },
@@ -76,8 +86,8 @@ def plan_for(case: dict) -> dict:
                 "id": case["id"],
                 "paper_location": case["paper_location"],
                 "metric": case["metric"],
-                "expected": case["expected"],
-                "unit": case["unit"],
+                "expected": {"type": "scalar", "value": case["expected"]},
+                "unit": UNIT_DESCRIPTORS[case["unit"]],
                 "protocol": case["protocol"],
                 "command_ids": ["paper-claim"],
                 "observation": {
@@ -85,7 +95,7 @@ def plan_for(case: dict) -> dict:
                     "command_id": "paper-claim",
                     "extractor": "jsonpath",
                     "expression": "$.metric",
-                    "unit": case["unit"],
+                    "unit": UNIT_DESCRIPTORS[case["unit"]],
                 },
                 "comparison": case["comparison"],
             }

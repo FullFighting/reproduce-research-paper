@@ -1,49 +1,35 @@
 ---
 name: reproduce-research-paper
-description: Reproduce computational claims from research papers that have code, data, experiments, tables, figures, or model outputs. Use when Codex must read a paper as a whole, inspect its official repository, map claims to executable commands and machine-readable observations, run authorized low-cost or full experiments in an isolated workspace, compare results with explicit statistical policies, or produce a tamper-evident evidence bundle. Do not use to invent missing artifacts, treat a successful process exit as scientific proof, bypass access controls, or promote manually read figures to reproduced claims.
+description: Reproduce computational claims from research papers with code, data, experiments, tables, figures, or model outputs. Use when Codex must read a paper as a whole, map claims to official repositories and executable commands, draft a preview-only reproduction plan, run authorized experiments in isolation, compare machine-extracted results, diagnose divergence, or deliver a traceable evidence bundle. Do not use to invent artifacts, bypass access controls, treat process success as scientific proof, or promote manual observations to reproduced claims.
 ---
 
 # Reproduce research paper
 
-Reproduce a paper claim by claim. A positive result requires a continuous machine-traceable path:
+Build a continuous evidence chain:
 
-`paper claim → exact plan → repository state → command → source artifact → extractor → normalized observation → comparison policy → report`
+`paper claim → reviewed plan → repository state → command → source artifact → extractor → typed observation → comparison → report`
 
-Resolve `SKILL_ROOT` as this file's directory. Invoke bundled scripts by absolute path when the working directory differs. The scripts require Python 3.10+ and the standard library; NumPy and Parquet extractors are optional.
+Resolve `SKILL_ROOT` as this file's directory. Use absolute script paths when working elsewhere.
 
 ## Non-negotiable rules
 
-1. Read the entire paper before planning. Record its research question, method, data and split construction, training or inference procedure, evaluation protocol, relevant ablations, and stated limitations. Do not plan from the abstract alone.
-2. Default to static inventory and command preview. Do not clone, install, download, access a private service, spend money, or start a long/GPU run until the user authorizes the exact action and budget.
-3. Keep the original repository unchanged. Execute in `copy`, `git_worktree`, or `container` mode. Write the evidence bundle outside the research repository.
-4. Never accept a hand-written observed-metrics file. Observations must be extracted from the run's logs or result files. A table, plot, screenshot, or human transcription is `MANUAL_REVIEW_REQUIRED`.
-5. Never include a credential in a plan. Use `{"secret_ref": "NAME"}` or `secret_bindings`; the runtime resolves it from the environment and records only the reference.
-6. Treat missing code, data, weights, licenses, seeds, hardware, or access as evidence. Do not guess or silently substitute.
-7. A matching metric does not establish causality, correctness of the paper's explanation, or generalizability.
+1. Read the whole paper before selecting claims; record method, data/splits, training/inference, evaluation, ablations, and limitations.
+2. Start with inventory and preview. Do not clone, install, download, spend, or execute long/GPU work without approval of the exact plan and budget.
+3. Keep the source unchanged; run in `copy`, `git_worktree`, or digest-pinned `container` mode and write evidence outside the source.
+4. Accept observations only from run-bound logs/files and declared machine extractors. Manual tables/images remain `MANUAL_REVIEW_REQUIRED`.
+5. Use `secret_bindings`; argv secrets are rejected by default. Never place credentials in plans.
+6. Treat missing code, data, weights, seeds, licenses, hardware, or access as evidence; never guess.
+7. Never interpret metric agreement as proof of causality, scientific truth, or generalization.
 
-Read [evidence-policy.md](references/evidence-policy.md) before assigning status. Read [failure-taxonomy.md](references/failure-taxonomy.md) when a run is blocked, fails, or diverges. Use [report-schema.md](references/report-schema.md) when authoring a plan or inspecting a bundle.
+## Six-step workflow
 
-## Codex planning boundary
+### 1. Scope
 
-Codex performs semantic work: whole-paper reading, claim and paper-location selection, official code/data mapping, preview-only plan drafting, and diagnosis. Deterministic scripts perform execution, extraction, provenance verification, comparison recomputation, and report rendering. Never let model-authored prose or a model-authored metric become evidence.
+Identify official paper/code/data, exact claim locations, licenses, target depth, and CPU/memory/disk/GPU/network/time/API budget.
 
-When evaluating Codex planning, preserve the initial prompt, first draft, review feedback, revised/rejected plan, model/version metadata when exposed, token/cost telemetry when exposed, and human edits. Record unavailable telemetry as unavailable, never as zero. Label self-review separately from independent human review.
+Read [evidence-policy.md](references/evidence-policy.md) before assigning any status.
 
-## Workflow
-
-### 1. Establish scope and authority
-
-Identify:
-
-- official paper and code URLs;
-- exact target claim locations, such as a table cell, ablation row, statistic, or curve;
-- public/private data, weights, and licenses;
-- expected CPU, memory, disk, GPU, wall time, network, and monetary/API budget;
-- whether the user authorizes a smoke reproduction, full experiment, or both.
-
-If the paper or repository is not supplied, locate official sources. Prefer the publisher/venue page, author/project repository, and official data host. Keep preprints and third-party implementations labeled.
-
-### 2. Inventory without executing
+### 2. Inventory
 
 ```powershell
 python <SKILL_ROOT>/scripts/inventory_artifacts.py `
@@ -51,93 +37,47 @@ python <SKILL_ROOT>/scripts/inventory_artifacts.py `
   --output <output-dir>/inventory.json
 ```
 
-The inventory hashes every included file, not just README and dependency files. It records the Git commit, dirty diff, submodules, full tree, explicit exclusions and reasons, and separate code/data/weights/config/environment categories.
+Do not exclude core code, preprocessing, evaluation, configuration, manifests, or locks.
 
-Do not exclude core model code, preprocessing, evaluation, configuration, data manifests, or environment locks. Exclude only restorable caches, version-control metadata, local environments, or artifacts whose omission has an explicit defensible reason.
+### 3. Plan
 
-### 3. Write a claim-scoped plan
+Start from [reproduction-plan.json](assets/examples/reproduction-plan.json). Author schema v2 with typed expected values, unit descriptors, machine observations, explicit comparisons, commands, isolation, and capabilities.
 
-Start from [reproduction-plan.json](assets/examples/reproduction-plan.json). Every claim must have:
+Read:
 
-- `paper_location`, `metric`, `expected`, `unit`, and `protocol`;
-- one or more required `command_ids`;
-- a machine-executable `observation`;
-- an explicit `comparison` policy.
-
-Supported observation sources:
-
-- `stdout` or `stderr` with `jsonpath` or `regex`;
-- `file` with `jsonpath`, `regex`, `csv`, `npy`, or `parquet`;
-- `manual`, which can only produce `MANUAL_REVIEW_REQUIRED`.
-
-The safe JSONPath subset supports `$`, dotted members, and numeric indexes, for example `$.evaluation.test_accuracy` or `$.runs[0].score`. CSV expressions support a column, equality filters, delimiter/encoding, and `values`, `first`, `mean`, `median`, `min`, `max`, or `sum` aggregation.
-
-Comparison methods include:
-
-- `numeric_tolerance`;
-- `equivalence_interval` with a V1 95% interval;
-- `non_inferiority`;
-- `spearman_correlation`;
-- `exact_order`.
-
-When multiple tolerances are supplied, set `combination` explicitly to `all` or `any`. Prefer `all` unless the paper's protocol justifies another rule. Set `minimum_runs` before execution. Record metric direction, aggregation, unit, and rounding allowance explicitly.
+- [plan-and-bundle-schema.md](references/plan-and-bundle-schema.md) when authoring or reviewing a plan/bundle;
+- [observations-and-comparisons.md](references/observations-and-comparisons.md) when choosing types, units, extractors, or statistics;
+- [security-and-execution.md](references/security-and-execution.md) before network, container, secret, or high-risk compatibility decisions.
 
 ### 4. Validate and preview
 
 ```powershell
-python <SKILL_ROOT>/scripts/validate_reproduction_plan.py `
-  --plan <reproduction-plan.json>
-
-python <SKILL_ROOT>/scripts/run_reproduction.py `
-  --plan <reproduction-plan.json> `
-  --output <new-evidence-bundle-directory>
+python <SKILL_ROOT>/scripts/validate_reproduction_plan.py --plan <plan.json>
+python <SKILL_ROOT>/scripts/run_reproduction.py --plan <plan.json> --output <new-bundle>
 ```
 
-Preview does not create the output directory. Review:
+Review masked argv, secret bindings, workspace mode, network, write paths, all resource limits, every claim/extractor, and cost. Preview creates no bundle.
 
-- exact masked argv arrays and relative working directories;
-- isolation mode;
-- network decision;
-- declared write paths;
-- time, memory, disk, file-count, file-size, and GPU limits;
-- all secret references;
-- every claim's source command and extractor.
-
-Network defaults to disabled. V1 refuses to claim network isolation for host `copy` or `git_worktree` execution. Use `container` mode with a digest-pinned image for enforced `--network none`, or explicitly declare `unrestricted` after user review.
-
-### 5. Execute only after authorization
+### 5. Execute
 
 ```powershell
 python <SKILL_ROOT>/scripts/run_reproduction.py `
-  --plan <reproduction-plan.json> `
-  --output <new-evidence-bundle-directory> `
-  --execute
+  --plan <plan.json> --output <new-bundle> --execute
 ```
 
-The runner:
+Preserve failures. For a blocked, failed, divergent, or invalidated run, read [failure-taxonomy.md](references/failure-taxonomy.md) and create a new plan rather than editing history.
 
-- captures source and workspace state before and after;
-- resolves secrets without recording their values;
-- uses a narrow child environment and no shell;
-- creates a process group and kills descendants on timeout;
-- applies POSIX resource limits where available and records weaker Windows host enforcement;
-- enforces Docker read-only source/network/memory/GPU controls in container mode;
-- detects undeclared filesystem changes and output-budget violations;
-- writes redacted logs;
-- extracts observations directly from the run;
-- computes comparison and report;
-- creates provenance over every bundle artifact.
-
-Do not suppress a failed or out-of-tolerance case. Preserve it and diagnose with a new plan or command ID.
-
-### 6. Verify the bundle
+### 6. Verify and report
 
 ```powershell
-python <SKILL_ROOT>/scripts/build_report.py `
-  --bundle <evidence-bundle-directory>
+python <SKILL_ROOT>/scripts/build_report.py --bundle <new-bundle>
 ```
 
-Verification must pass before delivery. It re-hashes every provenance entry, rejects missing or untracked artifacts, validates the observation's run-record and source hashes, recomputes all comparisons from plan + run + observations, and re-renders the report. It does not trust a stored verdict.
+Verification must re-hash provenance, validate source/run/plan bindings, recompute comparisons, and re-render the report. Include:
+
+> This result verifies only the declared computational claim under the recorded environment and protocol.
+
+## Statuses
 
 Use only:
 
@@ -149,46 +89,13 @@ Use only:
 - `NOT_ATTEMPTED`
 - `MANUAL_REVIEW_REQUIRED`
 
-Put this sentence near the report status:
+## Script entry points
 
-> This result verifies only the declared computational claim under the recorded environment and protocol.
+- `inventory_artifacts.py`: repository/Git inventory
+- `validate_reproduction_plan.py`: schema and policy gate
+- `run_reproduction.py`: preview and isolated execution
+- `extract_observations.py`: run-bound extraction
+- `compare_metrics.py`: typed comparison
+- `build_report.py`: bundle verification and fresh report
 
-## Secret handling
-
-Use an argv secret reference:
-
-```json
-["python", "download.py", "--api-key", {"secret_ref": "PAPER_DATA_API_KEY"}]
-```
-
-Or bind a secret environment variable:
-
-```json
-"secret_bindings": [
-  {"name": "API_KEY", "secret_ref": "PAPER_DATA_API_KEY"}
-]
-```
-
-Literal API keys, bearer headers, credentialed URLs, token query parameters, and secret-shaped plan keys or values are rejected. The run record stores `[SECRET_REF:PAPER_DATA_API_KEY]`. Treat process-list exposure of argv secrets as a reason to prefer `secret_bindings`.
-
-## Interpretation
-
-- An `EXTRACTED` observation is not yet a reproduced claim.
-- A successful exit is not evidence that the right metric was computed.
-- A SHA-256 match proves byte identity, not who produced the file.
-- An unsigned provenance manifest cannot resist an attacker who can rewrite both evidence and provenance.
-- Repository mutation, an unbound observation, an extractor failure, or a policy violation prevents a reproduced status.
-- Report any version or protocol deviation even if the final number matches.
-
-## Bundled resources
-
-- `scripts/inventory_artifacts.py`: complete repository/Git inventory.
-- `scripts/validate_reproduction_plan.py`: schema, path, capability, observation, comparison, and secret validation.
-- `scripts/run_reproduction.py`: preview and isolated evidence-bundle execution.
-- `scripts/extract_observations.py`: run-bound log/file extraction.
-- `scripts/compare_metrics.py`: fresh statistical comparison from traceable observations.
-- `scripts/build_report.py`: evidence-bundle verification and report recomputation.
-- `assets/examples/`: offline end-to-end fixture.
-- `references/`: evidence, schema, and failure contracts.
-
-Professional peer review, plagiarism/academic-integrity checks, and deeper dataset-quality audits are future modules. Do not claim they are implemented.
+Professional peer review, academic-integrity screening, and dataset-quality auditing are separate future modules.

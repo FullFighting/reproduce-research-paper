@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from evidence_common import object_sha256, read_json, sha256_file, write_json
+from value_contract import expected_spec
 
 
 REPRODUCED = "CLAIM_REPRODUCED_WITHIN_TOLERANCE"
@@ -85,6 +86,52 @@ def _combine(checks: list[bool], policy: str) -> bool:
     return all(checks) if policy == "all" else any(checks)
 
 
+def _canonical(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def _set_matches(expected: list[Any], observed: list[Any]) -> bool:
+    return {_canonical(item) for item in expected} == {_canonical(item) for item in observed}
+
+
+def _table_values(value: Any) -> tuple[list[str], list[str] | None, list[list[Any]]]:
+    if not isinstance(value, dict):
+        raise ValueError("table observation must be an object")
+    columns, rows = value.get("columns"), value.get("rows")
+    row_labels = value.get("row_labels")
+    if not isinstance(columns, list) or not isinstance(rows, list):
+        raise ValueError("table observation must contain columns and rows")
+    if not all(isinstance(row, list) and len(row) == len(columns) for row in rows):
+        raise ValueError("table observation rows are not rectangular")
+    if row_labels is not None and (
+        not isinstance(row_labels, list) or len(row_labels) != len(rows)
+    ):
+        raise ValueError("table row_labels do not match rows")
+    return columns, row_labels, rows
+
+
+def _distribution_distance(expected: list[float], observed: list[float]) -> float:
+    if len(expected) < 2 or len(observed) < 2:
+        raise ValueError("distribution_distance needs at least two samples per distribution")
+    points = sorted(set(expected + observed))
+    return max(
+        abs(
+            sum(item <= point for item in expected) / len(expected)
+            - sum(item <= point for item in observed) / len(observed)
+        )
+        for point in points
+    )
+
+
+def _ranking_correlation(expected: list[Any], observed: list[Any]) -> float:
+    if not _set_matches(expected, observed) or len(expected) < 2:
+        raise ValueError("ranking correlation needs the same unique items in both rankings")
+    observed_positions = {_canonical(item): index for index, item in enumerate(observed)}
+    left = [float(index) for index in range(len(expected))]
+    right = [float(observed_positions[_canonical(item)]) for item in expected]
+    return _pearson(left, right)
+
+
 def _tolerance_checks(
     observed: float,
     expected: float,
@@ -118,6 +165,9 @@ def _tolerance_checks(
 
 
 def compare_claim(claim: dict, observation: dict, invalidation_reasons: list[str]) -> dict:
+    typed_expected = expected_spec(claim["expected"])
+    expected_type = typed_expected["type"]
+    expected_value = typed_expected["value"]
     base = {
         "claim_id": claim["id"],
         "metric": claim["metric"],
@@ -128,6 +178,8 @@ def compare_claim(claim: dict, observation: dict, invalidation_reasons: list[str
         "extractor": observation.get("extractor"),
         "extractor_version": observation.get("extractor_version"),
     }
+    if not typed_expected.get("legacy"):
+        base["expected_type"] = expected_type
     if invalidation_reasons:
         return {
             **base,
@@ -145,26 +197,50 @@ def compare_claim(claim: dict, observation: dict, invalidation_reasons: list[str
         }
     try:
         observed_value = observation["normalized_value"]
-        expected_value = claim["expected"]
-        observed_flat = _flatten(observed_value)
-        expected_flat = _flatten(expected_value)
         policy = claim["comparison"]
         method = policy["method"]
         aggregate = policy.get("aggregate", "mean")
         minimum_runs = int(policy.get("minimum_runs", 1))
         details: dict[str, Any] = {"method": method, "combination": policy["combination"]}
-        if aggregate == "none" or len(expected_flat) > 1:
-            if _shape(observed_value) != _shape(expected_value):
-                raise ValueError(
-                    f"shape mismatch: expected {_shape(expected_value)}, observed {_shape(observed_value)}"
-                )
+
+        if method == "exact_match":
+            passed = observed_value == expected_value
+            details["exact_match"] = passed
+        elif method == "artifact_hash":
+            if not isinstance(observed_value, str):
+                raise ValueError("artifact_hash observation must be a string")
+            passed = observed_value.lower() == str(expected_value).lower()
+            details["sha256_matches"] = passed
+        elif method == "set_equality":
+            if not isinstance(expected_value, list) or not isinstance(observed_value, list):
+                raise ValueError("set_equality requires array observations")
+            passed = _set_matches(expected_value, observed_value)
+            details["set_matches"] = passed
+        elif method == "distribution_distance":
+            expected_flat = _flatten(expected_value)
+            observed_flat = _flatten(observed_value)
+            distance = _distribution_distance(expected_flat, observed_flat)
+            maximum = float(policy["maximum_distance"])
+            passed = distance <= maximum
+            details.update(
+                {
+                    "kolmogorov_smirnov_distance": distance,
+                    "maximum_distance": maximum,
+                    "expected_sample_count": len(expected_flat),
+                    "observed_sample_count": len(observed_flat),
+                }
+            )
+        elif expected_type == "ranking" and method in {
+            "exact_order",
+            "spearman_correlation",
+        }:
+            if not isinstance(expected_value, list) or not isinstance(observed_value, list):
+                raise ValueError("ranking observation must be an array")
             if method == "exact_order":
-                passed = sorted(range(len(expected_flat)), key=expected_flat.__getitem__) == sorted(
-                    range(len(observed_flat)), key=observed_flat.__getitem__
-                )
+                passed = observed_value == expected_value
                 details["order_matches"] = passed
-            elif method == "spearman_correlation":
-                correlation = _pearson(_rank(expected_flat), _rank(observed_flat))
+            else:
+                correlation = _ranking_correlation(expected_value, observed_value)
                 passed = correlation >= float(policy["minimum_correlation"])
                 details.update(
                     {
@@ -172,84 +248,139 @@ def compare_claim(claim: dict, observation: dict, invalidation_reasons: list[str
                         "minimum_correlation": float(policy["minimum_correlation"]),
                     }
                 )
-            else:
-                cell_results = []
-                for expected, observed in zip(expected_flat, observed_flat):
-                    checks, cell_passed = _tolerance_checks(observed, expected, policy)
-                    cell_results.append(
+        else:
+            numeric_expected = expected_value
+            numeric_observed = observed_value
+            if expected_type == "table":
+                expected_columns, expected_labels, numeric_expected = _table_values(expected_value)
+                observed_columns, observed_labels, numeric_observed = _table_values(observed_value)
+                if expected_columns != observed_columns:
+                    raise ValueError("table column labels do not match")
+                if expected_labels != observed_labels:
+                    raise ValueError("table row labels do not match")
+                details.update(
+                    {"columns": expected_columns, "row_labels": expected_labels}
+                )
+            observed_flat = _flatten(numeric_observed)
+            expected_flat = _flatten(numeric_expected)
+            if aggregate == "none" or len(expected_flat) > 1:
+                if _shape(numeric_observed) != _shape(numeric_expected):
+                    raise ValueError(
+                        f"shape mismatch: expected {_shape(numeric_expected)}, "
+                        f"observed {_shape(numeric_observed)}"
+                    )
+                if method == "exact_order":
+                    passed = sorted(
+                        range(len(expected_flat)), key=expected_flat.__getitem__
+                    ) == sorted(range(len(observed_flat)), key=observed_flat.__getitem__)
+                    details["order_matches"] = passed
+                elif method == "spearman_correlation":
+                    correlation = _pearson(_rank(expected_flat), _rank(observed_flat))
+                    passed = correlation >= float(policy["minimum_correlation"])
+                    details.update(
                         {
-                            "expected": expected,
-                            "observed": observed,
-                            "absolute_error": abs(observed - expected),
-                            "relative_error": abs(observed - expected) / max(abs(expected), 1e-12),
-                            "checks": checks,
-                            "passed": cell_passed,
+                            "spearman_correlation": correlation,
+                            "minimum_correlation": float(policy["minimum_correlation"]),
                         }
                     )
-                passed = all(item["passed"] for item in cell_results)
-                details["cells"] = cell_results
-        else:
-            if len(observed_flat) < minimum_runs:
-                return {
-                    **base,
-                    "observed": observed_value,
-                    "status": INCONCLUSIVE,
-                    "reason": f"minimum_runs={minimum_runs}, but only {len(observed_flat)} value(s) were observed",
-                }
-            observed = (
-                statistics.fmean(observed_flat)
-                if aggregate == "mean"
-                else statistics.median(observed_flat)
-                if aggregate == "median"
-                else observed_flat[0]
-            )
-            expected = expected_flat[0]
-            details.update(
-                {
-                    "aggregate": aggregate,
-                    "run_count": len(observed_flat),
-                    "mean": statistics.fmean(observed_flat),
-                    "standard_deviation": statistics.stdev(observed_flat) if len(observed_flat) > 1 else 0.0,
-                }
-            )
-            if method == "equivalence_interval":
-                if len(observed_flat) < 2:
+                else:
+                    cell_results = []
+                    for expected, observed in zip(expected_flat, observed_flat):
+                        checks, cell_passed = _tolerance_checks(observed, expected, policy)
+                        cell_results.append(
+                            {
+                                "expected": expected,
+                                "observed": observed,
+                                "absolute_error": abs(observed - expected),
+                                "relative_error": abs(observed - expected)
+                                / max(abs(expected), 1e-12),
+                                "checks": checks,
+                                "passed": cell_passed,
+                            }
+                        )
+                    passed = all(item["passed"] for item in cell_results)
+                    details["cells"] = cell_results
+            else:
+                if len(observed_flat) < minimum_runs:
                     return {
                         **base,
                         "observed": observed_value,
                         "status": INCONCLUSIVE,
-                        "reason": "equivalence_interval requires at least two observations",
+                        "reason": f"minimum_runs={minimum_runs}, but only "
+                        f"{len(observed_flat)} value(s) were observed",
                     }
-                standard_error = statistics.stdev(observed_flat) / math.sqrt(len(observed_flat))
-                confidence = float(policy.get("confidence", 0.95))
-                if confidence != 0.95:
-                    raise ValueError("V1 supports confidence=0.95 only")
-                interval = (observed - 1.96 * standard_error, observed + 1.96 * standard_error)
-                checks, passed = _tolerance_checks(observed, expected, policy, interval=interval)
-                details.update({"confidence": confidence, "interval": list(interval), "checks": checks})
-            elif method == "non_inferiority":
-                direction = policy.get("direction", "higher_is_better")
-                margins = []
-                if "absolute" in policy:
-                    margins.append(float(policy["absolute"]))
-                if "relative" in policy:
-                    margins.append(abs(expected) * float(policy["relative"]))
-                if "rounding_absolute" in policy:
-                    margins.append(float(policy["rounding_absolute"]))
-                margin = min(margins) if policy["combination"] == "all" else max(margins)
-                passed = observed >= expected - margin if direction == "higher_is_better" else observed <= expected + margin
-                details.update({"direction": direction, "margin": margin, "passed": passed})
-            elif method == "numeric_tolerance":
-                checks, passed = _tolerance_checks(observed, expected, policy)
+                observed = (
+                    statistics.fmean(observed_flat)
+                    if aggregate == "mean"
+                    else statistics.median(observed_flat)
+                    if aggregate == "median"
+                    else observed_flat[0]
+                )
+                expected = expected_flat[0]
                 details.update(
                     {
-                        "absolute_error": abs(observed - expected),
-                        "relative_error": abs(observed - expected) / max(abs(expected), 1e-12),
-                        "checks": checks,
+                        "aggregate": aggregate,
+                        "run_count": len(observed_flat),
+                        "mean": statistics.fmean(observed_flat),
+                        "standard_deviation": statistics.stdev(observed_flat)
+                        if len(observed_flat) > 1
+                        else 0.0,
                     }
                 )
-            else:
-                raise ValueError(f"{method} requires aggregate=none and array values")
+                if method == "equivalence_interval":
+                    if len(observed_flat) < 2:
+                        return {
+                            **base,
+                            "observed": observed_value,
+                            "status": INCONCLUSIVE,
+                            "reason": "equivalence_interval requires at least two observations",
+                        }
+                    standard_error = statistics.stdev(observed_flat) / math.sqrt(
+                        len(observed_flat)
+                    )
+                    confidence = float(policy.get("confidence", 0.95))
+                    if confidence != 0.95:
+                        raise ValueError("V1.2 supports confidence=0.95 only")
+                    interval = (
+                        observed - 1.96 * standard_error,
+                        observed + 1.96 * standard_error,
+                    )
+                    checks, passed = _tolerance_checks(
+                        observed, expected, policy, interval=interval
+                    )
+                    details.update(
+                        {"confidence": confidence, "interval": list(interval), "checks": checks}
+                    )
+                elif method == "non_inferiority":
+                    direction = policy.get("direction", "higher_is_better")
+                    margins = []
+                    if "absolute" in policy:
+                        margins.append(float(policy["absolute"]))
+                    if "relative" in policy:
+                        margins.append(abs(expected) * float(policy["relative"]))
+                    if "rounding_absolute" in policy:
+                        margins.append(float(policy["rounding_absolute"]))
+                    margin = (
+                        min(margins) if policy["combination"] == "all" else max(margins)
+                    )
+                    passed = (
+                        observed >= expected - margin
+                        if direction == "higher_is_better"
+                        else observed <= expected + margin
+                    )
+                    details.update({"direction": direction, "margin": margin, "passed": passed})
+                elif method == "numeric_tolerance":
+                    checks, passed = _tolerance_checks(observed, expected, policy)
+                    details.update(
+                        {
+                            "absolute_error": abs(observed - expected),
+                            "relative_error": abs(observed - expected)
+                            / max(abs(expected), 1e-12),
+                            "checks": checks,
+                        }
+                    )
+                else:
+                    raise ValueError(f"{method} requires aggregate=none and array values")
         return {
             **base,
             "observed": observed_value,
