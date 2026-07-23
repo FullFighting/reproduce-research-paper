@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "case_id": "numpy-broadcasting",
+  "planning_surface": "Codex desktop",
+  "execution_authorized": false,
+  "paper_scope_read": "whole paper plus official repository context",
+  "draft_claim": "Demonstrate NumPy's array-programming model through deterministic broadcasting.",
+  "draft_command_mapping": "Run a small Python adapter using the released NumPy package.",
+  "draft_observation": "Extract a JSON checksum from stdout.",
+  "draft_comparison": "Require exact equality with a precomputed checksum.",
+  "open_questions": [
+    "The draft must state that it does not reproduce ecosystem adoption or performance claims.",
+    "The exact array fixture and package lock must be fixed before execution."
+  ]
+}

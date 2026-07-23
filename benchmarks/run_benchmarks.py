@@ -198,12 +198,12 @@ def render_report(summary: dict) -> str:
         )
     return "\n".join(
         [
-            "# V1 public paper-reproduction benchmark",
+            "# Public paper-linked claim-level benchmark",
             "",
             f"Generated: {summary['generated_at']}",
             "",
-            "This benchmark contains 15 real-paper, public, low-cost claim-level reproductions. "
-            "It does not claim that all findings in all 15 papers were independently replicated. "
+            "This benchmark contains 15 public, paper-linked, low-cost, claim-level executable cases. "
+            "It does not claim that the papers themselves were independently replicated. "
             "Each linked evidence bundle contains its plan, repository/environment inventory, raw logs, "
             "machine-extracted observation, recomputed comparison, report, and provenance manifest.",
             "",

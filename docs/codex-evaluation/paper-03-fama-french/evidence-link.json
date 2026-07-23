@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "case_id": "fama-french-factors",
+  "bundle_path": "../../../benchmarks/results/fama-french-factors",
+  "plan_sha256": "cb79e2e35f5cfc156f774fc4fe1520ff6d0f35b29b7ec79c1a8b191e669fdf29",
+  "provenance_sha256": "a891bd331313fc9bf6acaf43a2781f87124ef680e2f6ec7a07e2b52ce5e3c151",
+  "report_sha256": "278bc6044b42c3e6ba8316a6a60f6943470e98100d8467dc5c1a4e81eefb1e59",
+  "claim_status": "CLAIM_REPRODUCED_WITHIN_TOLERANCE"
+}

@@ -1,0 +1,49 @@
+name: Failed reproduction
+description: Report a failed, divergent, blocked, or invalidated claim-level run.
+title: "[Failed reproduction] "
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Release or commit
+      description: Immutable tag or commit SHA.
+    validations:
+      required: true
+  - type: input
+    id: paper
+    attributes:
+      label: Paper and claim ID
+    validations:
+      required: true
+  - type: dropdown
+    id: status
+    attributes:
+      label: Result status
+      options:
+        - CLAIM_NOT_REPRODUCED
+        - PARTIALLY_REPRODUCED
+        - INCONCLUSIVE
+        - BLOCKED
+        - INVALIDATED
+        - Runtime failure before comparison
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Redacted command and error
+      description: Remove tokens, credentials, private paths, and sensitive data.
+    validations:
+      required: true
+  - type: textarea
+    id: bundle
+    attributes:
+      label: Evidence bundle or artifact hashes
+      description: Link a public bundle or list non-sensitive SHA-256 values.
+  - type: checkboxes
+    id: secrets
+    attributes:
+      label: Privacy check
+      options:
+        - label: I checked that this report contains no secrets or private data.
+          required: true

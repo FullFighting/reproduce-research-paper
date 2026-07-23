@@ -1,0 +1,28 @@
+name: Security boundary question
+description: Ask about isolation, network, credentials, provenance, or privacy without disclosing a vulnerability.
+title: "[Security boundary] "
+body:
+  - type: dropdown
+    id: boundary
+    attributes:
+      label: Boundary
+      options:
+        - Workspace isolation
+        - Network policy
+        - Secret handling
+        - Resource budget
+        - Provenance and signatures
+        - Data privacy
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Public scenario
+      description: Describe the behavior and desired invariant without including secrets or exploit details.
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: For a vulnerability or secret exposure, follow SECURITY.md instead of filing a public issue.

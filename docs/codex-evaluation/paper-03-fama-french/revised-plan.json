@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "case_id": "fama-french-factors",
+  "status": "ACCEPTED_FOR_DETERMINISTIC_EXECUTION",
+  "accepted_plan_sha256": "cb79e2e35f5cfc156f774fc4fe1520ff6d0f35b29b7ec79c1a8b191e669fdf29",
+  "revisions": [
+    "Narrowed the claim to January 2020 SMB/HML arithmetic reconstruction.",
+    "Declared official live sources, no raw redistribution, response hashing, network use, and zero external API cost.",
+    "Fixed the percentage-point unit, one-basis-point tolerance, and explicit exclusion of causal claims."
+  ],
+  "execution_boundary": "Codex proposes and revises; the deterministic runtime executes and verifies."
+}

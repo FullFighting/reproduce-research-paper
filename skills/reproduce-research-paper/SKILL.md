@@ -23,6 +23,12 @@ Resolve `SKILL_ROOT` as this file's directory. Invoke bundled scripts by absolut
 
 Read [evidence-policy.md](references/evidence-policy.md) before assigning status. Read [failure-taxonomy.md](references/failure-taxonomy.md) when a run is blocked, fails, or diverges. Use [report-schema.md](references/report-schema.md) when authoring a plan or inspecting a bundle.
 
+## Codex planning boundary
+
+Codex performs semantic work: whole-paper reading, claim and paper-location selection, official code/data mapping, preview-only plan drafting, and diagnosis. Deterministic scripts perform execution, extraction, provenance verification, comparison recomputation, and report rendering. Never let model-authored prose or a model-authored metric become evidence.
+
+When evaluating Codex planning, preserve the initial prompt, first draft, review feedback, revised/rejected plan, model/version metadata when exposed, token/cost telemetry when exposed, and human edits. Record unavailable telemetry as unavailable, never as zero. Label self-review separately from independent human review.
+
 ## Workflow
 
 ### 1. Establish scope and authority
@@ -49,7 +55,7 @@ The inventory hashes every included file, not just README and dependency files. 
 
 Do not exclude core model code, preprocessing, evaluation, configuration, data manifests, or environment locks. Exclude only restorable caches, version-control metadata, local environments, or artifacts whose omission has an explicit defensible reason.
 
-### 3. Write a V1 plan
+### 3. Write a claim-scoped plan
 
 Start from [reproduction-plan.json](assets/examples/reproduction-plan.json). Every claim must have:
 
@@ -185,4 +191,4 @@ Literal API keys, bearer headers, credentialed URLs, token query parameters, and
 - `assets/examples/`: offline end-to-end fixture.
 - `references/`: evidence, schema, and failure contracts.
 
-Professional peer review, plagiarism/academic-integrity checks, and deeper dataset-quality audits are future modules. Do not claim they are implemented in V1.
+Professional peer review, plagiarism/academic-integrity checks, and deeper dataset-quality audits are future modules. Do not claim they are implemented.

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "case_id": "sklearn-iris-svm",
+  "status": "ACCEPTED_FOR_DETERMINISTIC_EXECUTION",
+  "accepted_plan_sha256": "efc4f3ff3ed9220835811da133c7e6acbc2cd5c411e7d8f8fa2d98491d964dec",
+  "revisions": [
+    "Fixed the public dataset, 70/30 stratified split, seed, preprocessing, and no-tuning policy.",
+    "Changed the comparison to higher-is-better non-inferiority at 0.90.",
+    "Bound the stdout JSONPath observation, package lock, CPU budget, and scope limitation."
+  ],
+  "execution_boundary": "Codex proposes and revises; the deterministic runtime executes and verifies."
+}

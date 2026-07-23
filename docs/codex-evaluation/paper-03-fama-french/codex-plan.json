@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "case_id": "fama-french-factors",
+  "planning_surface": "Codex desktop",
+  "execution_authorized": false,
+  "paper_scope_read": "whole paper plus official data-library context",
+  "draft_claim": "Reconstruct published SMB and HML factors from official six-portfolio returns.",
+  "draft_command_mapping": "Download the official archives and run a small arithmetic adapter.",
+  "draft_observation": "Extract maximum reconstruction error from JSON stdout.",
+  "draft_comparison": "Allow a small absolute tolerance for source rounding.",
+  "open_questions": [
+    "Fix the evaluated month and define the exact factor equations and unit.",
+    "Document that live archives are unsigned and lack an explicit redistribution license.",
+    "Exclude causal asset-pricing and out-of-sample validity claims."
+  ]
+}
