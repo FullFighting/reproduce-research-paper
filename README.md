@@ -243,6 +243,10 @@ Positive and negative statuses are claim-scoped:
 
 None means “the paper is true.” They describe only the declared computational claim under the recorded protocol.
 
+## Related projects
+
+[docs/related-projects.md](docs/related-projects.md) positions this project against PaperBench, CORE-Bench, SUPER, Paper2Code, the ML Code Completeness Checklist, showyourwork, ReScience C, and general evaluation harnesses. It records the practices adopted here with attribution — per-case versioning, registry tooling, composition rollups, and the advisory repository-readiness scan — and explains the practices deliberately not adopted, such as LLM-judge verdicts as positive evidence or a leaderboard without measured runs.
+
 ## Development
 
 ```powershell
@@ -262,6 +266,8 @@ The 15-case benchmark is intentionally separate from CI because it downloads opt
 python -m pip install -r benchmarks/harness/requirements.lock.txt
 python benchmarks/run_benchmarks.py --clean
 ```
+
+See [benchmarks/README.md](benchmarks/README.md) for the case registry schema, the case version policy, and the development helpers (`--list-cases`, `--only <case-id>`) that never rewrite the published summary or report.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [SECURITY.md](SECURITY.md), and the [V1.3 changelog](CHANGELOG.md).
 

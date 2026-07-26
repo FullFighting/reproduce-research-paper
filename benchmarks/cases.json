@@ -1,6 +1,7 @@
 [
   {
     "id": "numpy-broadcasting",
+    "version": 1,
     "category": "deterministic_scientific_computing",
     "venue_tier": "top multidisciplinary journal",
     "title": "Array programming with NumPy",
@@ -25,6 +26,7 @@
   },
   {
     "id": "scipy-optimization",
+    "version": 1,
     "category": "deterministic_scientific_computing",
     "venue_tier": "top methods journal",
     "title": "SciPy 1.0: fundamental algorithms for scientific computing in Python",
@@ -49,6 +51,7 @@
   },
   {
     "id": "statsmodels-longley",
+    "version": 1,
     "category": "econometrics",
     "venue_tier": "peer-reviewed scientific computing proceedings",
     "title": "Statsmodels: Econometric and Statistical Modeling with Python",
@@ -73,6 +76,7 @@
   },
   {
     "id": "scikit-image-ssim",
+    "version": 1,
     "category": "deterministic_scientific_computing",
     "venue_tier": "peer-reviewed general science journal",
     "title": "scikit-image: image processing in Python",
@@ -97,6 +101,7 @@
   },
   {
     "id": "sklearn-iris-svm",
+    "version": 1,
     "category": "small_machine_learning",
     "venue_tier": "top machine-learning journal",
     "title": "Scikit-learn: Machine Learning in Python",
@@ -121,6 +126,7 @@
   },
   {
     "id": "xgboost-breast-cancer",
+    "version": 1,
     "category": "small_machine_learning",
     "venue_tier": "top data-mining conference",
     "title": "XGBoost: A Scalable Tree Boosting System",
@@ -145,6 +151,7 @@
   },
   {
     "id": "lightgbm-breast-cancer",
+    "version": 1,
     "category": "small_machine_learning",
     "venue_tier": "top machine-learning conference",
     "title": "LightGBM: A Highly Efficient Gradient Boosting Decision Tree",
@@ -169,6 +176,7 @@
   },
   {
     "id": "shap-additivity",
+    "version": 1,
     "category": "small_machine_learning",
     "venue_tier": "top machine-learning conference",
     "title": "A Unified Approach to Interpreting Model Predictions",
@@ -193,6 +201,7 @@
   },
   {
     "id": "umap-digits",
+    "version": 1,
     "category": "small_machine_learning",
     "venue_tier": "peer-reviewed research-software journal",
     "title": "UMAP: Uniform Manifold Approximation and Projection",
@@ -217,6 +226,7 @@
   },
   {
     "id": "adam-quadratic",
+    "version": 1,
     "category": "small_machine_learning",
     "venue_tier": "top machine-learning conference",
     "title": "Adam: A Method for Stochastic Optimization",
@@ -241,6 +251,7 @@
   },
   {
     "id": "batch-normalization",
+    "version": 1,
     "category": "small_machine_learning",
     "venue_tier": "top machine-learning conference",
     "title": "Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift",
@@ -265,6 +276,7 @@
   },
   {
     "id": "scaled-dot-product-attention",
+    "version": 1,
     "category": "small_machine_learning",
     "venue_tier": "top machine-learning conference",
     "title": "Attention Is All You Need",
@@ -289,6 +301,7 @@
   },
   {
     "id": "cvxpy-markowitz",
+    "version": 1,
     "category": "operations_research_and_finance",
     "venue_tier": "top machine-learning software journal",
     "title": "CVXPY: A Python-Embedded Modeling Language for Convex Optimization",
@@ -313,6 +326,7 @@
   },
   {
     "id": "highs-linear-program",
+    "version": 1,
     "category": "operations_research_and_finance",
     "venue_tier": "top optimization-computing journal",
     "title": "Parallelizing the Dual Revised Simplex Method",
@@ -337,6 +351,7 @@
   },
   {
     "id": "fama-french-factors",
+    "version": 1,
     "category": "finance_and_econometrics",
     "venue_tier": "top finance journal",
     "title": "Common Risk Factors in the Returns on Stocks and Bonds",

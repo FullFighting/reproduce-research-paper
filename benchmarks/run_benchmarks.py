@@ -161,6 +161,7 @@ def run_case(case: dict, clean: bool) -> dict:
         run_record = json.loads((result / "run-record.json").read_text(encoding="utf-8"))
     return {
         "id": case["id"],
+        "case_version": case.get("version", 1),
         "title": case["title"],
         "category": case["category"],
         "venue_tier": case["venue_tier"],
@@ -181,6 +182,26 @@ def run_case(case: dict, clean: bool) -> dict:
     }
 
 
+def category_rollup(cases: list[dict]) -> list[dict]:
+    grouped: dict[str, dict] = {}
+    for item in cases:
+        entry = grouped.setdefault(
+            item["category"],
+            {
+                "category": item["category"],
+                "case_count": 0,
+                "reproduced_count": 0,
+                "verified_bundle_count": 0,
+                "total_duration_seconds": 0.0,
+            },
+        )
+        entry["case_count"] += 1
+        entry["reproduced_count"] += item["status"] == "CLAIM_REPRODUCED_WITHIN_TOLERANCE"
+        entry["verified_bundle_count"] += bool(item["verified_bundle"])
+        entry["total_duration_seconds"] = round(entry["total_duration_seconds"] + item["duration_seconds"], 3)
+    return [grouped[key] for key in sorted(grouped)]
+
+
 def render_report(summary: dict) -> str:
     rows = []
     for item in summary["cases"]:
@@ -189,6 +210,11 @@ def render_report(summary: dict) -> str:
             f"{item['venue_tier']} | `{item['status']}` | {item['observed']} | "
             f"{item['duration_seconds']} | {'yes' if item['verified_bundle'] else 'no'} |"
         )
+    rollup_rows = [
+        f"| {entry['category']} | {entry['case_count']} | {entry['reproduced_count']} | "
+        f"{entry['verified_bundle_count']} | {entry['total_duration_seconds']} |"
+        for entry in category_rollup(summary["cases"])
+    ]
     details = []
     for item in summary["cases"]:
         details.extend(
@@ -229,6 +255,15 @@ def render_report(summary: dict) -> str:
             "|---|---|---|---|---:|---:|---|",
             *rows,
             "",
+            "## Coverage by category",
+            "",
+            "Counts below are aggregated from the per-case records above; they describe benchmark "
+            "composition, not a quality grade for any research field.",
+            "",
+            "| Category | Cases | Within tolerance | Verified bundles | Total seconds |",
+            "|---|---:|---:|---:|---:|",
+            *rollup_rows,
+            "",
             "## Interpretation",
             "",
             "These are deliberately bounded claim-level reproductions selected for public data, CPU execution, "
@@ -250,9 +285,42 @@ def render_report(summary: dict) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--clean", action="store_true", help="replace generated work and result directories")
+    parser.add_argument(
+        "--list-cases",
+        action="store_true",
+        help="print the case registry as JSON lines and exit without executing anything",
+    )
+    parser.add_argument(
+        "--only",
+        action="append",
+        default=[],
+        metavar="CASE_ID",
+        help="execute only the named case; repeatable; skips writing the published summary and report",
+    )
     args = parser.parse_args()
     cases = json.loads(CASES_PATH.read_text(encoding="utf-8"))
-    if len(cases) < 15:
+    if args.list_cases:
+        for case in cases:
+            print(
+                json.dumps(
+                    {
+                        "id": case["id"],
+                        "category": case["category"],
+                        "venue_tier": case["venue_tier"],
+                        "network": case["network"],
+                        "timeout_seconds": case["timeout_seconds"],
+                    },
+                    ensure_ascii=False,
+                )
+            )
+        return 0
+    if args.only:
+        known = {case["id"] for case in cases}
+        unknown = sorted(set(args.only) - known)
+        if unknown:
+            parser.error(f"unknown case id(s): {', '.join(unknown)}")
+        cases = [case for case in cases if case["id"] in set(args.only)]
+    elif len(cases) < 15:
         raise SystemExit("benchmark requires at least 15 cases")
     WORK_ROOT.mkdir(parents=True, exist_ok=True)
     RESULTS_ROOT.mkdir(parents=True, exist_ok=True)
@@ -273,15 +341,19 @@ def main() -> int:
         "total_estimated_cost_usd": sum(item["estimated_cost_usd"] for item in records),
         "cases": records,
     }
-    (BENCHMARK_ROOT / "benchmark-summary.json").write_text(
-        json.dumps(summary, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    (BENCHMARK_ROOT / "benchmark-report.md").write_text(
-        render_report(summary),
-        encoding="utf-8",
-    )
-    print(json.dumps({key: value for key, value in summary.items() if key != "cases"}, indent=2))
+    if args.only:
+        print(json.dumps(summary, ensure_ascii=False, indent=2))
+        print("subset run: published summary and report were not rewritten", file=sys.stderr)
+    else:
+        (BENCHMARK_ROOT / "benchmark-summary.json").write_text(
+            json.dumps(summary, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        (BENCHMARK_ROOT / "benchmark-report.md").write_text(
+            render_report(summary),
+            encoding="utf-8",
+        )
+        print(json.dumps({key: value for key, value in summary.items() if key != "cases"}, indent=2))
     return 0 if summary["reproduced_count"] == len(records) and summary["verified_bundle_count"] == len(records) else 1
 
 
