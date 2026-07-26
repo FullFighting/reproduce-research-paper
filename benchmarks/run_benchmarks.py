@@ -12,7 +12,6 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-
 BENCHMARK_ROOT = Path(__file__).resolve().parent
 REPOSITORY_ROOT = BENCHMARK_ROOT.parent
 CASES_PATH = BENCHMARK_ROOT / "cases.json"

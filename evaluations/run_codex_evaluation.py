@@ -17,7 +17,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parent
 API_ENDPOINT = "https://api.openai.com/v1/responses"
 OUTCOMES = [
@@ -630,7 +629,7 @@ def main() -> int:
                 )
         run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
         for case, request_body, destination in zip(
-            selected, requests, destinations
+            selected, requests, destinations, strict=True
         ):
             response, latency_ms = call_api(
                 request_body, api_key, args.timeout_seconds

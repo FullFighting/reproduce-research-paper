@@ -7,11 +7,15 @@ Before a pull request:
 ```powershell
 python -m compileall -q skills/reproduce-research-paper/scripts
 python -m compileall -q evaluations scripts
+ruff check .
 python -m unittest discover -s tests -v
 python scripts/sync_benchmark_facts.py --check
 python scripts/validate_codex_evaluation.py
 python evaluations/run_codex_evaluation.py --validate-cases
 ```
+
+Linting uses the `ruff` version pinned in `.github/workflows/validate.yml` with
+the rule set in `pyproject.toml`; install it with `python -m pip install ruff`.
 
 For schema, release, or execution-boundary changes, also generate a clean `git archive` and run `scripts/verify_release_archive.py`. Container changes must pass `scripts/run_container_e2e.py`.
 

@@ -14,7 +14,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 REPOSITORY = Path(__file__).resolve().parents[1]
 SOURCE = REPOSITORY / "skills" / "reproduce-research-paper"
 VERSION_FILE = REPOSITORY / "VERSION"

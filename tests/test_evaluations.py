@@ -12,7 +12,6 @@ import uuid
 from contextlib import contextmanager
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER_PATH = ROOT / "evaluations" / "run_codex_evaluation.py"
 SCORER = ROOT / "evaluations" / "score_plan.py"

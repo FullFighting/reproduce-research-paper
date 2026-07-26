@@ -26,7 +26,6 @@ from evidence_common import (  # noqa: E402
     GENERATOR_VERSION,
     base_child_environment,
     is_within,
-    object_sha256,
     redact_text,
     safe_relative_path,
     sha256_file,
@@ -40,7 +39,6 @@ from repository_state import (  # noqa: E402
     diff_states,
 )
 from validate_reproduction_plan import plan_fingerprint, validate  # noqa: E402
-
 
 DEFAULT_CONTAINER_USER = "65532:65532"
 
@@ -492,7 +490,8 @@ def execute(plan: dict, plan_path: Path, bundle: Path) -> tuple[dict, bool]:
             child_environment["REPRO_OUTPUT_DIR"] = str(outputs)
             if capabilities["network"] == "disabled" and plan["execution"]["workspace_mode"] != "container":
                 raise ValueError(
-                    "network=disabled requires container mode; host copy/worktree execution cannot prove network isolation"
+                    "network=disabled requires container mode; host copy/worktree "
+                    "execution cannot prove network isolation"
                 )
             if plan["execution"]["workspace_mode"] == "container":
                 exit_code, timed_out, stdout, stderr, enforcement = _container_argv(

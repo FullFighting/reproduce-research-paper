@@ -11,7 +11,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-
 REPOSITORY = Path(__file__).resolve().parents[1]
 DIMENSIONS = (
     "claim_identification",

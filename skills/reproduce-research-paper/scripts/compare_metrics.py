@@ -13,7 +13,6 @@ from typing import Any
 from evidence_common import object_sha256, read_json, sha256_file, write_json
 from value_contract import expected_spec
 
-
 REPRODUCED = "CLAIM_REPRODUCED_WITHIN_TOLERANCE"
 NOT_REPRODUCED = "CLAIM_NOT_REPRODUCED"
 PARTIAL = "PARTIALLY_REPRODUCED"
@@ -71,7 +70,7 @@ def _pearson(left: list[float], right: list[float]) -> float:
     if len(left) != len(right) or len(left) < 2:
         raise ValueError("correlation needs equally sized arrays with at least two values")
     left_mean, right_mean = statistics.fmean(left), statistics.fmean(right)
-    numerator = sum((a - left_mean) * (b - right_mean) for a, b in zip(left, right))
+    numerator = sum((a - left_mean) * (b - right_mean) for a, b in zip(left, right, strict=True))
     denominator = math.sqrt(
         sum((a - left_mean) ** 2 for a in left) * sum((b - right_mean) ** 2 for b in right)
     )
@@ -285,7 +284,7 @@ def compare_claim(claim: dict, observation: dict, invalidation_reasons: list[str
                     )
                 else:
                     cell_results = []
-                    for expected, observed in zip(expected_flat, observed_flat):
+                    for expected, observed in zip(expected_flat, observed_flat, strict=True):
                         checks, cell_passed = _tolerance_checks(observed, expected, policy)
                         cell_results.append(
                             {
