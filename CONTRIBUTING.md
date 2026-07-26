@@ -40,6 +40,13 @@ adjudication as separate records.
 Never commit credentials, private datasets, paywalled text, proprietary model
 weights, or third-party data without redistribution permission.
 
+## Development workflow
+
+Develop on short-lived topic branches and land them on `main` with squash
+merges. Squash commits are created and signed by GitHub, which keeps `main`'s
+history linear and its commits verified regardless of where the branch work
+was authored. Delete the topic branch after the merge.
+
 ## Releasing
 
 Bump `VERSION`, `CITATION.cff`, both README release badges, `GENERATOR_VERSION`
