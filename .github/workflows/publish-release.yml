@@ -39,24 +39,41 @@ jobs:
             echo "VERSION file ($repo_version) does not match input ($VERSION_INPUT)" >&2
             exit 1
           fi
+          if gh release view "v$VERSION_INPUT" >/dev/null 2>&1; then
+            echo "release v$VERSION_INPUT already exists; nothing to publish" >&2
+            exit 1
+          fi
+          release_sha="$GITHUB_SHA"
+          tag_exists=false
           if git rev-parse -q --verify "refs/tags/v$VERSION_INPUT" >/dev/null; then
-            echo "tag v$VERSION_INPUT already exists" >&2
+            tag_version="$(git show "v$VERSION_INPUT:VERSION" | tr -d '[:space:]')"
+            if [ "$tag_version" != "$VERSION_INPUT" ]; then
+              echo "existing tag v$VERSION_INPUT points at VERSION $tag_version; refusing to reuse it" >&2
+              exit 1
+            fi
+            release_sha="$(git rev-list -n 1 "v$VERSION_INPUT")"
+            tag_exists=true
+            echo "reusing existing tag v$VERSION_INPUT at $release_sha"
+          fi
+          if [ -z "$(gh run list --commit "$release_sha" --workflow validate.yml --status success --json databaseId --jq '.[0].databaseId // empty')" ]; then
+            echo "no successful Validate run for $release_sha; wait for CI before publishing" >&2
             exit 1
           fi
-          if [ -z "$(gh run list --commit "$GITHUB_SHA" --workflow validate.yml --status success --json databaseId --jq '.[0].databaseId // empty')" ]; then
-            echo "no successful Validate run for $GITHUB_SHA; wait for CI before publishing" >&2
-            exit 1
-          fi
+          {
+            echo "RELEASE_SHA=$release_sha"
+            echo "TAG_EXISTS=$tag_exists"
+          } >> "$GITHUB_ENV"
       - name: Extract release notes from CHANGELOG.md
         run: |
           python3 scripts/extract_changelog_notes.py \
             --version "$VERSION_INPUT" \
             --output "$RUNNER_TEMP/release-notes.md"
       - name: Create and push annotated tag
+        if: env.TAG_EXISTS == 'false'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "v$VERSION_INPUT" -m "Reproduce Research Paper V$VERSION_INPUT" "$GITHUB_SHA"
+          git tag -a "v$VERSION_INPUT" -m "Reproduce Research Paper V$VERSION_INPUT" "$RELEASE_SHA"
           git push origin "v$VERSION_INPUT"
       - name: Publish GitHub release
         run: |
