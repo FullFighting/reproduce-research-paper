@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Adds whole-paper coverage: a paper claims map (schema v1) records every experiment, reported value, figure, and conclusive statement with a verbatim `paper_quote`, `paper_values`, and an explicit disposition after reading the entire paper.
+- Adds `validate_paper_claims_map.py`, which rejects paper values missing from their quote, plan claims with no paper grounding, and numeric, string, categorical, table, or artifact-hash expected values that the paper does not state, so every reproduction target comes from the paper itself.
+- Adds `build_coverage_report.py`, which verifies every supplied evidence bundle end to end, resolves one status per mapped claim, derives conclusion statuses only from their supporting computational claims, and renders `coverage.json` plus a whole-paper `coverage-report.md` with explicit interpretation limits.
+- Documents the workflow in `references/whole-paper-coverage.md`, extends `SKILL.md` with the claims-map and coverage steps plus a paper-grounding rule, and ships a bundled example claims map for the toy fixture.
 - Adds a one-click `Publish release` workflow: after validating the requested version against `VERSION`, `CHANGELOG.md`, and a green Validate run, it creates or reuses the annotated tag, publishes the GitHub Release with notes extracted from the changelog, and dispatches the existing artifacts workflow (checksums, SPDX SBOM, provenance, build attestation).
 - Updates the benchmark harness lock to numpy 2.5.1 and sparsediffpy 0.6.1 (Dependabot); published evidence bundles keep their own recorded environments.
 

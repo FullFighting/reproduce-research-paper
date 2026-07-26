@@ -116,6 +116,24 @@ The repository includes [15 public, paper-linked, low-cost, claim-level executab
 
 These are bounded claim-level executable checks. They do not pretend to rerun every large-scale experiment or validate every scientific conclusion in the linked papers.
 
+## Whole-paper coverage
+
+Whole-paper reproduction is claim-complete, not claim-selective. After reading the entire paper, a **paper claims map** records every experiment, reported value, figure, and conclusive statement with a verbatim `paper_quote` and an explicit disposition (`reproduce`, `manual_review`, `not_reproducible`, or `not_attempted`).
+
+- `validate_paper_claims_map.py` enforces paper grounding: every reproduction target must be a value the paper actually states — quoted values must appear inside their quote, every plan claim must be mapped, and numeric expected values must match a quoted paper value (percent forms like `90%` also ground `0.9`).
+- Conclusive statements are never verified by prose agreement; a conclusion inherits its status from the computational claims listed in `supported_by`.
+- `build_coverage_report.py` verifies every evidence bundle end to end, resolves one status per mapped claim, and renders a whole-paper `coverage-report.md` with per-claim quotes, statuses, and bundle hashes.
+
+```bash
+python skills/reproduce-research-paper/scripts/validate_paper_claims_map.py \
+  --map paper-claims-map.json --plan plan.json
+
+python skills/reproduce-research-paper/scripts/build_coverage_report.py \
+  --map paper-claims-map.json --bundle evidence-bundle --output coverage
+```
+
+Coverage means every mapped claim received an explicit, honest status. It does not mean the paper's scientific conclusions are true, and a paper with visual-only or blocked claims can never exceed `PARTIALLY_REPRODUCED` — by design.
+
 ## Evidence runtime
 
 - **Typed claims:** scalar, array, labeled table, ranking, categorical, string, artifact hash, and distribution expected values with type-compatible comparisons.

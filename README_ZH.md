@@ -105,6 +105,24 @@ python scripts/install_skill.py --scope user
 
 这些是边界清楚的 claim-level 可执行检查，不会把低成本烟雾测试冒充为原论文全部大型实验的完整复现。
 
+## 整篇论文覆盖
+
+整篇复现的含义是"声明全覆盖"，而不是随意挑选。读完整篇论文后，先编写**论文声明地图（paper claims map）**：把论文中的每个实验、每个报告数值、每张图和每句结论性话语都登记为一条声明，附上论文原文引文（`paper_quote`）和明确的处置方式（`reproduce`、`manual_review`、`not_reproducible` 或 `not_attempted`）。
+
+- `validate_paper_claims_map.py` 强制"数据必须来自论文"：登记的数值必须逐字出现在引文中；每条复现计划声明都必须映射到论文声明；数值期望值必须与论文引用的数值吻合（`90%` 这样的百分数也能对应 `0.9`）。
+- 结论性话语从不靠文字相符来"验证"；结论的状态只能从 `supported_by` 中列出的支撑计算声明继承。
+- `build_coverage_report.py` 端到端校验每个 evidence bundle，为每条登记声明给出一个状态，并生成整篇覆盖报告 `coverage-report.md`，包含逐条引文、状态和 bundle 哈希。
+
+```bash
+python skills/reproduce-research-paper/scripts/validate_paper_claims_map.py \
+  --map paper-claims-map.json --plan plan.json
+
+python skills/reproduce-research-paper/scripts/build_coverage_report.py \
+  --map paper-claims-map.json --bundle evidence-bundle --output coverage
+```
+
+覆盖完整意味着每条登记声明都得到了明确、诚实的状态，不代表论文的科学结论为真；包含纯视觉或被阻塞声明的论文最高只能达到 `PARTIALLY_REPRODUCED`——这是设计使然。
+
 ## 主要安全边界
 
 - schema v2 支持 scalar、array、带标签 table、ranking、categorical、string、artifact hash 和 distribution；

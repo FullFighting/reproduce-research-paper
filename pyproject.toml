@@ -23,6 +23,7 @@ select = [
 
 [tool.ruff.lint.isort]
 known-first-party = [
+    "build_coverage_report",
     "build_report",
     "compare_metrics",
     "evidence_bundle",
@@ -30,6 +31,7 @@ known-first-party = [
     "extract_observations",
     "repository_state",
     "run_reproduction",
+    "validate_paper_claims_map",
     "validate_reproduction_plan",
     "value_contract",
 ]

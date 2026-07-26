@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "paper": {
+    "title": "Toy reproducibility example",
+    "reference": "Bundled V1 evidence-chain fixture"
+  },
+  "coverage": {
+    "read_completely": true,
+    "sections": [
+      "Abstract",
+      "Method",
+      "Experiments",
+      "Results",
+      "Limitations"
+    ],
+    "excluded_content": []
+  },
+  "claims": [
+    {
+      "id": "table-1-accuracy",
+      "claim_type": "quantitative",
+      "paper_location": "Table 1, test split",
+      "paper_quote": "The toy classifier reaches a test accuracy of 0.9 on the fixed synthetic split (Table 1).",
+      "paper_values": ["0.9"],
+      "disposition": "reproduce",
+      "plan_claim_ids": ["table-1-accuracy"]
+    },
+    {
+      "id": "conclusion-method-works",
+      "claim_type": "conclusion",
+      "paper_location": "Section 5, first paragraph",
+      "paper_quote": "We conclude that the declared method reproduces the reported test accuracy under the fixed protocol.",
+      "disposition": "reproduce",
+      "supported_by": ["table-1-accuracy"]
+    },
+    {
+      "id": "figure-1-training-curve",
+      "claim_type": "visual",
+      "paper_location": "Figure 1",
+      "paper_quote": "Figure 1 shows the training curve of the toy classifier.",
+      "disposition": "manual_review",
+      "reason": "Visual-only figure with no machine-readable artifact; requires human comparison."
+    }
+  ]
+}

@@ -885,6 +885,222 @@ class ReproduceResearchPaperTests(unittest.TestCase):
         categories = {item["path"]: item["category"] for item in right["files"]}
         self.assertEqual(categories["requirements.lock.txt"], "environment")
 
+    def make_claims_map(self, claims=None, **overrides):
+        if claims is None:
+            claims = [
+                {
+                    "id": "map-score",
+                    "claim_type": "quantitative",
+                    "paper_location": "Table 1",
+                    "paper_quote": "The method reaches a score of 0.9 on the fixed fixture (Table 1).",
+                    "paper_values": ["0.9"],
+                    "disposition": "reproduce",
+                    "plan_claim_ids": ["claim-1"],
+                },
+                {
+                    "id": "map-conclusion",
+                    "claim_type": "conclusion",
+                    "paper_location": "Section 5",
+                    "paper_quote": "We conclude the method reproduces the reported score.",
+                    "disposition": "reproduce",
+                    "supported_by": ["map-score"],
+                },
+                {
+                    "id": "map-figure",
+                    "claim_type": "visual",
+                    "paper_location": "Figure 1",
+                    "paper_quote": "Figure 1 shows the loss curve.",
+                    "disposition": "manual_review",
+                    "reason": "Visual-only figure without a machine-readable artifact.",
+                },
+            ]
+        value = {
+            "schema_version": 1,
+            "paper": {"title": "Test paper"},
+            "coverage": {
+                "read_completely": True,
+                "sections": ["Abstract", "Method", "Experiments", "Conclusion"],
+                "excluded_content": [],
+            },
+            "claims": claims,
+        }
+        value.update(overrides)
+        map_path = self.case_root / "paper-claims-map.json"
+        map_path.write_text(json.dumps(value), encoding="utf-8")
+        return value, map_path
+
+    def test_example_claims_map_grounds_example_plan(self):
+        result = self.run_script(
+            "validate_paper_claims_map.py",
+            "--map",
+            EXAMPLES / "paper-claims-map.json",
+            "--plan",
+            EXAMPLES / "reproduction-plan.json",
+        )
+        payload = json.loads(result.stdout)
+        self.assertTrue(payload["valid"])
+        self.assertEqual(payload["summary"]["claims"], 3)
+
+    def test_claims_map_rejects_values_missing_from_the_quote(self):
+        _, map_path = self.make_claims_map(
+            claims=[
+                {
+                    "id": "map-score",
+                    "claim_type": "quantitative",
+                    "paper_location": "Table 1",
+                    "paper_quote": "The method reaches a score of 0.9 on the fixture.",
+                    "paper_values": ["0.95"],
+                    "disposition": "reproduce",
+                    "plan_claim_ids": ["claim-1"],
+                }
+            ]
+        )
+        result = self.run_script(
+            "validate_paper_claims_map.py", "--map", map_path, expect=1
+        )
+        self.assertIn("does not appear verbatim in paper_quote", result.stdout)
+
+    def test_claims_map_requires_whole_paper_reading_and_reasons(self):
+        value, map_path = self.make_claims_map()
+        value["coverage"]["read_completely"] = False
+        value["claims"][2].pop("reason")
+        map_path.write_text(json.dumps(value), encoding="utf-8")
+        result = self.run_script(
+            "validate_paper_claims_map.py", "--map", map_path, expect=1
+        )
+        self.assertIn("read_completely must be true", result.stdout)
+        self.assertIn("reason must explain", result.stdout)
+
+    def test_plan_expected_values_must_come_from_the_paper(self):
+        self.write_program("print('{\"score\": 0.9}')\n")
+        _, plan_path = self.make_plan()
+        _, map_path = self.make_claims_map(
+            claims=[
+                {
+                    "id": "map-score",
+                    "claim_type": "quantitative",
+                    "paper_location": "Table 1",
+                    "paper_quote": "The method reaches a score of 0.8 on the fixture.",
+                    "paper_values": ["0.8"],
+                    "disposition": "reproduce",
+                    "plan_claim_ids": ["claim-1"],
+                }
+            ]
+        )
+        result = self.run_script(
+            "validate_paper_claims_map.py",
+            "--map",
+            map_path,
+            "--plan",
+            plan_path,
+            expect=1,
+        )
+        self.assertIn("is not quoted in paper_values", result.stdout)
+
+    def test_unmapped_plan_claims_are_rejected_as_ungrounded(self):
+        self.write_program("print('{\"score\": 0.9}')\n")
+        _, plan_path = self.make_plan()
+        _, map_path = self.make_claims_map(
+            claims=[
+                {
+                    "id": "map-figure",
+                    "claim_type": "visual",
+                    "paper_location": "Figure 1",
+                    "paper_quote": "Figure 1 shows the loss curve.",
+                    "disposition": "manual_review",
+                    "reason": "Visual-only figure.",
+                }
+            ]
+        )
+        result = self.run_script(
+            "validate_paper_claims_map.py",
+            "--map",
+            map_path,
+            "--plan",
+            plan_path,
+            expect=1,
+        )
+        self.assertIn("has no paper grounding in the claims map", result.stdout)
+
+    def test_percent_quotes_ground_ratio_expected_values(self):
+        _, map_path = self.make_claims_map(
+            claims=[
+                {
+                    "id": "map-score",
+                    "claim_type": "quantitative",
+                    "paper_location": "Table 2",
+                    "paper_quote": "Our approach attains 90% accuracy on the fixture.",
+                    "paper_values": ["90%"],
+                    "disposition": "reproduce",
+                    "plan_claim_ids": ["claim-1"],
+                }
+            ]
+        )
+        self.write_program("print('{\"score\": 0.9}')\n")
+        _, plan_path = self.make_plan()
+        result = self.run_script(
+            "validate_paper_claims_map.py", "--map", map_path, "--plan", plan_path
+        )
+        self.assertTrue(json.loads(result.stdout)["valid"])
+
+    def test_coverage_report_resolves_conclusions_from_their_support(self):
+        self.write_program("import json\nprint(json.dumps({'score': 0.905}))\n")
+        _, plan_path = self.make_plan()
+        bundle = self.execute_bundle(plan_path)
+        _, map_path = self.make_claims_map()
+        coverage_dir = self.case_root / "coverage"
+        result = self.run_script(
+            "build_coverage_report.py",
+            "--map",
+            map_path,
+            "--bundle",
+            bundle,
+            "--output",
+            coverage_dir,
+        )
+        payload = json.loads(result.stdout)
+        self.assertTrue(payload["valid"])
+        self.assertEqual(payload["overall_status"], "PARTIALLY_REPRODUCED")
+        self.assertEqual(payload["claims"]["map-score"]["status"], REPRODUCED)
+        self.assertEqual(payload["claims"]["map-conclusion"]["status"], REPRODUCED)
+        self.assertEqual(
+            payload["claims"]["map-figure"]["status"], "MANUAL_REVIEW_REQUIRED"
+        )
+        report = (coverage_dir / "coverage-report.md").read_text(encoding="utf-8")
+        self.assertIn("Whole-paper coverage report", report)
+        self.assertIn("supported by: map-score", report)
+        stored = json.loads(
+            (coverage_dir / "coverage.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(stored["overall_status"], "PARTIALLY_REPRODUCED")
+
+    def test_coverage_report_refuses_tampered_bundles(self):
+        self.write_program("import json\nprint(json.dumps({'score': 0.905}))\n")
+        _, plan_path = self.make_plan()
+        bundle = self.execute_bundle(plan_path)
+        log = bundle / "logs" / "experiment.stdout.log"
+        log.write_text('{"score": 0.99}\n', encoding="utf-8")
+        _, map_path = self.make_claims_map()
+        result = self.run_script(
+            "build_coverage_report.py",
+            "--map",
+            map_path,
+            "--bundle",
+            bundle,
+            expect=1,
+        )
+        payload = json.loads(result.stdout)
+        self.assertFalse(payload["valid"])
+        self.assertTrue(any("bundle" in error for error in payload["errors"]))
+
+    def test_coverage_report_marks_missing_evidence_as_not_attempted(self):
+        _, map_path = self.make_claims_map()
+        result = self.run_script("build_coverage_report.py", "--map", map_path)
+        payload = json.loads(result.stdout)
+        self.assertTrue(payload["valid"])
+        self.assertEqual(payload["claims"]["map-score"]["status"], "NOT_ATTEMPTED")
+        self.assertEqual(payload["claims"]["map-conclusion"]["status"], "NOT_ATTEMPTED")
+
 
 if __name__ == "__main__":
     unittest.main()
