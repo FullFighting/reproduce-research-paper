@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Adds a one-click `Publish release` workflow: after validating the requested version against `VERSION`, `CHANGELOG.md`, and a green Validate run, it creates or reuses the annotated tag, publishes the GitHub Release with notes extracted from the changelog, and dispatches the existing artifacts workflow (checksums, SPDX SBOM, provenance, build attestation).
+- Updates the benchmark harness lock to numpy 2.5.1 and sparsediffpy 0.6.1 (Dependabot); published evidence bundles keep their own recorded environments.
+
 ## 1.4.0 - 2026-07-26
 
 - Adds a repository-wide `ruff` lint gate with a pinned version in CI, a checked-in `pyproject.toml` rule set, and an `.editorconfig`; fixes all existing findings without changing rendered report bytes, so previously published evidence bundles still verify.
@@ -7,7 +12,6 @@
 - Extends the CI test matrix to Python 3.10, 3.12, and 3.13 on Linux and Windows, adds per-job timeouts, and cancels superseded non-main workflow runs.
 - Publishes a source-linked Codex Open Source Fund application dossier whose benchmark facts are generated from `benchmarks/benchmark-summary.json` and rejected by CI when stale, and which restates the project's honest maturity limits instead of overstating them.
 - Extends the consistency test suite to enforce the lint gate, the bilingual release badges, and the new generated-facts target.
-- Adds a one-click `Publish release` workflow: after validating the requested version against `VERSION`, `CHANGELOG.md`, existing tags, and a green Validate run, it creates the annotated tag, publishes the GitHub Release with notes extracted from the changelog, and dispatches the existing artifacts workflow (checksums, SPDX SBOM, provenance, build attestation).
 
 ## 1.3.0 - 2026-07-23
 
