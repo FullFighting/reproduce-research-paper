@@ -1,0 +1,35 @@
+# Development tooling configuration.
+#
+# This repository is intentionally not distributed as a Python package: the
+# Skill runtime under skills/reproduce-research-paper/scripts/ must stay
+# runnable with Python 3.10+ and the standard library alone, and the release
+# unit is the versioned Git archive described in VERSION and CHANGELOG.md.
+# This file therefore carries linter configuration only.
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+extend-exclude = ["benchmarks/results"]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # import sorting
+    "B",  # bugbear
+    "UP", # pyupgrade
+]
+
+[tool.ruff.lint.isort]
+known-first-party = [
+    "build_report",
+    "compare_metrics",
+    "evidence_bundle",
+    "evidence_common",
+    "extract_observations",
+    "repository_state",
+    "run_reproduction",
+    "validate_reproduction_plan",
+    "value_contract",
+]

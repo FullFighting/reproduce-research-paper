@@ -20,7 +20,6 @@ from compare_metrics import (
 from evidence_bundle import verify_provenance
 from evidence_common import is_within, object_sha256, read_json, sha256_file
 
-
 DISCLAIMER = (
     "This result verifies only the declared computational claim under the recorded "
     "environment and protocol."
@@ -175,9 +174,12 @@ def render_report(
             "## Interpretation limits",
             "",
             f"- {DISCLAIMER}",
-            "- A matching number does not prove the paper's causal explanation, scientific validity, or generalizability.",
-            "- SHA-256 binds bytes inside this bundle, but does not prove who produced them or prevent a party from rewriting both artifacts and unsigned provenance.",
-            "- Manual tables, figures, and images are never promoted to a reproduced claim; they remain `MANUAL_REVIEW_REQUIRED`.",
+            "- A matching number does not prove the paper's causal explanation, "
+            "scientific validity, or generalizability.",
+            "- SHA-256 binds bytes inside this bundle, but does not prove who produced "
+            "them or prevent a party from rewriting both artifacts and unsigned provenance.",
+            "- Manual tables, figures, and images are never promoted to a reproduced "
+            "claim; they remain `MANUAL_REVIEW_REQUIRED`.",
             "",
         ]
     )

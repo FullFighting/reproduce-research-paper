@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.0 - 2026-07-26
+
+- Adds a repository-wide `ruff` lint gate with a pinned version in CI, a checked-in `pyproject.toml` rule set, and an `.editorconfig`; fixes all existing findings without changing rendered report bytes, so previously published evidence bundles still verify.
+- Makes runtime length mismatches explicit by passing `strict=True` to paired `zip()` iterations in metric comparison and the evaluation runner.
+- Extends the CI test matrix to Python 3.10, 3.12, and 3.13 on Linux and Windows, adds per-job timeouts, and cancels superseded non-main workflow runs.
+- Publishes a source-linked Codex Open Source Fund application dossier whose benchmark facts are generated from `benchmarks/benchmark-summary.json` and rejected by CI when stale, and which restates the project's honest maturity limits instead of overstating them.
+- Extends the consistency test suite to enforce the lint gate, the bilingual release badges, and the new generated-facts target.
+
 ## 1.3.0 - 2026-07-23
 
 - Adds a maintainer-local OpenAI Responses API evaluation CLI with preview-first `--send`, environment-only credentials, fixed endpoint, structured outputs, explicit token/cost budgets, and public telemetry schemas.

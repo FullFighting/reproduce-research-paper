@@ -12,9 +12,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-
 GENERATOR_NAME = "reproduce-research-paper"
-GENERATOR_VERSION = "1.3.0"
+GENERATOR_VERSION = "1.4.0"
 SECRET_REF_PATTERN = re.compile(r"^[A-Z][A-Z0-9_]{1,127}$")
 SECRET_NAME_PATTERN = re.compile(
     r"(?:api[_-]?key|access[_-]?token|auth(?:orization)?|bearer|client[_-]?secret|"

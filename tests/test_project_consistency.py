@@ -11,7 +11,6 @@ import unittest
 import uuid
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -50,6 +49,7 @@ class ProjectConsistencyTests(unittest.TestCase):
         version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
         citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        readme_zh = (ROOT / "README_ZH.md").read_text(encoding="utf-8")
         changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
         evidence_common = (
             ROOT
@@ -62,6 +62,7 @@ class ProjectConsistencyTests(unittest.TestCase):
         self.assertRegex(version, r"^\d+\.\d+\.\d+$")
         self.assertIn(f"version: {version}", citation)
         self.assertIn(f"release-v{version}-blue", readme)
+        self.assertIn(f"release-v{version}-blue", readme_zh)
         self.assertIn(f"## {version}", changelog)
         self.assertIn(f'GENERATOR_VERSION = "{version}"', evidence_common)
 
@@ -81,6 +82,7 @@ class ProjectConsistencyTests(unittest.TestCase):
             encoding="utf-8"
         )
         for fragment in (
+            "ruff check .",
             "Run README offline demo end to end",
             "Bundle tamper negative test",
             "Dirty source rejection test",
@@ -90,6 +92,9 @@ class ProjectConsistencyTests(unittest.TestCase):
             "container-network-none",
         ):
             self.assertIn(fragment, validate)
+        self.assertRegex(validate, r"python -m pip install ruff==\d+\.\d+\.\d+")
+        self.assertTrue((ROOT / "pyproject.toml").is_file())
+        self.assertTrue((ROOT / ".editorconfig").is_file())
         container_runner = (
             ROOT
             / "skills"

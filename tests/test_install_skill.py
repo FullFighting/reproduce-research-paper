@@ -9,7 +9,6 @@ import uuid
 from contextlib import contextmanager
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 INSTALLER = ROOT / "scripts" / "install_skill.py"
 RUNTIME = ROOT / "tests" / ".evaluation-runtime"

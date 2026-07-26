@@ -26,7 +26,6 @@ from value_contract import (
     unit_spec,
 )
 
-
 SAFE_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 CONTAINER_IMAGE_PATTERN = re.compile(
     r"^(?:[a-z0-9]+(?:[._-][a-z0-9]+)*(?::[0-9]+)?/)?"
@@ -528,7 +527,10 @@ def validate(plan: dict, plan_path: Path) -> list[str]:
                                 f"{label}.argv[{arg_index}] contains secret-like material; "
                                 "use secret_bindings"
                             )
-                        if arg_index > 0 and isinstance(argv[arg_index - 1], str) and SENSITIVE_FLAGS.fullmatch(argv[arg_index - 1]):
+                        previous_argument = argv[arg_index - 1] if arg_index > 0 else None
+                        if isinstance(previous_argument, str) and SENSITIVE_FLAGS.fullmatch(
+                            previous_argument
+                        ):
                             errors.append(
                                 f"{label}.argv[{arg_index}] follows a sensitive flag; "
                                 "use secret_bindings"
@@ -554,7 +556,9 @@ def validate(plan: dict, plan_path: Path) -> list[str]:
                         continue
                     if not isinstance(binding["name"], str) or not SECRET_REF_PATTERN.fullmatch(binding["name"]):
                         errors.append(f"{binding_label}.name must be an uppercase environment name")
-                    if not isinstance(binding["secret_ref"], str) or not SECRET_REF_PATTERN.fullmatch(binding["secret_ref"]):
+                    if not isinstance(binding["secret_ref"], str) or not (
+                        SECRET_REF_PATTERN.fullmatch(binding["secret_ref"])
+                    ):
                         errors.append(f"{binding_label}.secret_ref must be an uppercase reference")
             cwd = command.get("cwd", ".")
             if not isinstance(cwd, str) or not cwd:

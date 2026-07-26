@@ -18,7 +18,7 @@
 
 <p align="center">
   <a href="https://github.com/FullFighting/reproduce-research-paper/actions/workflows/validate.yml"><img alt="Validate" src="https://github.com/FullFighting/reproduce-research-paper/actions/workflows/validate.yml/badge.svg"></a>
-  <a href="https://github.com/FullFighting/reproduce-research-paper/releases/latest"><img alt="Release" src="https://img.shields.io/badge/release-v1.3.0-blue"></a>
+  <a href="https://github.com/FullFighting/reproduce-research-paper/releases/latest"><img alt="Release" src="https://img.shields.io/badge/release-v1.4.0-blue"></a>
   <a href="https://www.python.org/"><img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-3776AB"></a>
   <a href="benchmarks/benchmark-report.md"><img alt="15 of 15 public claim checks" src="https://img.shields.io/badge/public_claim_checks-15%2F15-0f766e"></a>
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-green"></a>
@@ -66,7 +66,7 @@ Do not download data or execute experiments until I approve the plan and budget.
 | “A matched metric proves the paper.” | Report only the scoped computational claim and preserve causal/generalization limits. |
 
 > [!NOTE]
-> V1.3 adds a maintainer-local OpenAI API evaluation CLI, five real-source refusal/block/revision cases, independent-review and adjudication records, a malicious-research-material threat model, hardened Docker defaults, and a safe installer. No paid API result has been published yet.
+> V1.4 adds a repository-wide lint gate, Python 3.10–3.13 CI coverage, and a source-linked [Codex Open Source Fund application dossier](docs/codex-fund-application.md) whose benchmark facts are CI-enforced against staleness. V1.3 added a maintainer-local OpenAI API evaluation CLI, five real-source refusal/block/revision cases, independent-review and adjudication records, a malicious-research-material threat model, hardened Docker defaults, and a safe installer. No paid API result has been published yet.
 
 > This result verifies only the declared computational claim under the recorded environment and protocol.
 
@@ -91,7 +91,7 @@ The [Codex planning evaluation pilot](docs/codex-evaluation/README.md) publishes
 
 | Component | Status |
 |---|---|
-| Deterministic evidence runtime | Stable v1.3 |
+| Deterministic evidence runtime | Stable v1.4 |
 | Public claim-level benchmark | 15 verified cases |
 | Codex planning pilot | 3 cases; self-review plus deterministic feedback |
 | Maintainer-local API evaluation | Runnable CLI; 5 real-source negative cases; no paid result published yet |
@@ -248,6 +248,7 @@ None means “the paper is true.” They describe only the declared computationa
 ```powershell
 python -m compileall -q skills/reproduce-research-paper/scripts
 python -m compileall -q evaluations scripts
+ruff check .
 python -m unittest discover -s tests -v
 python scripts/sync_benchmark_facts.py --check
 python scripts/validate_codex_evaluation.py

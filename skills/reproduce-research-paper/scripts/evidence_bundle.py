@@ -15,7 +15,6 @@ from evidence_common import (
     write_json,
 )
 
-
 CORE_RELATIONSHIPS = {
     "plan.json": [],
     "inventory-before.json": ["plan.json"],

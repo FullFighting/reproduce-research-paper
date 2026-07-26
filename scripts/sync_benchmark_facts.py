@@ -9,7 +9,6 @@ import json
 import sys
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SUMMARY_PATH = ROOT / "benchmarks" / "benchmark-summary.json"
 REPORT_PATH = ROOT / "benchmarks" / "benchmark-report.md"
@@ -33,17 +32,19 @@ def generated_blocks(summary: dict) -> dict[Path, str]:
     verified = summary["verified_bundle_count"]
     tokens = summary["total_api_tokens"]
     cost = summary["total_estimated_cost_usd"]
+    english_block = "\n".join(
+        [
+            START,
+            f"- {cases} public, paper-linked, claim-level executable cases.",
+            f"- {reproduced}/{cases} claims reproduced within their declared tolerance.",
+            f"- {verified}/{cases} evidence bundles pass full artifact re-hashing and report recomputation.",
+            f"- {tokens} deterministic-runtime API tokens and ${cost} estimated external API cost.",
+            END,
+        ]
+    )
     return {
-        ROOT / "README.md": "\n".join(
-            [
-                START,
-                f"- {cases} public, paper-linked, claim-level executable cases.",
-                f"- {reproduced}/{cases} claims reproduced within their declared tolerance.",
-                f"- {verified}/{cases} evidence bundles pass full artifact re-hashing and report recomputation.",
-                f"- {tokens} deterministic-runtime API tokens and ${cost} estimated external API cost.",
-                END,
-            ]
-        ),
+        ROOT / "README.md": english_block,
+        ROOT / "docs" / "codex-fund-application.md": english_block,
         ROOT / "README_ZH.md": "\n".join(
             [
                 START,

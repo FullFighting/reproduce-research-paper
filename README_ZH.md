@@ -18,7 +18,7 @@
 
 <p align="center">
   <a href="https://github.com/FullFighting/reproduce-research-paper/actions/workflows/validate.yml"><img alt="Validate" src="https://github.com/FullFighting/reproduce-research-paper/actions/workflows/validate.yml/badge.svg"></a>
-  <a href="https://github.com/FullFighting/reproduce-research-paper/releases/latest"><img alt="Release" src="https://img.shields.io/badge/release-v1.3.0-blue"></a>
+  <a href="https://github.com/FullFighting/reproduce-research-paper/releases/latest"><img alt="Release" src="https://img.shields.io/badge/release-v1.4.0-blue"></a>
   <a href="https://www.python.org/"><img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-3776AB"></a>
   <a href="benchmarks/benchmark-report.md"><img alt="15/15 个公开 claim 检查" src="https://img.shields.io/badge/public_claim_checks-15%2F15-0f766e"></a>
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-green"></a>
@@ -66,7 +66,7 @@ python scripts/install_skill.py --scope user
 | “指标匹配说明论文正确。” | 只报告限定范围的计算 claim，并保留因果解释与一般化边界。 |
 
 > [!NOTE]
-> V1.3 增加仅供维护者本地运行的 OpenAI API 评测 CLI、5 个真实来源的拒绝/阻塞/修订案例、独立评审与裁决记录、恶意研究材料威胁模型、Docker 加固和安全安装器。目前尚未发布付费 API 实测结果。
+> V1.4 增加仓库级 lint 门禁、Python 3.10–3.13 CI 矩阵，以及一份数据由 CI 强制保鲜的 [Codex Open Source Fund 申请材料](docs/codex-fund-application.md)。V1.3 增加了仅供维护者本地运行的 OpenAI API 评测 CLI、5 个真实来源的拒绝/阻塞/修订案例、独立评审与裁决记录、恶意研究材料威胁模型、Docker 加固和安全安装器。目前尚未发布付费 API 实测结果。
 
 > 本结果只验证记录环境和协议下声明的计算 claim，不验证整篇论文的真实性、因果解释或一般化能力。
 
@@ -80,7 +80,7 @@ python scripts/install_skill.py --scope user
 
 | 组件 | 状态 |
 |---|---|
-| 确定性证据 runtime | Stable v1.3 |
+| 确定性证据 runtime | Stable v1.4 |
 | 公开 claim-level benchmark | 15 个已验证案例 |
 | Codex 规划试点 | 3 个案例；自评审加确定性反馈 |
 | 维护者本地 API 评测 | CLI 已可运行；5 个真实来源负例；尚未发布付费实测结果 |

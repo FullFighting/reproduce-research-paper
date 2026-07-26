@@ -6,11 +6,10 @@ from __future__ import annotations
 import hashlib
 import json
 import subprocess
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 from evidence_common import object_sha256, sha256_file, utc_now
-
 
 DEFAULT_EXCLUSIONS = {
     ".git": "Git object database and worktree metadata",

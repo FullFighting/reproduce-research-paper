@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "If you use this Codex Skill, cite the software release."
 title: "Research Paper Reproduction for Codex"
 type: software
-version: 1.3.0
-date-released: 2026-07-23
+version: 1.4.0
+date-released: 2026-07-26
 license: MIT
 repository-code: "https://github.com/FullFighting/reproduce-research-paper"
 authors:

@@ -15,7 +15,6 @@ from typing import Any
 from evidence_common import is_within, sha256_file, utc_now
 from value_contract import expected_spec, finite_number, normalize_unit, numeric_tree
 
-
 EXTRACTOR_VERSIONS = {
     "jsonpath": "rrp-jsonpath-1",
     "regex": "python-re-1",
