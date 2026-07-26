@@ -178,3 +178,10 @@ python evaluations/run_codex_evaluation.py \
 ```
 
 详见[评测说明](evaluations/README.md)、[评测协议](evaluations/protocol.md)、[恶意研究材料威胁模型](docs/threat-model.md)和[独立评审招募](docs/independent-review-call.md)。完整设计、开发命令和 V1.3 证据见[英文 README](README.md)。
+
+## 致谢
+
+本项目由 [FullFighting](https://github.com/FullFighting) 维护，开发过程由两个 AI 编程助手协助：
+
+- [Codex](https://github.com/codex)（OpenAI）——承担了 skill 设计背后的桌面规划工作流、三案例规划评估试点，以及多份仓库文档的起草。
+- [Claude](https://github.com/claude)（Anthropic）——协助仓库维护与工作流自动化。
