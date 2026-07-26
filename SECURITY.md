@@ -1,6 +1,10 @@
 # Security policy
 
+## Reporting a vulnerability
+
 Report a vulnerability through GitHub Security Advisories rather than a public issue when it could expose credentials, escape a declared workspace, bypass evidence integrity, or produce a false positive scientific status.
+
+Please include the smallest safe reproducer, affected version, platform, and which invariant fails. Do not include a real credential or restricted research data.
 
 ## Protected invariants
 
@@ -12,7 +16,7 @@ Report a vulnerability through GitHub Security Advisories rather than a public i
 - no execution in the original source tree;
 - no unreported original-source mutation or undeclared write;
 - no report that trusts a stored verdict without recomputation;
-- no claim that unsigned SHA-256 provenance proves authorship.
+- no claim that unsigned SHA-256 provenance proves authorship;
 - no evaluation API key outside the current process environment;
 - no paid evaluation request without explicit `--send`, a model, token cap, and
   local cost cap;
@@ -29,5 +33,3 @@ Report a vulnerability through GitHub Security Advisories rather than a public i
 - NumPy and Parquet extractors require optional third-party packages.
 - API-cost records are estimates from returned token telemetry and a versioned
   pricing snapshot; the OpenAI invoice is authoritative.
-
-Please include the smallest safe reproducer, affected version, platform, and which invariant fails. Do not include a real credential or restricted research data.

@@ -18,7 +18,7 @@ Maintain an evidence-first Codex Skill for computational paper reproduction. Pro
 
 ## Validation
 
-```powershell
+```bash
 python -m compileall -q skills/reproduce-research-paper/scripts
 python -m compileall -q evaluations scripts
 ruff check .

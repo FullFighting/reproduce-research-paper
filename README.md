@@ -27,6 +27,26 @@
 > [!IMPORTANT]
 > This project reproduces **declared computational claims**, not scientific truth. A successful command or hand-written metric is never enough: positive status requires a run-bound machine observation, valid repository and policy checks, and a freshly recomputed comparison.
 
+## Contents
+
+- [From paper to auditable evidence](#from-paper-to-auditable-evidence)
+- [Quick start](#quick-start)
+- [Why this is different](#why-this-is-different)
+- [Why Codex](#why-codex)
+- [Maturity](#maturity)
+- [Public evidence](#public-evidence)
+- [Evidence runtime](#evidence-runtime)
+- [Evidence bundle](#evidence-bundle)
+- [Install as a Codex Skill](#install-as-a-codex-skill)
+- [Offline demo](#offline-demo)
+- [Maintainer-local OpenAI API evaluation](#maintainer-local-openai-api-evaluation)
+- [Repository layout](#repository-layout)
+- [Development](#development)
+- [Contributing](#contributing)
+- [Security](#security)
+- [License](#license)
+- [Citation](#citation)
+
 ## From paper to auditable evidence
 
 | Plan | Run | Verify | Deliver |
@@ -35,7 +55,7 @@
 
 **Designed for:** paper reproduction, research replication, paper-to-code workflows, experiment verification, failed-run diagnosis, and reproducible computational research.
 
-## Start in 60 seconds
+## Quick start
 
 Install the Skill with Python 3.10+ and the standard library:
 
@@ -67,8 +87,6 @@ Do not download data or execute experiments until I approve the plan and budget.
 
 > [!NOTE]
 > V1.4 adds a repository-wide lint gate, Python 3.10–3.13 CI coverage, and a source-linked [Codex Open Source Fund application dossier](docs/codex-fund-application.md) whose benchmark facts are CI-enforced against staleness. V1.3 added a maintainer-local OpenAI API evaluation CLI, five real-source refusal/block/revision cases, independent-review and adjudication records, a malicious-research-material threat model, hardened Docker defaults, and a safe installer. No paid API result has been published yet.
-
-> This result verifies only the declared computational claim under the recorded environment and protocol.
 
 ## Why Codex
 
@@ -131,88 +149,6 @@ These are bounded claim-level executable checks. They do not pretend to rerun ev
 
 SHA-256 proves byte equality, not authorship. Unsigned bundle provenance cannot prevent an attacker from rewriting both artifacts and the manifest. Release archives additionally publish checksums, an SPDX SBOM, local provenance, and GitHub build attestation; signed scientific-run provenance remains future work.
 
-## Install as a Codex Skill
-
-Use the standard-library installer, which performs an installation integrity check and validates the bundled plan after install:
-
-```bash
-python scripts/install_skill.py --scope user
-python scripts/install_skill.py --scope repository --target /path/to/repository
-
-python scripts/install_skill.py --action check --scope user
-python scripts/install_skill.py --action update --scope user
-python scripts/install_skill.py --action uninstall --scope user
-python scripts/install_skill.py --action version
-```
-
-The installer records managed-file hashes, refuses to overwrite local changes by default, and removes only managed files. You can still copy `skills/reproduce-research-paper` manually into a repository-level `.codex/skills/` directory or your personal Codex Skills directory.
-
-Then ask:
-
-```text
-Use $reproduce-research-paper to read this entire paper, identify its executable claims,
-inventory the official repository, and create a preview-only reproduction plan.
-Do not download data or execute experiments until I approve the plan and budget.
-```
-
-## Offline demo
-
-Python 3.10+ and the standard library are sufficient for the Skill runtime. The bundled toy case uses no network.
-
-Linux/macOS:
-
-```bash
-python3 skills/reproduce-research-paper/scripts/validate_reproduction_plan.py \
-  --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json
-
-python3 skills/reproduce-research-paper/scripts/run_reproduction.py \
-  --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json \
-  --output reproduction-output
-```
-
-Windows PowerShell:
-
-```powershell
-python skills/reproduce-research-paper/scripts/validate_reproduction_plan.py `
-  --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json
-
-python skills/reproduce-research-paper/scripts/run_reproduction.py `
-  --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json `
-  --output reproduction-output
-```
-
-The second command is preview-only. After reviewing the exact argv, isolation mode, network decision, write paths, and budgets:
-
-```powershell
-python skills/reproduce-research-paper/scripts/run_reproduction.py `
-  --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json `
-  --output reproduction-output `
-  --execute
-
-python skills/reproduce-research-paper/scripts/build_report.py `
-  --bundle reproduction-output
-```
-
-The final command verifies provenance, observation source hashes, plan/run/inventory/environment bindings, a fresh comparison, and a fresh report rendering.
-
-The [complete end-to-end demo transcript](docs/end-to-end-demo.md) continues through budget approval, isolated execution, evidence-bundle generation, and a tamper check that must fail.
-
-## Maintainer-local OpenAI API evaluation
-
-`evaluations/run_codex_evaluation.py` is a local CLI for maintainers, not a deployed API or public service. It reads the maintainer's key only from `OPENAI_API_KEY`, requires `--send` for a paid request, uses a fixed official Responses API endpoint with `store: false`, and never writes the key, request headers, Organization credentials, or environment variables to results.
-
-```bash
-python evaluations/run_codex_evaluation.py --validate-cases
-
-python evaluations/run_codex_evaluation.py \
-  --case mimic-iv-redistribution-prohibited \
-  --model gpt-5.6-terra
-```
-
-A maintainer-controlled paid run additionally requires a local cost cap, output directory, exported key, and `--send`. It records the public input snapshot, prompt version and hash, requested and returned model IDs, tokens, estimated cost, latency, model-generated initial plan, pending human-review fields, and evidence-bundle binding status. It does not expose an endpoint that lets third parties consume grant credits.
-
-See the [evaluation README](evaluations/README.md), [protocol](evaluations/protocol.md), [case schema](evaluations/case-schema.json), [telemetry schema](evaluations/telemetry-schema.json), [malicious-research-material threat model](docs/threat-model.md), and [independent reviewer call](docs/independent-review-call.md). Generated results are ignored by Git until a maintainer deliberately reviews and publishes a redacted set.
-
 ## Evidence bundle
 
 ```text
@@ -241,11 +177,120 @@ Positive and negative statuses are claim-scoped:
 - `NOT_ATTEMPTED`
 - `MANUAL_REVIEW_REQUIRED`
 
-None means “the paper is true.” They describe only the declared computational claim under the recorded protocol.
+None means “the paper is true.” They describe only the declared computational claim under the recorded protocol, and every rendered report opens with the same scope disclaimer:
+
+> This result verifies only the declared computational claim under the recorded environment and protocol.
+
+## Install as a Codex Skill
+
+Use the standard-library installer, which performs an installation integrity check and validates the bundled plan after install:
+
+```bash
+python scripts/install_skill.py --scope user
+python scripts/install_skill.py --scope repository --target /path/to/repository
+
+python scripts/install_skill.py --action check --scope user
+python scripts/install_skill.py --action update --scope user
+python scripts/install_skill.py --action uninstall --scope user
+python scripts/install_skill.py --action version
+```
+
+The installer records managed-file hashes, refuses to overwrite local changes by default, and removes only managed files. You can still copy `skills/reproduce-research-paper` manually into a repository-level `.codex/skills/` directory or your personal Codex Skills directory.
+
+Then ask:
+
+```text
+Use $reproduce-research-paper to read this entire paper, identify its executable claims,
+inventory the official repository, and create a preview-only reproduction plan.
+Do not download data or execute experiments until I approve the plan and budget.
+```
+
+## Offline demo
+
+Python 3.10+ and the standard library are sufficient for the Skill runtime. The bundled toy case uses no network.
+
+```bash
+# 1. Validate the bundled example plan.
+python3 skills/reproduce-research-paper/scripts/validate_reproduction_plan.py \
+  --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json
+
+# 2. Preview the run: exact argv, isolation mode, network decision, write paths, and budgets.
+python3 skills/reproduce-research-paper/scripts/run_reproduction.py \
+  --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json \
+  --output reproduction-output
+
+# 3. Execute only after reviewing the preview.
+python3 skills/reproduce-research-paper/scripts/run_reproduction.py \
+  --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json \
+  --output reproduction-output \
+  --execute
+
+# 4. Verify the bundle and rebuild the report.
+python3 skills/reproduce-research-paper/scripts/build_report.py \
+  --bundle reproduction-output
+```
+
+<details>
+<summary><strong>Windows PowerShell equivalent</strong></summary>
+
+```powershell
+# 1. Validate the bundled example plan.
+python skills/reproduce-research-paper/scripts/validate_reproduction_plan.py `
+  --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json
+
+# 2. Preview the run: exact argv, isolation mode, network decision, write paths, and budgets.
+python skills/reproduce-research-paper/scripts/run_reproduction.py `
+  --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json `
+  --output reproduction-output
+
+# 3. Execute only after reviewing the preview.
+python skills/reproduce-research-paper/scripts/run_reproduction.py `
+  --plan skills/reproduce-research-paper/assets/examples/reproduction-plan.json `
+  --output reproduction-output `
+  --execute
+
+# 4. Verify the bundle and rebuild the report.
+python skills/reproduce-research-paper/scripts/build_report.py `
+  --bundle reproduction-output
+```
+
+</details>
+
+The final command verifies provenance, observation source hashes, plan/run/inventory/environment bindings, a fresh comparison, and a fresh report rendering.
+
+The [complete end-to-end demo transcript](docs/end-to-end-demo.md) continues through budget approval, isolated execution, evidence-bundle generation, and a tamper check that must fail.
+
+## Maintainer-local OpenAI API evaluation
+
+`evaluations/run_codex_evaluation.py` is a local CLI for maintainers, not a deployed API or public service. It reads the maintainer's key only from `OPENAI_API_KEY`, requires `--send` for a paid request, uses a fixed official Responses API endpoint with `store: false`, and never writes the key, request headers, Organization credentials, or environment variables to results.
+
+```bash
+python evaluations/run_codex_evaluation.py --validate-cases
+
+python evaluations/run_codex_evaluation.py \
+  --case mimic-iv-redistribution-prohibited \
+  --model gpt-5.6-terra
+```
+
+A maintainer-controlled paid run additionally requires a local cost cap, output directory, exported key, and `--send`. It records the public input snapshot, prompt version and hash, requested and returned model IDs, tokens, estimated cost, latency, model-generated initial plan, pending human-review fields, and evidence-bundle binding status. It does not expose an endpoint that lets third parties consume grant credits.
+
+See the [evaluation README](evaluations/README.md), [protocol](evaluations/protocol.md), [case schema](evaluations/case-schema.json), [telemetry schema](evaluations/telemetry-schema.json), [malicious-research-material threat model](docs/threat-model.md), and [independent reviewer call](docs/independent-review-call.md). Generated results are ignored by Git until a maintainer deliberately reviews and publishes a redacted set.
+
+## Repository layout
+
+```text
+.
+├── skills/reproduce-research-paper/   # The Codex Skill: SKILL.md, runtime scripts, references, examples
+├── benchmarks/                        # 15 public claim-level cases with published evidence bundles
+├── evaluations/                       # Maintainer-local planning-evaluation CLI, cases, prompts, schemas
+├── docs/                              # Demos, methodology, threat model, reviewer call, fund dossier
+├── scripts/                           # Repository tooling: installer, release automation, fact syncing
+└── tests/                             # Unit, consistency, and negative regression tests
+```
 
 ## Development
 
-```powershell
+```bash
 python -m compileall -q skills/reproduce-research-paper/scripts
 python -m compileall -q evaluations scripts
 ruff check .
@@ -258,9 +303,23 @@ python scripts/verify_release_archive.py --archive <git-archive.tar.gz>
 
 The 15-case benchmark is intentionally separate from CI because it downloads optional dependencies and one live public finance archive:
 
-```powershell
+```bash
 python -m pip install -r benchmarks/harness/requirements.lock.txt
 python benchmarks/run_benchmarks.py --clean
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [SECURITY.md](SECURITY.md), and the [V1.3 changelog](CHANGELOG.md).
+## Contributing
+
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the pre-PR checks, the behavior-change checklist, and the release process. Community and project policies live in [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [GOVERNANCE.md](GOVERNANCE.md), [MAINTAINERS.md](MAINTAINERS.md), [ROADMAP.md](ROADMAP.md), and [ADOPTERS.md](ADOPTERS.md). Release history is in the [changelog](CHANGELOG.md).
+
+## Security
+
+Report vulnerabilities privately through GitHub Security Advisories as described in [SECURITY.md](SECURITY.md). The [threat model](docs/threat-model.md) documents the analyzed attack surface and known limits.
+
+## License
+
+Distributed under the [MIT License](LICENSE).
+
+## Citation
+
+If this project supports your research, cite it via [CITATION.cff](CITATION.cff) — GitHub's “Cite this repository” button renders it as BibTeX or APA.

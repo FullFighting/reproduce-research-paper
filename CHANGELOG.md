@@ -1,5 +1,12 @@
 # Changelog
 
+All notable changes to this project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+Version headings keep the plain `## <version> - <date>` form because
+`scripts/extract_changelog_notes.py` parses them to publish release notes.
+
 ## Unreleased
 
 - Adds a one-click `Publish release` workflow: after validating the requested version against `VERSION`, `CHANGELOG.md`, and a green Validate run, it creates or reuses the annotated tag, publishes the GitHub Release with notes extracted from the changelog, and dispatches the existing artifacts workflow (checksums, SPDX SBOM, provenance, build attestation).

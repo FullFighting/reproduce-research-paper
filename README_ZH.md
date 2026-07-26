@@ -27,6 +27,23 @@
 > [!IMPORTANT]
 > 本项目复现的是**明确声明的计算 claim**，不是给整篇论文判定“科学真伪”。命令成功或手工抄录指标都不足以得到正向结果；必须有运行绑定的机器观测、有效的仓库与策略检查，以及重新计算的比较结果。
 
+## 目录
+
+- [从论文到可审计证据](#从论文到可审计证据)
+- [快速开始](#快速开始)
+- [为什么它不只是“把代码跑起来”](#为什么它不只是把代码跑起来)
+- [为什么需要 Codex](#为什么需要-codex)
+- [成熟度](#成熟度)
+- [已完成的公开验证](#已完成的公开验证)
+- [主要安全边界](#主要安全边界)
+- [使用](#使用)
+- [维护者本地 API 评测](#维护者本地-api-评测)
+- [仓库结构](#仓库结构)
+- [参与贡献](#参与贡献)
+- [安全](#安全)
+- [许可证](#许可证)
+- [引用](#引用)
+
 ## 从论文到可审计证据
 
 | 规划 | 执行 | 验证 | 交付 |
@@ -35,7 +52,7 @@
 
 **适用场景：** 论文复现、科研实验复现、paper-to-code、实验结果验证、失败诊断和计算可复现性检查。
 
-## 60 秒开始使用
+## 快速开始
 
 只需 Python 3.10+ 和标准库即可安装：
 
@@ -67,8 +84,6 @@ python scripts/install_skill.py --scope user
 
 > [!NOTE]
 > V1.4 增加仓库级 lint 门禁、Python 3.10–3.13 CI 矩阵，以及一份数据由 CI 强制保鲜的 [Codex Open Source Fund 申请材料](docs/codex-fund-application.md)。V1.3 增加了仅供维护者本地运行的 OpenAI API 评测 CLI、5 个真实来源的拒绝/阻塞/修订案例、独立评审与裁决记录、恶意研究材料威胁模型、Docker 加固和安全安装器。目前尚未发布付费 API 实测结果。
-
-> 本结果只验证记录环境和协议下声明的计算 claim，不验证整篇论文的真实性、因果解释或一般化能力。
 
 ## 为什么需要 Codex
 
@@ -103,7 +118,9 @@ python scripts/install_skill.py --scope user
 - 每个 benchmark plan 均声明 GPU 预算为 0；
 - 每个案例公开论文与代码链接、计划、环境锁、数据及许可说明、原始日志、观测、比较、最终报告、provenance 和偏差限制。
 
-这些是边界清楚的 claim-level 可执行检查，不会把低成本烟雾测试冒充为原论文全部大型实验的完整复现。
+这些是边界清楚的 claim-level 可执行检查，不会把低成本烟雾测试冒充为原论文全部大型实验的完整复现。每份生成的报告都以同一句范围声明开头：
+
+> 本结果只验证记录环境和协议下声明的计算 claim，不验证整篇论文的真实性、因果解释或一般化能力。
 
 ## 主要安全边界
 
@@ -177,4 +194,32 @@ python evaluations/run_codex_evaluation.py \
   --model gpt-5.6-terra
 ```
 
-详见[评测说明](evaluations/README.md)、[评测协议](evaluations/protocol.md)、[恶意研究材料威胁模型](docs/threat-model.md)和[独立评审招募](docs/independent-review-call.md)。完整设计、开发命令和 V1.3 证据见[英文 README](README.md)。
+详见[评测说明](evaluations/README.md)、[评测协议](evaluations/protocol.md)、[恶意研究材料威胁模型](docs/threat-model.md)和[独立评审招募](docs/independent-review-call.md)。完整设计、开发命令和全部证据说明见[英文 README](README.md)。
+
+## 仓库结构
+
+```text
+.
+├── skills/reproduce-research-paper/   # Codex Skill 本体：SKILL.md、runtime 脚本、参考文档、示例
+├── benchmarks/                        # 15 个公开 claim-level 案例及已发布的 evidence bundle
+├── evaluations/                       # 维护者本地规划评测 CLI、案例、提示词和 schema
+├── docs/                              # 演示、方法论、威胁模型、评审招募、基金申请材料
+├── scripts/                           # 仓库工具：安装器、发布自动化、基准事实同步
+└── tests/                             # 单元测试、一致性测试和负例回归测试
+```
+
+## 参与贡献
+
+欢迎贡献——提交前检查、行为变更清单和发布流程见 [CONTRIBUTING.md](CONTRIBUTING.md)；社区与项目治理见 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)、[GOVERNANCE.md](GOVERNANCE.md)、[MAINTAINERS.md](MAINTAINERS.md)、[ROADMAP.md](ROADMAP.md) 和 [ADOPTERS.md](ADOPTERS.md)；版本历史见[更新日志](CHANGELOG.md)。
+
+## 安全
+
+请按照 [SECURITY.md](SECURITY.md) 的说明通过 GitHub Security Advisories 私下报告漏洞；[威胁模型](docs/threat-model.md)记录了已分析的攻击面和已知限制。
+
+## 许可证
+
+本项目基于 [MIT License](LICENSE) 发布。
+
+## 引用
+
+如果本项目对你的研究有帮助，请通过 [CITATION.cff](CITATION.cff) 引用——GitHub 的 “Cite this repository” 按钮可直接生成 BibTeX 或 APA 格式。

@@ -2,9 +2,14 @@
 
 Contributions are welcome for new extractors, comparison policies, isolation controls, documentation, and public low-cost paper cases.
 
-Before a pull request:
+Never commit credentials, private datasets, paywalled text, proprietary model
+weights, or third-party data without redistribution permission.
 
-```powershell
+## Before you open a pull request
+
+Run the full local check suite:
+
+```bash
 python -m compileall -q skills/reproduce-research-paper/scripts
 python -m compileall -q evaluations scripts
 ruff check .
@@ -19,6 +24,8 @@ the rule set in `pyproject.toml`; install it with `python -m pip install ruff`.
 
 For schema, release, or execution-boundary changes, also generate a clean `git archive` and run `scripts/verify_release_archive.py`. Container changes must pass `scripts/run_container_e2e.py`.
 
+## Behavior changes
+
 For behavior changes:
 
 1. describe the affected source-to-report path;
@@ -30,15 +37,14 @@ For behavior changes:
 
 Use the five-dimension plan-review rubric in [docs/evaluation-methodology.md](docs/evaluation-methodology.md). A contributed case may be accepted, revised, rejected, or blocked; a rejection is useful evaluation evidence and must not be rewritten into a success.
 
+## API evaluation contributions
+
 For API evaluation contributions, keep the runner local and preview-first. Do not
 add a web server, key proxy, automatic paid retry, committed API key,
 Organization/Project credential, request header, or environment dump. Publish
 only public or authorized inputs and reviewed, redacted results. Bind every
 independent review to the exact plan SHA-256 and preserve disagreements and
 adjudication as separate records.
-
-Never commit credentials, private datasets, paywalled text, proprietary model
-weights, or third-party data without redistribution permission.
 
 ## Development workflow
 
