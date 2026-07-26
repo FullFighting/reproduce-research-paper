@@ -95,6 +95,31 @@ class ProjectConsistencyTests(unittest.TestCase):
         self.assertRegex(validate, r"python -m pip install ruff==\d+\.\d+\.\d+")
         self.assertTrue((ROOT / "pyproject.toml").is_file())
         self.assertTrue((ROOT / ".editorconfig").is_file())
+
+        publish = (ROOT / ".github" / "workflows" / "publish-release.yml").read_text(
+            encoding="utf-8"
+        )
+        for fragment in (
+            "workflow_dispatch",
+            "extract_changelog_notes.py",
+            "--verify-tag",
+            "gh workflow run release.yml",
+        ):
+            self.assertIn(fragment, publish)
+
+    def test_current_version_has_extractable_release_notes(self) -> None:
+        sys.path.insert(0, str(ROOT / "scripts"))
+        try:
+            from extract_changelog_notes import extract_notes
+        finally:
+            sys.path.pop(0)
+        version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+        changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        notes = extract_notes(changelog, version)
+        self.assertTrue(notes.strip())
+        self.assertNotIn("## ", notes)
+        with self.assertRaises(ValueError):
+            extract_notes(changelog, "999.999.999")
         container_runner = (
             ROOT
             / "skills"

@@ -39,3 +39,14 @@ adjudication as separate records.
 
 Never commit credentials, private datasets, paywalled text, proprietary model
 weights, or third-party data without redistribution permission.
+
+## Releasing
+
+Bump `VERSION`, `CITATION.cff`, both README release badges, `GENERATOR_VERSION`
+in `evidence_common.py`, and `CHANGELOG.md` together; CI rejects any drift
+between them. After the release commit is on `main` and Validate is green, run
+the **Publish release** workflow (Actions → Publish release → Run workflow)
+with the version number. It creates the annotated `v<version>` tag, publishes
+the GitHub Release with notes extracted from the changelog section, and
+dispatches the artifacts workflow that attaches checksums, an SPDX SBOM,
+provenance, and a GitHub build attestation.

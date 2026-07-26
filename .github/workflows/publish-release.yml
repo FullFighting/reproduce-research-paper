@@ -1,0 +1,69 @@
+name: Publish release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to publish (e.g. 1.4.0); must match VERSION and CHANGELOG.md
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: publish-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      VERSION_INPUT: ${{ inputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+      - name: Validate version, changelog, tag, and CI state
+        run: |
+          set -euo pipefail
+          if ! printf '%s' "$VERSION_INPUT" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "version must be MAJOR.MINOR.PATCH, got: $VERSION_INPUT" >&2
+            exit 1
+          fi
+          repo_version="$(tr -d '[:space:]' < VERSION)"
+          if [ "$repo_version" != "$VERSION_INPUT" ]; then
+            echo "VERSION file ($repo_version) does not match input ($VERSION_INPUT)" >&2
+            exit 1
+          fi
+          if git rev-parse -q --verify "refs/tags/v$VERSION_INPUT" >/dev/null; then
+            echo "tag v$VERSION_INPUT already exists" >&2
+            exit 1
+          fi
+          if [ -z "$(gh run list --commit "$GITHUB_SHA" --workflow validate.yml --status success --json databaseId --jq '.[0].databaseId // empty')" ]; then
+            echo "no successful Validate run for $GITHUB_SHA; wait for CI before publishing" >&2
+            exit 1
+          fi
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          python3 scripts/extract_changelog_notes.py \
+            --version "$VERSION_INPUT" \
+            --output "$RUNNER_TEMP/release-notes.md"
+      - name: Create and push annotated tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "v$VERSION_INPUT" -m "Reproduce Research Paper V$VERSION_INPUT" "$GITHUB_SHA"
+          git push origin "v$VERSION_INPUT"
+      - name: Publish GitHub release
+        run: |
+          gh release create "v$VERSION_INPUT" \
+            --verify-tag \
+            --title "Reproduce Research Paper V$VERSION_INPUT" \
+            --notes-file "$RUNNER_TEMP/release-notes.md" \
+            --generate-notes
+      - name: Dispatch release artifacts workflow
+        run: gh workflow run release.yml --field tag="v$VERSION_INPUT"
