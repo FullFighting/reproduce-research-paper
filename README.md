@@ -264,3 +264,10 @@ python benchmarks/run_benchmarks.py --clean
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [SECURITY.md](SECURITY.md), and the [V1.3 changelog](CHANGELOG.md).
+
+## Credits
+
+Maintained by [FullFighting](https://github.com/FullFighting). Development is assisted by two AI coding agents:
+
+- [Codex](https://github.com/codex) (OpenAI) — drove the desktop planning workflow behind the skill design, the three-case planning evaluation pilot, and drafts of many repository documents.
+- [Claude](https://github.com/claude) (Anthropic) — assists with repository maintenance and workflow automation.
