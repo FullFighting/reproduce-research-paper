@@ -165,6 +165,10 @@ python skills/reproduce-research-paper/scripts/build_report.py `
   --bundle reproduction-output
 ```
 
+## 相关项目与设计对比
+
+[docs/related-projects.md](docs/related-projects.md)（英文）将本项目与 PaperBench、CORE-Bench、SUPER、Paper2Code、ML Code Completeness Checklist、showyourwork、ReScience C 以及通用评测框架进行对比：记录了本项目已采纳并注明出处的实践（案例版本化、注册表工具、构成汇总、可选的仓库就绪度信号扫描），也说明了刻意不采纳的做法（例如把 LLM 评审判定当作正向证据，或在没有实测数据时发布排行榜）。
+
 ## 维护者本地 API 评测
 
 `evaluations/run_codex_evaluation.py` 只在维护者本机运行。默认只预览；只有显式提供模型、成本上限、输出目录和 `--send`，并从当前进程环境读取 `OPENAI_API_KEY` 后，才会调用固定的官方 Responses API。Key、请求头、Organization 凭据和环境变量不会写入日志或 evidence bundle。

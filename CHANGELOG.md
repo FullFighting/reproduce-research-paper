@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Adds `docs/related-projects.md`, a sourced comparison with PaperBench, CORE-Bench, SUPER, Paper2Code, the ML Code Completeness Checklist, showyourwork, ReScience C, and general evaluation harnesses, recording which of their practices were adopted with attribution and which were deliberately declined; both READMEs link to it.
+- Adds an advisory `assess_repository_readiness.py` skill script that reports evidence-linked reproducibility-readiness signals (dependencies, locks, license, tests, CI, container, data/configuration/citation artifacts, run instructions, seed mentions) from a bounded read-only scan, with explicit non-verdict interpretation limits, symlink exclusion, truncation reporting, and dedicated positive/negative regression tests.
+- Versions the public benchmark case registry: every case carries a `version` field, run records now include `case_version`, and `benchmarks/README.md` documents the registry schema, the version-bump comparability policy, and the contribution path.
+- Adds benchmark registry tooling: `run_benchmarks.py --list-cases` prints the registry without executing anything and `--only <case-id>` re-runs selected cases without rewriting the published summary or report; unknown ids fail fast.
+- Adds a category-composition rollup table to the generated benchmark report and consistency tests covering the registry shape, the new tooling, and the rollup arithmetic.
 - Adds a one-click `Publish release` workflow: after validating the requested version against `VERSION`, `CHANGELOG.md`, and a green Validate run, it creates or reuses the annotated tag, publishes the GitHub Release with notes extracted from the changelog, and dispatches the existing artifacts workflow (checksums, SPDX SBOM, provenance, build attestation).
 - Updates the benchmark harness lock to numpy 2.5.1 and sparsediffpy 0.6.1 (Dependabot); published evidence bundles keep their own recorded environments.
 

@@ -3,6 +3,7 @@ __pycache__/
 .pytest_cache/
 .reproduce-runtime/
 tests/.reproduce-runtime/
+tests/.readiness-runtime/
 tests/.evaluation-runtime/
 tests/.validator-packages/
 reproduction-output/

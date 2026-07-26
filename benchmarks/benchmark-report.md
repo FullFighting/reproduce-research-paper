@@ -31,6 +31,18 @@ This benchmark contains 15 public, paper-linked, low-cost, claim-level executabl
 | [highs-linear-program](results/highs-linear-program/report.md) | operations_research_and_finance | top optimization-computing journal | `CLAIM_REPRODUCED_WITHIN_TOLERANCE` | 3.3333333333333335 | 2.243 | yes |
 | [fama-french-factors](results/fama-french-factors/report.md) | finance_and_econometrics | top finance journal | `CLAIM_REPRODUCED_WITHIN_TOLERANCE` | 0.00456666666666683 | 33.632 | yes |
 
+## Coverage by category
+
+Counts below are aggregated from the per-case records above; they describe benchmark composition, not a quality grade for any research field.
+
+| Category | Cases | Within tolerance | Verified bundles | Total seconds |
+|---|---:|---:|---:|---:|
+| deterministic_scientific_computing | 3 | 3 | 3 | 6.256 |
+| econometrics | 1 | 1 | 1 | 3.298 |
+| finance_and_econometrics | 1 | 1 | 1 | 33.632 |
+| operations_research_and_finance | 2 | 2 | 2 | 5.062 |
+| small_machine_learning | 8 | 8 | 8 | 38.014 |
+
 ## Interpretation
 
 These are deliberately bounded claim-level reproductions selected for public data, CPU execution, and low cost. Software papers are tested through deterministic API or algorithm invariants; small machine-learning cases use fixed public splits without tuning; the finance case recomputes official Fama–French factors from the official portfolio archive. Original large-scale speedups, GPU training, human studies, and causal/generalization claims remain outside this benchmark.

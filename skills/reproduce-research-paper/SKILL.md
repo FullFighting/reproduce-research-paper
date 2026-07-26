@@ -43,6 +43,16 @@ python <SKILL_ROOT>/scripts/inventory_artifacts.py `
 
 Do not exclude core code, preprocessing, evaluation, configuration, manifests, or locks.
 
+Optionally record advisory readiness signals (dependencies, locks, license, tests, CI, container, data/config/citation artifacts, seed mentions) to guide planning:
+
+```powershell
+python <SKILL_ROOT>/scripts/assess_repository_readiness.py `
+  --repository <research-repository> `
+  --output <output-dir>/readiness.json
+```
+
+Signals are planning input only; a missing signal is a question to resolve, never a verdict, and presence never justifies a positive status.
+
 ### 3. Plan
 
 Start from [reproduction-plan.json](assets/examples/reproduction-plan.json). Author schema v2 with typed expected values, unit descriptors, machine observations, explicit comparisons, commands, isolation, and capabilities.
@@ -96,6 +106,7 @@ Use only:
 ## Script entry points
 
 - `inventory_artifacts.py`: repository/Git inventory
+- `assess_repository_readiness.py`: advisory readiness signals for planning
 - `validate_reproduction_plan.py`: schema and policy gate
 - `run_reproduction.py`: preview and isolated execution
 - `extract_observations.py`: run-bound extraction

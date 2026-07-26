@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import subprocess
 import sys
@@ -6,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BENCHMARKS = ROOT / "benchmarks"
+RUNNER = BENCHMARKS / "run_benchmarks.py"
 RESULTS = BENCHMARKS / "results"
 VERIFIER = (
     ROOT
@@ -76,6 +78,96 @@ class PublicBenchmarkTests(unittest.TestCase):
                         environment["declared_package_versions"].get(package),
                         package,
                     )
+
+
+    def test_case_registry_is_well_formed(self):
+        cases = json.loads((BENCHMARKS / "cases.json").read_text(encoding="utf-8"))
+        required = {
+            "id",
+            "version",
+            "category",
+            "venue_tier",
+            "title",
+            "reference",
+            "paper_url",
+            "code_url",
+            "paper_location",
+            "research_question",
+            "method",
+            "data",
+            "training",
+            "protocol",
+            "limitations",
+            "metric",
+            "expected",
+            "unit",
+            "comparison",
+            "packages",
+            "network",
+            "timeout_seconds",
+            "data_license",
+        }
+        identifiers = [case["id"] for case in cases]
+        self.assertEqual(len(identifiers), len(set(identifiers)))
+        for case in cases:
+            with self.subTest(case=case.get("id")):
+                self.assertEqual(required - set(case), set())
+                self.assertIsInstance(case["version"], int)
+                self.assertGreaterEqual(case["version"], 1)
+                self.assertTrue(case["paper_url"].startswith("https://"))
+                self.assertTrue(case["code_url"].startswith("https://"))
+                self.assertIn("method", case["comparison"])
+                self.assertGreater(case["timeout_seconds"], 0)
+                self.assertTrue(case["limitations"].strip())
+
+    def test_runner_registry_helpers_never_touch_published_facts(self):
+        summary_before = (BENCHMARKS / "benchmark-summary.json").read_bytes()
+        report_before = (BENCHMARKS / "benchmark-report.md").read_bytes()
+
+        listing = subprocess.run(
+            [sys.executable, "-X", "utf8", str(RUNNER), "--list-cases"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+        )
+        self.assertEqual(listing.returncode, 0, listing.stderr)
+        lines = [line for line in listing.stdout.splitlines() if line.strip()]
+        self.assertEqual(len(lines), 15)
+        for line in lines:
+            entry = json.loads(line)
+            self.assertIn("id", entry)
+            self.assertIn("category", entry)
+
+        rejected = subprocess.run(
+            [sys.executable, "-X", "utf8", str(RUNNER), "--only", "no-such-case"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+        )
+        self.assertNotEqual(rejected.returncode, 0)
+        self.assertIn("unknown case id", rejected.stderr)
+
+        self.assertEqual(summary_before, (BENCHMARKS / "benchmark-summary.json").read_bytes())
+        self.assertEqual(report_before, (BENCHMARKS / "benchmark-report.md").read_bytes())
+
+    def test_report_includes_category_rollup_consistent_with_cases(self):
+        spec = importlib.util.spec_from_file_location("benchmark_runner_under_test", RUNNER)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        summary = json.loads(
+            (BENCHMARKS / "benchmark-summary.json").read_text(encoding="utf-8")
+        )
+        rollup = module.category_rollup(summary["cases"])
+        self.assertEqual(sum(entry["case_count"] for entry in rollup), summary["case_count"])
+        self.assertEqual(
+            sum(entry["reproduced_count"] for entry in rollup), summary["reproduced_count"]
+        )
+        report = module.render_report(summary)
+        self.assertIn("## Coverage by category", report)
+        for entry in rollup:
+            self.assertIn(f"| {entry['category']} |", report)
 
 
 if __name__ == "__main__":
