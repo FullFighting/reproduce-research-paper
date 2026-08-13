@@ -39,4 +39,4 @@ tifffile==2026.7.14
 tqdm==4.69.0
 tzdata==2026.3
 umap-learn==0.5.12
-xgboost==3.3.0
+xgboost==3.4.0
