@@ -28,7 +28,7 @@ scikit-image==0.26.0
 scikit-learn==1.9.0
 scipy==1.18.0
 scs==3.2.11
-setuptools==83.0.0
+setuptools==84.0.0
 shap==0.52.0
 six==1.17.0
 slicer==0.0.8
